@@ -76,7 +76,7 @@ export const HomePage: React.FC = () => {
         {/* Establishments Quick Showcase */}
         <div className="pt-8">
           <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider mb-4">
-            Ou explore estabelecimentos de demonstração:
+            Ou explore estabelecimentos em destaque:
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             {sampleCompanies.map((c) => (

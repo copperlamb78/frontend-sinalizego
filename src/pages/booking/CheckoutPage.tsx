@@ -158,9 +158,7 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
-    const isDemo = companyId === 'demo-vintage-club-id' || companyId?.startsWith('demo-');
-
-    if (!isAuthenticated && !isDemo) {
+    if (!isAuthenticated) {
       toast.info('Faça login ou crie sua conta para concluir a reserva.');
       navigate('/login', {
         state: { from: { pathname: `/reserva/${companyId}/${serviceId}` } }
