@@ -1,105 +1,253 @@
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { adminService } from '@/services/admin.service';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
+import { Skeleton } from '@/components/common/Skeleton';
+import { formatCurrency } from '@/lib/utils';
 import {
   TrendingUp,
   DollarSign,
   Building2,
   Activity,
   ShieldCheck,
-  Server
+  Server,
+  Users,
+  CalendarCheck,
+  Store,
+  Award
 } from 'lucide-react';
 
 export const AdminDashboardPage: React.FC = () => {
-  const globalMetrics = [
-    { title: 'Receita Bruta SaaS', value: 'R$ 48.920,00', change: '+32.4% no mês', icon: DollarSign, color: 'text-emerald-400' },
-    { title: 'Custos Asaas Pix', value: 'R$ 1.840,00', change: 'R$ 0,99 / split', icon: Activity, color: 'text-amber-400' },
-    { title: 'Lucro Líquido Plataforma', value: 'R$ 47.080,00', change: 'Margem de 96.2%', icon: TrendingUp, color: 'text-teal-400' },
-    { title: 'Total de Empresas Ativas', value: '128', change: '+14 novas esta semana', icon: Building2, color: 'text-sky-400' }
+  const { data: metrics, isLoading } = useQuery({
+    queryKey: ['admin-dashboard-metrics'],
+    queryFn: () => adminService.getDashboardMetrics()
+  });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8 animate-pulse">
+        <div className="h-16 bg-slate-800/40 rounded-2xl w-1/3" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-32 rounded-2xl" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Skeleton className="h-72 rounded-2xl" />
+          <Skeleton className="h-72 rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
+
+  const kpis = [
+    {
+      title: 'Receita Bruta da Plataforma',
+      value: formatCurrency(metrics?.platformGrossRevenue || 0),
+      detail: 'Comissões SaaS acumuladas',
+      icon: DollarSign,
+      color: 'text-emerald-400',
+      bg: 'bg-emerald-500/10'
+    },
+    {
+      title: 'Custos Gateway Asaas Pix',
+      value: formatCurrency(metrics?.totalAsaasPixCosts || 0),
+      detail: 'Taxas de split e transferências',
+      icon: Activity,
+      color: 'text-amber-400',
+      bg: 'bg-amber-500/10'
+    },
+    {
+      title: 'Lucro Líquido Plataforma',
+      value: formatCurrency(metrics?.platformNetProfit || 0),
+      detail: 'Margem operacional retida',
+      icon: TrendingUp,
+      color: 'text-teal-400',
+      bg: 'bg-teal-500/10'
+    },
+    {
+      title: 'GMV Transacionado Total',
+      value: formatCurrency(metrics?.gmv || 0),
+      detail: 'Volume bruto de reservas',
+      icon: Building2,
+      color: 'text-sky-400',
+      bg: 'bg-sky-500/10'
+    }
   ];
 
   return (
     <div className="space-y-8">
+      {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-[#F8FAFC]">
             Platform Intelligence & Governança
           </h1>
           <p className="text-sm text-[#94A3B8]">
-            Monitoramento global de receita SaaS, custos de split Pix e estabelecimentos
+            Monitoramento executivo de receita SaaS, custos de split Pix e estabelecimentos
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <Badge variant="teal" dot>
-            API NestJS Online (14ms)
+            API NestJS Conectada
           </Badge>
         </div>
       </div>
 
-      {/* Global SaaS Metrics */}
+      {/* 1. Global SaaS Financial KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {globalMetrics.map((m) => (
-          <Card key={m.title} hoverEffect>
+        {kpis.map((k) => (
+          <Card key={k.title} hoverEffect className="bg-[#0F172A] border-slate-800">
             <CardContent className="p-6 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-400">{m.title}</span>
-                <m.icon className={`w-5 h-5 ${m.color}`} />
+                <span className="text-xs font-semibold text-slate-400">{k.title}</span>
+                <div className={`p-2 rounded-xl ${k.bg}`}>
+                  <k.icon className={`w-5 h-5 ${k.color}`} />
+                </div>
               </div>
-              <p className="text-2xl sm:text-3xl font-black text-white">{m.value}</p>
-              <p className="text-xs text-teal-400 font-medium">{m.change}</p>
+              <p className="text-2xl sm:text-3xl font-black text-white">{k.value}</p>
+              <p className="text-xs text-slate-400 font-medium">{k.detail}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Audit & Growth */}
+      {/* 2. Platform Growth & Volume Metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <Card className="bg-[#0F172A] border-slate-800 p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Estabelecimentos</span>
+            <Store className="w-5 h-5 text-teal-400" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-black text-white">{metrics?.growth.totalCompanies || 0}</span>
+            <span className="text-xs text-teal-400 font-semibold">({metrics?.growth.activeCompanies || 0} ativos)</span>
+          </div>
+          <p className="text-xs text-slate-500">
+            {metrics?.growth.inactiveCompanies || 0} estabelecimentos inativos ou em moderação
+          </p>
+        </Card>
+
+        <Card className="bg-[#0F172A] border-slate-800 p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Total de Usuários</span>
+            <Users className="w-5 h-5 text-sky-400" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-black text-white">{metrics?.growth.totalUsers || 0}</span>
+            <span className="text-xs text-sky-400 font-semibold">({metrics?.growth.clients || 0} clientes)</span>
+          </div>
+          <p className="text-xs text-slate-500">
+            {metrics?.growth.companyOwners || 0} proprietários de barbearias e salões
+          </p>
+        </Card>
+
+        <Card className="bg-[#0F172A] border-slate-800 p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Atendimentos Concluídos</span>
+            <CalendarCheck className="w-5 h-5 text-emerald-400" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-black text-white">
+              {metrics?.growth.appointmentsByStatus.COMPLETED || 0}
+            </span>
+            <span className="text-xs text-emerald-400 font-semibold">concluídos</span>
+          </div>
+          <p className="text-xs text-slate-500">
+            {metrics?.growth.appointmentsByStatus.CONFIRMED || 0} agendados | {metrics?.growth.appointmentsByStatus.CANCELED || 0} cancelados
+          </p>
+        </Card>
+      </div>
+
+      {/* 3. Top Tenants Ranking & Infrastructure Health */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        {/* Top Tenants */}
+        <Card className="bg-[#0F172A] border-slate-800">
           <CardHeader>
-            <CardTitle>Últimas Empresas Onboarded</CardTitle>
-            <CardDescription>Estabelecimentos recentemente cadastrados na plataforma</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base font-bold text-white flex items-center gap-2">
+                  <Award className="w-5 h-5 text-amber-400" />
+                  <span>Top Estabelecimentos (Volume)</span>
+                </CardTitle>
+                <CardDescription>Parceiros com maior geração de receita e agendamentos</CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            {[
-              { name: 'Barbearia Vintage Club', slug: 'vintage-club', owner: 'Carlos Eduardo', status: 'ACTIVE' },
-              { name: 'Studio Bella Donna', slug: 'bella-donna', owner: 'Fernanda Lima', status: 'ACTIVE' },
-              { name: 'Navalha Real', slug: 'navalha-real', owner: 'Roberto Alves', status: 'ACTIVE' }
-            ].map((c) => (
-              <div key={c.slug} className="flex items-center justify-between p-3 rounded-xl bg-[#1E293B] border border-slate-700/60">
-                <div>
-                  <p className="text-sm font-bold text-white">{c.name}</p>
-                  <p className="text-xs text-slate-400">Dono: {c.owner} • /{c.slug}</p>
+            {metrics?.topTenants && metrics.topTenants.length > 0 ? (
+              metrics.topTenants.map((t, idx) => (
+                <div
+                  key={t.id}
+                  className="flex items-center justify-between p-3.5 rounded-xl bg-[#1E293B] border border-slate-800"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-lg bg-slate-800 text-teal-400 font-bold text-xs flex items-center justify-center">
+                      #{idx + 1}
+                    </span>
+                    <div>
+                      <p className="text-sm font-bold text-white">{t.businessName}</p>
+                      <p className="text-xs text-slate-400">
+                        {t.completedAppointments} atendimentos • /{t.slug}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="text-sm font-black text-teal-400">{formatCurrency(t.totalRevenue)}</p>
+                    <p className="text-[10px] text-slate-400 font-mono">
+                      Taxas: {formatCurrency(t.platformFeesGenerated)}
+                    </p>
+                  </div>
                 </div>
-                <Badge variant="teal" size="sm">ATIVO</Badge>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-xs text-slate-500 text-center py-4">Nenhum dado registrado.</p>
+            )}
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Infrastructure Status */}
+        <Card className="bg-[#0F172A] border-slate-800">
           <CardHeader>
-            <CardTitle>Saúde da Infraestrutura</CardTitle>
-            <CardDescription>Status dos microsserviços e gateways integrados</CardDescription>
+            <CardTitle className="text-base font-bold text-white flex items-center gap-2">
+              <Server className="w-5 h-5 text-teal-400" />
+              <span>Saúde dos Serviços & Integrações</span>
+            </CardTitle>
+            <CardDescription>Status operacional dos microsserviços e gateways</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-[#1E293B]">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#1E293B] border border-slate-800">
+              <div className="flex items-center gap-3">
                 <Server className="w-4 h-4 text-emerald-400" />
-                <span className="text-sm text-white">NestJS Core API</span>
+                <div>
+                  <span className="text-sm font-bold text-white block">NestJS Core API</span>
+                  <span className="text-[11px] text-slate-400">Autenticação JWT, Regras de Negócio e Split</span>
+                </div>
               </div>
               <Badge variant="teal" size="sm">200 OK</Badge>
             </div>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-[#1E293B]">
-              <div className="flex items-center gap-2">
+
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#1E293B] border border-slate-800">
+              <div className="flex items-center gap-3">
                 <Activity className="w-4 h-4 text-teal-400" />
-                <span className="text-sm text-white">Asaas Pix Webhooks</span>
+                <div>
+                  <span className="text-sm font-bold text-white block">Asaas Gateway Pix</span>
+                  <span className="text-[11px] text-slate-400">Emissão de QR Code dinâmico e Webhooks</span>
+                </div>
               </div>
               <Badge variant="teal" size="sm">OPERACIONAL</Badge>
             </div>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-[#1E293B]">
-              <div className="flex items-center gap-2">
+
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#1E293B] border border-slate-800">
+              <div className="flex items-center gap-3">
                 <ShieldCheck className="w-4 h-4 text-sky-400" />
-                <span className="text-sm text-white">PostgreSQL & Prisma</span>
+                <div>
+                  <span className="text-sm font-bold text-white block">PostgreSQL & Prisma ORM</span>
+                  <span className="text-[11px] text-slate-400">Armazenamento ACID com proteção de concorrência</span>
+                </div>
               </div>
               <Badge variant="teal" size="sm">CONECTADO</Badge>
             </div>
