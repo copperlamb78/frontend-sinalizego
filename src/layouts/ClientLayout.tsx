@@ -16,10 +16,10 @@ export const ClientLayout: React.FC = () => {
 
   const navItems = [
     {
-      to: '/',
+      to: '/explorar',
       label: 'Explorar',
       icon: Compass,
-      end: true
+      end: false
     },
     {
       to: '/meus-agendamentos',

@@ -26,6 +26,7 @@ import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage';
 import { CompanyOnboardingPage } from '@/pages/auth/CompanyOnboardingPage';
 
 // Client pages
+import { ClientExplorePage } from '@/pages/client/ClientExplorePage';
 import { ClientAppointmentsPage } from '@/pages/client/ClientAppointmentsPage';
 import { ClientProfilePage } from '@/pages/client/ClientProfilePage';
 
@@ -118,6 +119,10 @@ export const router = createBrowserRouter([
           {
             element: <ClientLayout />,
             children: [
+              {
+                path: 'explorar',
+                element: <ClientExplorePage />
+              },
               {
                 path: 'meus-agendamentos',
                 element: <ClientAppointmentsPage />

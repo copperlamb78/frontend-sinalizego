@@ -10,13 +10,14 @@ import { Skeleton } from '@/components/common/Skeleton';
 import {
   Scissors,
   Plus,
-  Layers,
   Clock,
   Edit2,
   Trash2,
   AlertCircle,
   FolderPlus,
-  ShieldCheck
+  ShieldCheck,
+  Users,
+  Info
 } from 'lucide-react';
 import { formatCurrency, cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -40,9 +41,9 @@ export const OwnerServicesPage: React.FC = () => {
   const [svcDownPaymentPercent, setSvcDownPaymentPercent] = useState<number>(50);
   const [svcGroupId, setSvcGroupId] = useState<string>('');
 
-  // Form states - Group
+  // Form states - Group / Chair
   const [groupName, setGroupName] = useState('');
-  const [groupCapacity, setGroupCapacity] = useState<number>(3);
+  const [groupCapacity, setGroupCapacity] = useState<number>(1);
 
   // 1. Fetch Service Groups
   const { data: groups, isLoading } = useQuery({
@@ -107,22 +108,22 @@ export const OwnerServicesPage: React.FC = () => {
       });
     },
     onSuccess: () => {
-      toast.success(editingGroup ? 'Categoria atualizada!' : 'Categoria criada com sucesso!');
+      toast.success(editingGroup ? 'Cadeira/Equipe atualizada!' : 'Cadeira/Equipe criada com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['service-groups'] });
       setIsGroupModalOpen(false);
       setGroupName('');
       setEditingGroup(null);
     },
-    onError: () => toast.error('Não foi possível salvar a categoria.')
+    onError: () => toast.error('Não foi possível salvar.')
   });
 
   const deleteGroupMutation = useMutation({
     mutationFn: (id: string) => servicesService.deleteServiceGroup(id),
     onSuccess: () => {
-      toast.success('Categoria removida com sucesso!');
+      toast.success('Cadeira/Equipe removida com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['service-groups'] });
     },
-    onError: () => toast.error('Não foi possível excluir a categoria.')
+    onError: () => toast.error('Não foi possível excluir.')
   });
 
   const resetServiceForm = () => {
@@ -149,7 +150,7 @@ export const OwnerServicesPage: React.FC = () => {
   const handleOpenEditGroup = (group: ServiceGroup) => {
     setEditingGroup(group);
     setGroupName(group.name);
-    setGroupCapacity(group.capacity || 3);
+    setGroupCapacity(group.capacity || 1);
     setIsGroupModalOpen(true);
   };
 
@@ -178,10 +179,10 @@ export const OwnerServicesPage: React.FC = () => {
         <div className="space-y-1">
           <h1 className="text-2xl font-black text-white flex items-center gap-2">
             <Scissors className="w-6 h-6 text-teal-400" />
-            <span>Serviços & Categorias</span>
+            <span>Serviços & Cadeiras de Atendimento</span>
           </h1>
           <p className="text-xs text-slate-400">
-            Gerencie o catálogo de serviços, tempo de duração e percentual de sinal de cada procedimento.
+            Organize suas cadeiras/profissionais, catálogo de procedimentos, tempo de duração e regras de sinal.
           </p>
         </div>
 
@@ -192,12 +193,12 @@ export const OwnerServicesPage: React.FC = () => {
             onClick={() => {
               setEditingGroup(null);
               setGroupName('');
-              setGroupCapacity(3);
+              setGroupCapacity(1);
               setIsGroupModalOpen(true);
             }}
-            leftIcon={<Layers className="w-4 h-4 text-teal-400" />}
+            leftIcon={<Users className="w-4 h-4 text-teal-400" />}
           >
-            Nova Categoria
+            Nova Cadeira / Equipe
           </Button>
 
           <Button
@@ -210,6 +211,28 @@ export const OwnerServicesPage: React.FC = () => {
           >
             Novo Serviço
           </Button>
+        </div>
+      </div>
+
+      {/* Educational Best Practices Callout */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-950/40 via-[#0F172A] to-teal-950/40 border border-teal-500/30 space-y-2 text-xs">
+        <div className="flex items-center gap-2 text-teal-400 font-bold">
+          <Users className="w-4 h-4 text-teal-400 shrink-0" />
+          <span>Como organizar suas agendas e evitar superlotação (overbooking):</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-300 text-[11px] pt-1">
+          <div className="p-3 rounded-xl bg-[#0B1120]/90 border border-slate-800 space-y-1">
+            <span className="font-bold text-teal-300 block">Por Profissional (Recomendado):</span>
+            <p className="text-slate-400 leading-relaxed">
+              Crie um grupo para cada barbeiro/cadeira com <strong>capacidade = 1</strong> e vincule os serviços que ele realiza.
+            </p>
+          </div>
+          <div className="p-3 rounded-xl bg-[#0B1120]/90 border border-slate-800 space-y-1">
+            <span className="font-bold text-teal-300 block">Equipe Compartilhada:</span>
+            <p className="text-slate-400 leading-relaxed">
+              Se todos fazem os mesmos serviços, crie um único grupo (ex: <em>"Barbearia Geral"</em>) com a <strong>capacidade igual ao número total de cadeiras ativas</strong>.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -230,17 +253,22 @@ export const OwnerServicesPage: React.FC = () => {
               <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#0F172A] border border-slate-800">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
-                    <Layers className="w-4 h-4" />
+                    <Users className="w-4 h-4" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                      <span>{group.name}</span>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-sm font-bold text-white">
+                        {group.name}
+                      </h2>
+                      <Badge variant="teal" size="sm">
+                        {group.capacity === 1 ? '1 Cadeira / Profissional' : `${group.capacity} Vagas Simultâneas`}
+                      </Badge>
                       <Badge variant="neutral" size="sm">
                         {group.services.length} {group.services.length === 1 ? 'serviço' : 'serviços'}
                       </Badge>
-                    </h2>
-                    <span className="text-[11px] text-slate-500">
-                      Capacidade: {group.capacity || 3} {group.capacity === 1 ? 'atendimento simultâneo' : 'atendimentos simultâneos'}
+                    </div>
+                    <span className="text-[11px] text-slate-500 block pt-0.5">
+                      Capacidade de atendimento: {group.capacity} {group.capacity === 1 ? 'cliente por horário' : 'clientes simultâneos por horário'}
                     </span>
                   </div>
                 </div>
@@ -248,19 +276,19 @@ export const OwnerServicesPage: React.FC = () => {
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => handleOpenEditGroup(group)}
-                    className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                    title="Editar Categoria"
+                    className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                    title="Editar Cadeira / Equipe"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => {
-                      if (confirm(`Excluir a categoria "${group.name}"?`)) {
+                      if (confirm(`Excluir a cadeira/equipe "${group.name}"?`)) {
                         deleteGroupMutation.mutate(group.id);
                       }
                     }}
-                    className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
-                    title="Excluir Categoria"
+                    className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors cursor-pointer"
+                    title="Excluir Cadeira / Equipe"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -338,14 +366,14 @@ export const OwnerServicesPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="p-6 text-center bg-[#0B1120] border border-slate-800 rounded-2xl text-xs text-slate-500">
-                  Nenhum serviço cadastrado nesta categoria.{' '}
+                  Nenhum serviço cadastrado nesta cadeira/equipe.{' '}
                   <button
                     onClick={() => {
                       resetServiceForm();
                       setSvcGroupId(group.id);
                       setIsServiceModalOpen(true);
                     }}
-                    className="text-teal-400 font-bold hover:underline ml-1"
+                    className="text-teal-400 font-bold hover:underline ml-1 cursor-pointer"
                   >
                     Adicionar primeiro serviço
                   </button>
@@ -355,21 +383,21 @@ export const OwnerServicesPage: React.FC = () => {
           ))
         ) : (
           <div className="p-12 text-center bg-[#0F172A] border border-slate-800 rounded-3xl space-y-3">
-            <Layers className="w-10 h-10 text-slate-600 mx-auto" />
-            <h3 className="text-base font-bold text-white">Nenhum serviço cadastrado</h3>
+            <Users className="w-10 h-10 text-slate-600 mx-auto" />
+            <h3 className="text-base font-bold text-white">Nenhuma cadeira/equipe cadastrada</h3>
             <p className="text-xs text-slate-400">
-              Crie categorias e adicione os serviços oferecidos no seu estabelecimento.
+              Crie suas cadeiras ou grupos de atendimento para vincular os serviços oferecidos.
             </p>
             <Button
               onClick={() => {
                 setEditingGroup(null);
-                setGroupName('Cortes Masculinos');
-                setGroupCapacity(3);
+                setGroupName('Cadeira 01 - Carlos');
+                setGroupCapacity(1);
                 setIsGroupModalOpen(true);
               }}
               leftIcon={<FolderPlus className="w-4 h-4" />}
             >
-              Criar Primeira Categoria
+              Criar Primeira Cadeira / Equipe
             </Button>
           </div>
         )}
@@ -405,7 +433,7 @@ export const OwnerServicesPage: React.FC = () => {
 
           <div className="space-y-1">
             <label className="block text-xs font-semibold text-slate-300">
-              Categoria / Grupo
+              Cadeira / Equipe Responsável
             </label>
             <select
               value={svcGroupId}
@@ -414,7 +442,7 @@ export const OwnerServicesPage: React.FC = () => {
             >
               {groups?.map((g) => (
                 <option key={g.id} value={g.id}>
-                  {g.name}
+                  {g.name} ({g.capacity === 1 ? '1 cadeira/vaga' : `${g.capacity} vagas simultâneas`})
                 </option>
               ))}
             </select>
@@ -541,19 +569,19 @@ export const OwnerServicesPage: React.FC = () => {
         </form>
       </Modal>
 
-      {/* Modal: Category / Group Form */}
+      {/* Modal: Chair / Group Form */}
       <Modal
         isOpen={isGroupModalOpen}
         onClose={() => setIsGroupModalOpen(false)}
-        title={editingGroup ? 'Editar Categoria' : 'Nova Categoria'}
-        description="Agrupe serviços semelhantes e defina a capacidade de atendimento"
+        title={editingGroup ? 'Editar Cadeira / Equipe' : 'Nova Cadeira / Equipe de Atendimento'}
+        description="Defina quem realiza os serviços e a quantidade de atendimentos simultâneos para evitar overbooking."
         size="md"
       >
         <form
           onSubmit={(e) => {
             e.preventDefault();
             if (!groupName.trim()) {
-              toast.error('Informe o nome da categoria.');
+              toast.error('Informe o nome da cadeira ou profissional.');
               return;
             }
             saveGroupMutation.mutate();
@@ -561,25 +589,32 @@ export const OwnerServicesPage: React.FC = () => {
           className="space-y-4"
         >
           <Input
-            label="Nome da Categoria"
-            placeholder="Ex: Cortes Masculinos, Barba & Terapia, Tratamentos"
+            label="Nome da Cadeira, Profissional ou Equipe"
+            placeholder="Ex: Cadeira Principal / Carlos, Manicures, Todos os Barbeiros"
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
-            leftIcon={<Layers className="w-4 h-4" />}
+            leftIcon={<Users className="w-4 h-4" />}
             required
           />
 
-          <Input
-            label="Capacidade de Cadeiras / Profissionais Simultâneos"
-            type="number"
-            min="1"
-            max="30"
-            placeholder="3"
-            value={groupCapacity}
-            onChange={(e) => setGroupCapacity(parseInt(e.target.value, 10) || 1)}
-            helperText="Define quantos clientes podem agendar no mesmo horário nesta categoria."
-            required
-          />
+          <div className="space-y-1.5">
+            <Input
+              label="Quantidade de Profissionais / Vagas Simultâneas"
+              type="number"
+              min="1"
+              max="30"
+              placeholder="1"
+              value={groupCapacity}
+              onChange={(e) => setGroupCapacity(parseInt(e.target.value, 10) || 1)}
+              required
+            />
+            <p className="text-[11px] text-slate-400 flex items-start gap-1.5 leading-relaxed bg-[#0B1120] p-2.5 rounded-xl border border-slate-800">
+              <Info className="w-3.5 h-3.5 text-teal-400 shrink-0 mt-0.5" />
+              <span>
+                Quantos clientes podem ser atendidos ao mesmo tempo nos serviços deste grupo? Se cada profissional atende individualmente, mantenha <strong>1</strong>.
+              </span>
+            </p>
+          </div>
 
           <div className="pt-3 flex items-center justify-end gap-2 border-t border-slate-800">
             <Button
@@ -595,7 +630,7 @@ export const OwnerServicesPage: React.FC = () => {
               size="sm"
               isLoading={saveGroupMutation.isPending}
             >
-              Salvar Categoria
+              Salvar Cadeira / Equipe
             </Button>
           </div>
         </form>

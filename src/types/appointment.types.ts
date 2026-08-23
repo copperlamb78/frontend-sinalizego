@@ -42,6 +42,8 @@ export interface Appointment {
     district?: string;
     city: string;
     state: string;
+    logoPhoto?: string | null;
+    bannerPhoto?: string | null;
   };
   service?: {
     id: string;
