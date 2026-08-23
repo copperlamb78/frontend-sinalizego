@@ -6,9 +6,11 @@ export const Toaster: React.FC = () => {
     <SonnerToaster
       theme="dark"
       position="top-right"
+      richColors
+      closeButton
       toastOptions={{
-        className: 'bg-[#1E293B] text-[#F8FAFC] border border-slate-700 shadow-xl rounded-xl',
-        descriptionClassName: 'text-[#94A3B8]',
+        className: 'bg-[#1E293B] text-[#F8FAFC] border border-slate-700 shadow-2xl rounded-2xl p-4 font-sans',
+        descriptionClassName: 'text-[#94A3B8] text-xs',
         duration: 4000
       }}
     />

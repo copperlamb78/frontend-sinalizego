@@ -250,11 +250,24 @@ src/
 
 ## 🟢 FASE P2 — Inteligência Global Super Admin & Polimento PWA
 
-### 🛡️ Task 6: Módulo Super Admin — Platform Intelligence, Moderação e Auditoria Global
+### 🛡️ Task 6: Error Boundaries, Telas 404/500, Toasts Globais & Polimento Final
 - **Prioridade**: P2
-- **Status**: [ ] Pendente
-- **Complexidade**: Média-Alta
-- **Rotas**: `/admin`, `/admin/empresas`, `/admin/empresas/:id`, `/admin/usuarios`
+- **Status**: [X] Concluído
+- **Complexidade**: Média
+- **Rotas**: `/404`, `/500`, `*`
+
+#### Entregáveis Técnicos:
+1. **`NotFoundPage` (`/404` e catch-all `*`)**:
+   - [x] Layout dark com ilustração `<SearchX />`, badge de erro e busca rápida por link de barbearia.
+   - [x] Botões rápidos para "Voltar para o Início" e "Explorar Barbearias".
+2. **`ServerErrorPage` (`/500` e Fallback do Error Boundary)**:
+   - [x] Layout dark com alerta de instabilidade temporária e aviso de segurança dos dados.
+   - [x] Botão para "Tentar Novamente" com reload do estado.
+3. **`GlobalErrorBoundary`**:
+   - [x] Error Boundary React envolvendo o `RootLayout.tsx` para prevenção de tela branca em tempo de execução.
+4. **Refinamento de Perfil e Toasts Globais**:
+   - [x] `Toaster.tsx` com `richColors`, `theme="dark"` e `closeButton`.
+   - [x] `ClientProfilePage.tsx` com alteração de senha, zona de perigo e texto de apoio do CPF refinado.
 
 ---
 
@@ -276,5 +289,5 @@ src/
 | **3** | Painel do Dono — Dashboard Analítico, Agenda e Conclusão | **P1** | `/painel`, `/painel/agenda` (Métricas, Escrow Hold, Saques e Conclusão) | ✅ **FEITO** |
 | **4** | Painel do Dono — Catálogo, Expediente e Subconta Financeira | **P1** | `/painel/servicos`, `/painel/expediente`, `/painel/financeiro`, `/painel/configuracoes` | ✅ **FEITO** |
 | **5** | Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil | **P1** | `/explorar`, `/meus-agendamentos`, `/meus-agendamentos/:id`, `/minha-conta` (Estorno >24h / <=24h) | ✅ **FEITO** |
-| **6** | Super Admin — Platform Intelligence e Moderação Global | **P2** | `/admin`, `/admin/empresas`, `/admin/empresas/:id`, `/admin/usuarios` | 🟡 Pendente |
+| **6** | Error Boundaries, Telas 404/500, Toasts Globais e Polimento | **P2** | `/404`, `/500`, `GlobalErrorBoundary`, `Toaster` e `ClientProfilePage` | ✅ **FEITO** |
 | **7** | Experiência PWA, Otimizações de Performance e Micro-Interações | **P2** | Add to Home Screen, Lazy Loading, Feedback Háptico e Confetti | 🟡 Pendente |

@@ -12,6 +12,7 @@ import { Role } from '@/types/auth.types';
 import { HomePage } from '@/pages/public/HomePage';
 import { StorefrontPage } from '@/pages/public/StorefrontPage';
 import { NotFoundPage } from '@/pages/public/NotFoundPage';
+import { ServerErrorPage } from '@/pages/public/ServerErrorPage';
 
 // Booking & Pix flow pages
 import { CheckoutPage } from '@/pages/booking/CheckoutPage';
@@ -216,6 +217,12 @@ export const router = createBrowserRouter([
             ]
           }
         ]
+      },
+
+      // 500 Server Error
+      {
+        path: '500',
+        element: <ServerErrorPage />
       },
 
       // 404 Catch-all

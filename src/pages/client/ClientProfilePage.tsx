@@ -181,10 +181,10 @@ export const ClientProfilePage: React.FC = () => {
             />
 
             <Input
-              label="CPF"
+              label="CPF do Titular"
               placeholder="000.000.000-00"
               leftIcon={<CreditCard className="w-4 h-4" />}
-              helperText="Necessário para emissão e validação das reservas Pix no checkout."
+              helperText="Utilizado para identificação e emissão dos pagamentos via Pix no checkout."
               error={profileErrors.cpf?.message}
               {...registerProfile('cpf')}
             />

@@ -176,5 +176,5 @@ npm run build
 - [x] **Task 3**: Painel do Dono — Dashboard Analítico, Agenda e Conclusão — **FEITO**
 - [x] **Task 4**: Painel do Dono — Catálogo, Expediente e Subconta Financeira — **FEITO**
 - [x] **Task 5**: Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil — **FEITO**
-- [ ] **Task 6**: Super Admin — Platform Intelligence e Moderação Global
+- [x] **Task 6**: Error Boundaries, Telas 404/500, Toasts Globais e Polimento — **FEITO**
 - [ ] **Task 7**: Experiência PWA, Otimizações de Performance e Micro-Interações
