@@ -47,7 +47,7 @@ export const router = createBrowserRouter([
     path: '/',
     element: <RootLayout />,
     children: [
-      // 🌐 Public Routes (Storefront & Booking Flow)
+      // Public Routes (Storefront & Booking Flow)
       {
         element: <PublicLayout />,
         children: [
@@ -74,7 +74,7 @@ export const router = createBrowserRouter([
         ]
       },
 
-      // 🔐 Auth Routes
+      // Auth Routes
       {
         element: <AuthLayout />,
         children: [
@@ -101,7 +101,7 @@ export const router = createBrowserRouter([
         ]
       },
 
-      // 👤 Client Portal (Protected)
+      // Client Portal (Protected)
       {
         element: (
           <ProtectedRoute
@@ -135,7 +135,7 @@ export const router = createBrowserRouter([
         ]
       },
 
-      // 💈 Owner Portal (Protected)
+      // Owner Portal (Protected)
       {
         path: 'painel',
         element: (
@@ -180,7 +180,7 @@ export const router = createBrowserRouter([
         ]
       },
 
-      // 🛡️ Super Admin Portal (Protected)
+      // Super Admin Portal (Protected)
       {
         path: 'admin',
         element: (

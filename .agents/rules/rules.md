@@ -32,6 +32,7 @@ Seu objetivo é construir a aplicação web/PWA consumindo a API NestJS já pron
 1. **Zero Trust em Valores Financeiros**: O frontend nunca inventa cálculos de split. Toda a lógica de valores e taxas deve espelhar estritamente `docs/llm.md`.
 2. **Safety Gate de R$ 15,00**: Respeitar a regra de micro-transações na seleção do sinal.
 3. **Validação Contínua**: A cada task concluída, rode `npm run build` para garantir zero erros de TypeScript.
+4. **JAMAIS USAR emojis**: Escolha icones de bibliotecas pois causam melhor impressão
 
 ### 📌 Regra de Fechamento de Task:
 Sempre que você finalizar a implementação e a validação de uma task, encerre o relatório de entrega com uma linha de status explícita no seguinte padrão:

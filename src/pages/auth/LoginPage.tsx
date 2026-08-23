@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/auth.context';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { Role } from '@/types/auth.types';
-import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, LogIn, Store, User } from 'lucide-react';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
@@ -18,7 +18,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export const LoginPage: React.FC = () => {
-  const { login } = useAuth();
+  const { login, loginAsDemoOwner, loginAsDemoClient } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +38,6 @@ export const LoginPage: React.FC = () => {
       const response = await login(data);
       toast.success(`Bem-vindo de volta, ${response.user.name.split(' ')[0]}!`);
 
-      // Redirection based on role or intended destination
       const from = (location.state as any)?.from?.pathname;
       if (from) {
         navigate(from, { replace: true });
@@ -53,13 +52,29 @@ export const LoginPage: React.FC = () => {
         navigate('/meus-agendamentos', { replace: true });
       }
     } catch (err: any) {
-      const message =
-        err.response?.data?.message ||
-        'Não foi possível autenticar. Verifique suas credenciais.';
-      const formattedMessage = Array.isArray(message) ? message.join(', ') : message;
+      let formattedMessage = 'Não foi possível autenticar. Verifique suas credenciais.';
+      if (err.code === 'ERR_NETWORK' || !err.response) {
+        formattedMessage =
+          'Servidor backend offline em http://localhost:3000. Você pode usar os botões de demonstração abaixo para auditar as telas.';
+      } else if (err.response?.data?.message) {
+        const message = err.response.data.message;
+        formattedMessage = Array.isArray(message) ? message.join(', ') : message;
+      }
       setServerError(formattedMessage);
       toast.error(formattedMessage);
     }
+  };
+
+  const handleDemoOwnerLogin = () => {
+    loginAsDemoOwner();
+    toast.success('Entrou como Dono de Barbearia (Modo Demonstração)');
+    navigate('/painel', { replace: true });
+  };
+
+  const handleDemoClientLogin = () => {
+    loginAsDemoClient();
+    toast.success('Entrou como Cliente (Modo Demonstração)');
+    navigate('/meus-agendamentos', { replace: true });
   };
 
   return (
@@ -72,7 +87,7 @@ export const LoginPage: React.FC = () => {
       </div>
 
       {serverError && (
-        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-400 font-medium">
+        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-400 font-medium leading-relaxed">
           {serverError}
         </div>
       )}
@@ -126,7 +141,37 @@ export const LoginPage: React.FC = () => {
         </Button>
       </form>
 
-      <div className="pt-4 border-t border-slate-800 text-center text-xs text-[#94A3B8]">
+      {/* Demo Fast Logins */}
+      <div className="p-3.5 rounded-2xl bg-[#0F172A] border border-slate-800 space-y-2">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block text-center">
+          Atalhos de Demonstração (Sem Senha)
+        </span>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={handleDemoOwnerLogin}
+            className="text-xs font-semibold justify-center"
+            leftIcon={<Store className="w-3.5 h-3.5 text-teal-400" />}
+          >
+            Entrar como Dono
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleDemoClientLogin}
+            className="text-xs font-semibold justify-center"
+            leftIcon={<User className="w-3.5 h-3.5 text-slate-300" />}
+          >
+            Entrar como Cliente
+          </Button>
+        </div>
+      </div>
+
+      <div className="pt-2 border-t border-slate-800 text-center text-xs text-[#94A3B8]">
         Ainda não tem uma conta?{' '}
         <Link to="/cadastro" className="text-[#14B8A6] font-bold hover:underline">
           Criar cadastro grátis
