@@ -10,7 +10,13 @@ import { Role } from '@/types/auth.types';
 
 // Public pages
 import { HomePage } from '@/pages/public/HomePage';
+import { StorefrontPage } from '@/pages/public/StorefrontPage';
 import { NotFoundPage } from '@/pages/public/NotFoundPage';
+
+// Booking & Pix flow pages
+import { CheckoutPage } from '@/pages/booking/CheckoutPage';
+import { PixPaymentPage } from '@/pages/booking/PixPaymentPage';
+import { BookingSuccessPage } from '@/pages/booking/BookingSuccessPage';
 
 // Auth pages
 import { LoginPage } from '@/pages/auth/LoginPage';
@@ -41,7 +47,7 @@ export const router = createBrowserRouter([
     path: '/',
     element: <RootLayout />,
     children: [
-      // 🌐 Public Routes
+      // 🌐 Public Routes (Storefront & Booking Flow)
       {
         element: <PublicLayout />,
         children: [
@@ -51,19 +57,19 @@ export const router = createBrowserRouter([
           },
           {
             path: 'empresa/:slug',
-            element: <HomePage /> // Storefront will be built in Task 2
+            element: <StorefrontPage />
           },
           {
             path: 'reserva/:companyId/:serviceId',
-            element: <HomePage /> // Checkout booking will be built in Task 2
+            element: <CheckoutPage />
           },
           {
             path: 'pagamento/pix/:appointmentId',
-            element: <HomePage /> // Pix Payment will be built in Task 2
+            element: <PixPaymentPage />
           },
           {
             path: 'reserva/confirmada/:appointmentId',
-            element: <HomePage /> // Confirmation voucher will be built in Task 2
+            element: <BookingSuccessPage />
           }
         ]
       },

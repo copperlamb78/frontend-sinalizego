@@ -10,7 +10,7 @@ import {
   ShieldAlert,
   Search,
   ArrowRight,
-  Sparkles,
+  CalendarCheck,
   CheckCircle2,
   TrendingUp
 } from 'lucide-react';
@@ -27,17 +27,17 @@ export const HomePage: React.FC = () => {
   };
 
   const sampleCompanies = [
-    { name: 'Barbearia Vintage Club', slug: 'vintage-club', city: 'São Paulo, SP', rating: '4.9', chairs: 4 },
-    { name: 'Studio Bella Donna', slug: 'bella-donna', city: 'Curitiba, PR', rating: '5.0', chairs: 6 },
-    { name: 'Navalha de Ouro', slug: 'navalha-de-ouro', city: 'Belo Horizonte, MG', rating: '4.8', chairs: 3 }
+    { name: 'Barbearia Vintage Club', slug: 'vintage-club', city: 'São Paulo, SP', category: 'Barbearia' },
+    { name: 'Studio Bella Donna', slug: 'bella-donna', city: 'Curitiba, PR', category: 'Salão de Beleza' },
+    { name: 'Navalha de Ouro', slug: 'navalha-de-ouro', city: 'Belo Horizonte, MG', category: 'Barbearia' }
   ];
 
   return (
     <div className="space-y-24 py-8 sm:py-16">
       {/* Hero Section */}
       <section className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center space-y-8">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1E293B] border border-teal-500/30 text-teal-400 text-xs font-semibold glow-teal-sm animate-pulse">
-          <Sparkles className="w-3.5 h-3.5" />
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1E293B] border border-teal-500/30 text-teal-400 text-xs font-semibold glow-teal-sm">
+          <CalendarCheck className="w-3.5 h-3.5" />
           <span>Agendamentos Inteligentes com Sinal Pix</span>
         </div>
 
@@ -88,7 +88,7 @@ export const HomePage: React.FC = () => {
                 <Scissors className="w-3.5 h-3.5 text-teal-400" />
                 <span className="font-semibold text-white">{c.name}</span>
                 <span className="text-slate-500">• {c.city}</span>
-                <Badge variant="teal" size="sm">★ {c.rating}</Badge>
+                <Badge variant="teal" size="sm">{c.category}</Badge>
               </Link>
             ))}
           </div>
@@ -113,19 +113,19 @@ export const HomePage: React.FC = () => {
               <div className="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-2">
                 <QrCode className="w-6 h-6" />
               </div>
-              <CardTitle>Sinal Pix em Tempo Real</CardTitle>
+              <CardTitle>Sinal Pix Seguro</CardTitle>
               <CardDescription>
-                QR Code dinâmico com validade de 15 minutos e confirmação instantânea na tela.
+                Geração de QR Code dinâmico com confirmação automática de pagamento na tela.
               </CardDescription>
             </CardHeader>
             <CardContent className="text-xs text-slate-400 space-y-2">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
-                <span>Atualização automática assim que o Pix é pago</span>
+                <span>Confirmação instantânea de horário assim que o Pix é pago</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
-                <span>Recebimento direto na conta do profissional</span>
+                <span>Reserva garantida com repasse financeiro transparente</span>
               </div>
             </CardContent>
           </Card>

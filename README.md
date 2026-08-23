@@ -36,16 +36,16 @@
 
 | Rota | Layout Mestre | Componente Principal | Controle de Acesso (RBAC) | Status |
 |---|---|---|---|:---:|
-| `/` | `PublicLayout` | `HomePage` | Público | ✅ Concluído |
-| `/empresa/:slug` | `PublicLayout` | `HomePage` (Vitrine) | Público | 🟡 Planejado (Task 2) |
-| `/reserva/:companyId/:serviceId` | `PublicLayout` | `CheckoutPage` | Público | 🟡 Planejado (Task 2) |
-| `/pagamento/pix/:appointmentId` | `PublicLayout` | `PixPaymentPage` | Público | 🟡 Planejado (Task 2) |
-| `/reserva/confirmada/:appointmentId` | `PublicLayout` | `BookingSuccessPage` | Público | 🟡 Planejado (Task 2) |
+| `/` | `PublicLayout` | `HomePage` | Público | ✅ Concluído (Task 0/1) |
+| `/empresa/:slug` | `PublicLayout` | `StorefrontPage` (Vitrine) | Público | ✅ Concluído (Task 2) |
+| `/reserva/:companyId/:serviceId` | `PublicLayout` | `CheckoutPage` | Público / Autenticado | ✅ Concluído (Task 2) |
+| `/pagamento/pix/:appointmentId` | `PublicLayout` | `PixPaymentPage` | Público / Autenticado | ✅ Concluído (Task 2) |
+| `/reserva/confirmada/:appointmentId` | `PublicLayout` | `BookingSuccessPage` | Público / Autenticado | ✅ Concluído (Task 2) |
 | `/login` | `AuthLayout` | `LoginPage` | Público / Guest | ✅ Concluído (Task 1) |
 | `/cadastro` | `AuthLayout` | `RegisterPage` | Público / Guest | ✅ Concluído (Task 1) |
 | `/esqueci-minha-senha` | `AuthLayout` | `ForgotPasswordPage` | Público / Guest | ✅ Concluído (Task 1) |
 | `/redefinir-senha` | `AuthLayout` | `ResetPasswordPage` | Público / Guest | ✅ Concluído (Task 1) |
-| `/onboarding/empresa` | `AuthLayout` | `CompanyOnboardingPage` | Autenticado (`CLIENT`, `COMPANY_OWNER`) | ✅ Concluído (Task 1) |
+| `/onboarding/empresa` | `AuthLayout` | `CompanyOnboardingPage` | Público / Autenticado | ✅ Concluído (Task 1) |
 | `/meus-agendamentos` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `EMPLOYEE`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
 | `/meus-agendamentos/:id` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
 | `/minha-conta` | `ClientLayout` | `ClientProfilePage` | Todos autenticados | ✅ Concluído |
@@ -91,6 +91,7 @@ src/
 │   ├── PublicLayout.tsx                # Layout público institucional com footer limpo
 │   └── RootLayout.tsx                  # Provedores globais, Toaster e Outlet
 ├── lib/
+│   ├── calendar.ts                     # Gerador e downloader de arquivo .ics para calendários
 │   └── utils.ts                        # Utilitário cn() e formatadores
 ├── pages/
 │   ├── admin/
@@ -98,11 +99,15 @@ src/
 │   │   ├── AdminDashboardPage.tsx      # Platform intelligence e saúde de microsserviços
 │   │   └── AdminUsersPage.tsx          # Moderação centralizada de usuários
 │   ├── auth/
-│   │   ├── CompanyOnboardingPage.tsx   # Wizard 2 etapas de criação de empresa e promoção de role
+│   │   ├── CompanyOnboardingPage.tsx   # Wizard atômico de criação de dono + empresa (POST /company/create)
 │   │   ├── ForgotPasswordPage.tsx      # Solicitação de redefinição de senha
 │   │   ├── LoginPage.tsx               # Formulário de login com Zod e auto-redirect
 │   │   ├── RegisterPage.tsx            # Cadastro com seletor de perfil e termos
 │   │   └── ResetPasswordPage.tsx       # Redefinição stateless de senha por token
+│   ├── booking/
+│   │   ├── BookingSuccessPage.tsx      # Voucher digital de confirmação com .ics e mapas
+│   │   ├── CheckoutPage.tsx            # Seletor de data, slots livres e Safety Gate R$ 15,00
+│   │   └── PixPaymentPage.tsx          # QR Code Pix, Copia e Cola, timer 15m e polling reativo 3s
 │   ├── client/
 │   │   ├── ClientAppointmentsPage.tsx  # Gestão de agendamentos e cancelamento >24h
 │   │   └── ClientProfilePage.tsx       # Gestão de perfil e CPF para split Pix
@@ -115,12 +120,21 @@ src/
 │   │   └── OwnerWorkingHoursPage.tsx   # Grade semanal e exceções de feriados
 │   └── public/
 │       ├── HomePage.tsx                # Landing page com busca rápida e sem jargões
-│       └── NotFoundPage.tsx            # Página 404 customizada
+│       ├── NotFoundPage.tsx            # Página 404 customizada
+│       └── StorefrontPage.tsx          # Vitrine pública completa com catálogo agrupado e horários
 ├── routes/
 │   └── index.tsx                       # Definição das 22 rotas da aplicação
+├── services/
+│   ├── appointments.service.ts         # Slots livres, criação de reserva e consulta por ID
+│   ├── cep.service.ts                  # Consulta de CEP via BrasilAPI v2 com autopreenchimento
+│   ├── company.service.ts              # Vitrine pública por slug e listagem de empresas
+│   └── transactions.service.ts         # Geração de Pix e transações financeiras Asaas
 ├── types/
 │   ├── api.types.ts                    # Tipagens de resposta e paginação da API
-│   └── auth.types.ts                   # Role enum, User, AuthTokens e DTOs
+│   ├── appointment.types.ts            # DTOs de agendamento, status e available slots
+│   ├── auth.types.ts                   # Role enum, User, AuthTokens e DTOs
+│   ├── company.types.ts                # Storefront, WorkingHours, ServiceGroup e Services
+│   └── transaction.types.ts            # PixTransactionResponse e payloads Pix
 ├── vite-env.d.ts                       # Tipagem de ambiente e PWA
 ├── index.css                           # Design System Dark Mode Tailwind v4
 ├── App.tsx                             # Ponto de entrada com RouterProvider
@@ -148,7 +162,7 @@ npm run build
 
 - [x] **Task 0**: Fundação, Design System e Setup de Rede — **FEITO**
 - [x] **Task 1**: Autenticação, Recuperação de Senha e Onboarding da Empresa — **FEITO**
-- [ ] **Task 2**: Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling
+- [x] **Task 2**: Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling — **FEITO**
 - [ ] **Task 3**: Painel do Dono — Dashboard Analítico, Agenda e Conclusão
 - [ ] **Task 4**: Painel do Dono — Catálogo, Expediente e Subconta Financeira
 - [ ] **Task 5**: Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil

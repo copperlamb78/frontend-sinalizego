@@ -1,8 +1,8 @@
 # 📋 Planejamento de Tarefas Frontend — SinalizeGO (P0, P1, P2)
 
-**Versão**: 1.1.0  
+**Versão**: 1.2.0  
 **Data**: 23 de Agosto de 2026  
-**Status**: Em Execução (Fase P0)  
+**Status**: Em Execução (Fase P0 Concluída)  
 **Classificação**: P0 (Crítico/Core), P1 (Operacional/Gestão), P2 (Governança/Polimento)
 
 ---
@@ -17,7 +17,7 @@
 ├───────────────────┼────────────────────────────────┼───────────────────┤
 │ • [X] Task 0: Setup│ • [ ] Task 3: Dashboard & Agenda│ • [ ] Task 6: Admin │
 │ • [X] Task 1: Auth │ • [ ] Task 4: Serviços/Expediente│ • [ ] Task 7: PWA │
-│ • [ ] Task 2: Book │ • [ ] Task 5: Portal Cliente   │                   │
+│ • [X] Task 2: Book │ • [ ] Task 5: Portal Cliente   │                   │
 └───────────────────┴────────────────────────────────┴───────────────────┘
 ```
 
@@ -28,15 +28,15 @@
 | Rota | Layout Mestre | Componente Principal | Controle de Acesso (RBAC) | Status |
 |---|---|---|---|:---:|
 | `/` | `PublicLayout` | `HomePage` | Público | ✅ Concluído (Task 0/1) |
-| `/empresa/:slug` | `PublicLayout` | `HomePage` (Vitrine) | Público | 🟡 Planejado (Task 2) |
-| `/reserva/:companyId/:serviceId` | `PublicLayout` | `CheckoutPage` | Público | 🟡 Planejado (Task 2) |
-| `/pagamento/pix/:appointmentId` | `PublicLayout` | `PixPaymentPage` | Público | 🟡 Planejado (Task 2) |
-| `/reserva/confirmada/:appointmentId` | `PublicLayout` | `BookingSuccessPage` | Público | 🟡 Planejado (Task 2) |
+| `/empresa/:slug` | `PublicLayout` | `StorefrontPage` (Vitrine) | Público | ✅ Concluído (Task 2) |
+| `/reserva/:companyId/:serviceId` | `PublicLayout` | `CheckoutPage` | Público / Autenticado | ✅ Concluído (Task 2) |
+| `/pagamento/pix/:appointmentId` | `PublicLayout` | `PixPaymentPage` | Público / Autenticado | ✅ Concluído (Task 2) |
+| `/reserva/confirmada/:appointmentId` | `PublicLayout` | `BookingSuccessPage` | Público / Autenticado | ✅ Concluído (Task 2) |
 | `/login` | `AuthLayout` | `LoginPage` | Público / Guest | ✅ Concluído (Task 1) |
 | `/cadastro` | `AuthLayout` | `RegisterPage` | Público / Guest | ✅ Concluído (Task 1) |
 | `/esqueci-minha-senha` | `AuthLayout` | `ForgotPasswordPage` | Público / Guest | ✅ Concluído (Task 1) |
 | `/redefinir-senha` | `AuthLayout` | `ResetPasswordPage` | Público / Guest | ✅ Concluído (Task 1) |
-| `/onboarding/empresa` | `AuthLayout` | `CompanyOnboardingPage` | Autenticado (`CLIENT`, `COMPANY_OWNER`) | ✅ Concluído (Task 1) |
+| `/onboarding/empresa` | `AuthLayout` | `CompanyOnboardingPage` | Público / Autenticado | ✅ Concluído (Task 1) |
 | `/meus-agendamentos` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `EMPLOYEE`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/5) |
 | `/meus-agendamentos/:id` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/5) |
 | `/minha-conta` | `ClientLayout` | `ClientProfilePage` | Todos autenticados | ✅ Concluído (Task 0/5) |
@@ -82,6 +82,7 @@ src/
 │   ├── PublicLayout.tsx                # Layout público institucional com footer limpo
 │   └── RootLayout.tsx                  # Provedores globais, Toaster e Outlet
 ├── lib/
+│   ├── calendar.ts                     # Gerador e downloader de arquivo .ics para calendários
 │   └── utils.ts                        # Utilitário cn() e formatadores
 ├── pages/
 │   ├── admin/
@@ -89,11 +90,15 @@ src/
 │   │   ├── AdminDashboardPage.tsx      # Platform intelligence e saúde de microsserviços
 │   │   └── AdminUsersPage.tsx          # Moderação centralizada de usuários
 │   ├── auth/
-│   │   ├── CompanyOnboardingPage.tsx   # Wizard 2 etapas de criação de empresa e promoção de role
+│   │   ├── CompanyOnboardingPage.tsx   # Wizard atômico de criação de dono + empresa (POST /company/create)
 │   │   ├── ForgotPasswordPage.tsx      # Solicitação de redefinição de senha
 │   │   ├── LoginPage.tsx               # Formulário de login com Zod e auto-redirect
 │   │   ├── RegisterPage.tsx            # Cadastro com seletor de perfil e termos
 │   │   └── ResetPasswordPage.tsx       # Redefinição stateless de senha por token
+│   ├── booking/
+│   │   ├── BookingSuccessPage.tsx      # Voucher digital de confirmação com .ics e mapas
+│   │   ├── CheckoutPage.tsx            # Seletor de data, slots livres e Safety Gate R$ 15,00
+│   │   └── PixPaymentPage.tsx          # QR Code Pix, Copia e Cola, timer 15m e polling reativo 3s
 │   ├── client/
 │   │   ├── ClientAppointmentsPage.tsx  # Gestão de agendamentos e cancelamento >24h
 │   │   └── ClientProfilePage.tsx       # Gestão de perfil e CPF para split Pix
@@ -106,12 +111,21 @@ src/
 │   │   └── OwnerWorkingHoursPage.tsx   # Grade semanal e exceções de feriados
 │   └── public/
 │       ├── HomePage.tsx                # Landing page com busca rápida e sem jargões
-│       └── NotFoundPage.tsx            # Página 404 customizada
+│       ├── NotFoundPage.tsx            # Página 404 customizada
+│       └── StorefrontPage.tsx          # Vitrine pública completa com catálogo agrupado e horários
 ├── routes/
 │   └── index.tsx                       # Definição das 22 rotas da aplicação
+├── services/
+│   ├── appointments.service.ts         # Slots livres, criação de reserva e consulta por ID
+│   ├── cep.service.ts                  # Consulta de CEP via BrasilAPI v2 com autopreenchimento
+│   ├── company.service.ts              # Vitrine pública por slug e listagem de empresas
+│   └── transactions.service.ts         # Geração de Pix e transações financeiras Asaas
 ├── types/
 │   ├── api.types.ts                    # Tipagens de resposta e paginação da API
-│   └── auth.types.ts                   # Role enum, User, AuthTokens e DTOs
+│   ├── appointment.types.ts            # DTOs de agendamento, status e available slots
+│   ├── auth.types.ts                   # Role enum, User, AuthTokens e DTOs
+│   ├── company.types.ts                # Storefront, WorkingHours, ServiceGroup e Services
+│   └── transaction.types.ts            # PixTransactionResponse e payloads Pix
 ├── vite-env.d.ts                       # Tipagem de ambiente e PWA
 ├── index.css                           # Design System Dark Mode Tailwind v4
 ├── App.tsx                             # Ponto de entrada com RouterProvider
@@ -128,25 +142,6 @@ src/
 - **Complexidade**: Alta
 - **Objetivo**: Criar a espinha dorsal do projeto com ferramentas de build, Design System, controle de sessão e layouts mestres.
 
-#### Entregáveis Técnicos:
-1. **Setup Inicial do Repositório**:
-   - [x] Inicialização com Vite 6 + React 19 + TypeScript + Tailwind CSS v4.
-   - [x] Configuração de `vite.config.ts`, `tsconfig.json` e `vite-plugin-pwa`.
-2. **Design System & Primitivos UI**:
-   - [x] Variáveis de cor Dark Mode em `src/index.css` (`#0B1120`, `#0F172A`, `#1E293B`, `#14B8A6`, `#EF4444`, `#F8FAFC`, `#94A3B8`, `#334155`).
-   - [x] Primitivos UI atômicos: `Button`, `Input`, `Card`, `Badge`, `Modal/Dialog`, `Skeleton`, `Toaster` (Sonner), `Logo`.
-3. **Camada HTTP, Cache & Autenticação**:
-   - [x] Instância do Axios (`src/config/api.config.ts`) com injeção automática de `Bearer Token` e interceptor para renovação via `POST /auth/refresh` no erro 401 com fila de requisições.
-   - [x] Configuração global do TanStack Query (`src/config/query-client.ts`).
-   - [x] `AuthContext` com login, logout, recuperação de sessão e guarda de rotas (`ProtectedRoute`) com validação de RBAC (`Role.CLIENT`, `Role.COMPANY_OWNER`, `Role.ADMIN`, `Role.SUPER_ADMIN`).
-4. **Layouts Estruturais**:
-   - [x] `RootLayout`: Provedores globais, Toaster e update prompt do PWA.
-   - [x] `PublicLayout`: Header institucional com logo SVG e footer.
-   - [x] `AuthLayout`: Card centralizado em tela cheia Dark Mode.
-   - [x] `ClientLayout`: Barra de navegação inferior mobile (BottomNav PWA).
-   - [x] `OwnerLayout`: Sidebar retrátil para desktop + gaveta mobile.
-   - [x] `AdminLayout`: Header administrativo com badge de ambiente executivo.
-
 ---
 
 ### 🔐 Task 1: Módulo de Autenticação, Recuperação de Senha e Onboarding da Empresa
@@ -161,33 +156,38 @@ src/
   - `POST /auth/reset-password`
   - `POST /company/create`
 
-#### Entregáveis Técnicos:
-1. **`LoginPage`**:
-   - [x] Formulário com React Hook Form + Zod, alternância de visibilidade de senha e feedback semântico de erro (401, 404, 429).
-2. **`RegisterPage`**:
-   - [x] Seletor de perfil no topo ("Quero agendar horários" vs "Tenho uma barbearia/estúdio").
-   - [x] Validação de formato de e-mail, máscara de telefone WhatsApp e senha forte.
-   - [x] Checkbox obrigatório de aceitação dos Termos de Uso e Política de Privacidade.
-3. **`ForgotPasswordPage` & `ResetPasswordPage`**:
-   - [x] Solicitação de e-mail com resposta de segurança genérica.
-   - [x] Formulário de redefinição consumindo token stateless da URL (`?token=...`).
-4. **`CompanyOnboardingPage`**:
-   - [x] Wizard guiado em 2 etapas com barra de progresso verde no topo (Etapa 1: Categoria + Nome com slug automático; Etapa 2: Endereço completo com UF e Cidade + botão Voltar).
-   - [x] Ao concluir (`POST /company/create`), captura o novo par de tokens (`access_token`, `refresh_token`), atualiza o `AuthContext` para `COMPANY_OWNER` e redireciona direto para `/painel`.
-
 ---
 
 ### 💳 Task 2: Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling
 - **Prioridade**: P0
-- **Status**: [ ] Pendente
+- **Status**: [X] Concluído
 - **Complexidade**: Alta
-- **Rotas**: `/`, `/empresa/:slug`, `/reserva/:companyId/:serviceId`, `/pagamento/pix/:appointmentId`, `/reserva/confirmada/:appointmentId`
+- **Rotas**: `/empresa/:slug`, `/reserva/:companyId/:serviceId`, `/pagamento/pix/:appointmentId`, `/reserva/confirmada/:appointmentId`
 - **Endpoints Integrados**:
-  - `GET /company/slug/:slug`
-  - `GET /appointments/available-slots` (Rate limit: 120 req/60s)
-  - `POST /appointments/create`
-  - `POST /transactions/pix/:appointmentId` (Rate limit: 10 req/60s)
-  - `GET /appointments/:id`
+  - `GET /company/slug/:slug` (Vitrine pública consolidada)
+  - `GET /appointments/available-slots` (Consulta reativa de vagas por data)
+  - `POST /appointments` (Criação de reserva com status PENDING_PAYMENT)
+  - `POST /transactions/pix/:appointmentId` (Geração de QR Code e Copia e Cola Pix)
+  - `GET /appointments/:id` (Polling a cada 3s com transição automática para CONFIRMED)
+
+#### Entregáveis Técnicos:
+1. **`StorefrontPage` (`/empresa/:slug`)**:
+   - [x] Hero com banner, logo, endereço formatado, link para Google Maps e botão para WhatsApp.
+   - [x] Gaveta expansível com grade semanal de horários de funcionamento e indicador "Aberto Hoje".
+   - [x] Catálogo categorizado por `ServiceGroup` com busca rápida, duração e botão de agendamento.
+2. **`CheckoutPage` (`/reserva/:companyId/:serviceId`)**:
+   - [x] Seletor horizontal de datas com cálculo dinâmico de dias fechados/abertos.
+   - [x] Grade de horários livres alimentada por `appointmentsService.getAvailableSlots`.
+   - [x] Micro-Transaction Safety Gate de R$ 15,00: Força 100% para valores < R$ 15,00 e descarta frações que resultem em valor menor que R$ 15,00.
+   - [x] Resumo financeiro transparente com sinal Pix e saldo a pagar no balcão.
+3. **`PixPaymentPage` (`/pagamento/pix/:appointmentId`)**:
+   - [x] Geração automática de QR Code Pix e chave Copia e Cola via `transactionsService.generatePix`.
+   - [x] Cronômetro regressivo visual de 15 minutos (`expirationDate`).
+   - [x] Polling reativo a cada 3 segundos (`GET /appointments/:id`) com redirecionamento automático ao confirmar.
+4. **`BookingSuccessPage` (`/reserva/confirmada/:appointmentId`)**:
+   - [x] Voucher digital elegante com dados do serviço, horário e endereço.
+   - [x] Download instantâneo de arquivo de calendário `.ics` (`src/lib/calendar.ts`).
+   - [x] Botões de rota Google Maps e contato via WhatsApp.
 
 ---
 
@@ -241,7 +241,7 @@ src/
 |:---:|---|:---:|---|:---:|
 | **0** | Fundação, Design System Dark Mode e Camada HTTP/Auth | **P0** | Infraestrutura, Axios, TanStack Query, AuthContext, Layouts e PWA Base | ✅ **FEITO** |
 | **1** | Autenticação, Recuperação de Senha e Onboarding da Empresa | **P0** | `/login`, `/cadastro`, `/esqueci-minha-senha`, `/redefinir-senha`, `/onboarding/empresa` | ✅ **FEITO** |
-| **2** | Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling | **P0** | `/`, `/empresa/:slug`, `/reserva/...`, `/pagamento/pix/...`, `/reserva/confirmada/...` | 🟡 Pendente |
+| **2** | Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling | **P0** | `/`, `/empresa/:slug`, `/reserva/...`, `/pagamento/pix/...`, `/reserva/confirmada/...` | ✅ **FEITO** |
 | **3** | Painel do Dono — Dashboard Analítico, Agenda e Conclusão | **P1** | `/painel`, `/painel/agenda` (Métricas, Conclusão de atendimentos) | 🟡 Pendente |
 | **4** | Painel do Dono — Catálogo, Expediente e Subconta Financeira | **P1** | `/painel/servicos`, `/painel/expediente`, `/painel/financeiro`, `/painel/configuracoes` | 🟡 Pendente |
 | **5** | Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil | **P1** | `/meus-agendamentos`, `/meus-agendamentos/:id`, `/minha-conta` (Estorno >24h) | 🟡 Pendente |

@@ -1,43 +1,63 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api, setAuthTokens } from '@/config/api.config';
 import { useAuth } from '@/contexts/auth.context';
+import { fetchAddressByCep } from '@/services/cep.service';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import {
+  User,
+  Mail,
+  Lock,
+  Phone,
   Building2,
   MapPin,
   ArrowRight,
   ArrowLeft,
-  Sparkles,
+  CalendarCheck,
   CheckCircle2,
   Store,
-  Layers
+  Layers,
+  Search,
+  Loader2,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
-// Step 1 Validation Schema: Only Category and Business Name
+const DRAFT_STORAGE_KEY = '@sinalizego:onboarding_company_draft';
+
+// Step 1: Owner Profile + Business Details
 const step1Schema = z.object({
-  category: z.string().min(1, 'Selecione o tipo de negócio'),
-  name: z.string().min(3, 'O nome do estabelecimento deve ter pelo menos 3 caracteres')
+  name: z.string().min(3, 'Informe seu nome completo'),
+  email: z.string().email('Insira um e-mail válido'),
+  password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
+  phone: z
+    .string()
+    .min(10, 'Insira um WhatsApp/telefone válido com DDD')
+    .regex(/^[0-9()\s-+]+$/, 'Formato de telefone inválido'),
+  providerType: z.string().min(1, 'Selecione o tipo de negócio'),
+  businessName: z.string().min(3, 'O nome do estabelecimento deve ter pelo menos 3 caracteres')
 });
 
-// Step 2 Validation Schema: Detailed Address
+// Step 2: Address Details + Terms
 const step2Schema = z.object({
+  zipCode: z.string().optional(),
   state: z.string().min(2, 'Selecione o estado (UF)'),
   city: z.string().min(2, 'Informe a cidade'),
   district: z.string().min(2, 'Informe o bairro'),
   street: z.string().min(3, 'Informe a rua / avenida'),
   number: z.string().min(1, 'Informe o número ou "S/N"'),
-  zipCode: z.string().optional(),
-  phone: z.string().optional()
+  terms: z.literal(true, {
+    errorMap: () => ({ message: 'Você precisa aceitar os Termos de Uso para continuar' })
+  })
 });
 
-// Complete Schema for combined data
+// Combined schema
 const onboardingFullSchema = step1Schema.and(step2Schema);
 
 type OnboardingFormData = z.infer<typeof onboardingFullSchema>;
@@ -85,25 +105,115 @@ export const CompanyOnboardingPage: React.FC = () => {
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
+  const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
+
+  // Load draft from storage or pre-fill with logged-in user
+  const getInitialValues = (): Partial<OnboardingFormData> => {
+    try {
+      const saved = sessionStorage.getItem(DRAFT_STORAGE_KEY) || localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch {
+      // ignore storage error
+    }
+    return {
+      name: user?.name || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
+      password: '',
+      providerType: 'Barbearia',
+      businessName: '',
+      state: 'SP',
+      terms: true as any
+    };
+  };
 
   const {
     register,
     handleSubmit,
+    setValue,
     trigger,
+    watch,
     formState: { errors, isSubmitting }
   } = useForm<OnboardingFormData>({
     resolver: zodResolver(onboardingFullSchema),
-    defaultValues: {
-      category: 'Barbearia',
-      state: 'SP',
-      phone: user?.phone || ''
-    }
+    defaultValues: getInitialValues()
   });
+
+  const rawPhone = watch('phone') || '';
+  const rawZipCode = watch('zipCode') || '';
+
+  // Watch form values and auto-save draft
+  const formValues = watch();
+  useEffect(() => {
+    try {
+      if (formValues.name || formValues.businessName || formValues.email) {
+        sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formValues));
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formValues));
+      }
+    } catch {
+      // storage unavailable
+    }
+  }, [formValues]);
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, '');
+    let formatted = raw;
+    if (raw.length <= 10) {
+      formatted = raw.replace(/^(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+    } else {
+      formatted = raw.slice(0, 11).replace(/^(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+    }
+    setValue('phone', formatted, { shouldValidate: true });
+  };
+
+  const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, '').slice(0, 8);
+    const formatted = raw.length > 5 ? raw.replace(/^(\d{5})(\d{1,3})/, '$1-$2') : raw;
+    setValue('zipCode', formatted);
+
+    if (raw.length === 8) {
+      handleLookupCep(raw);
+    }
+  };
+
+  const handleLookupCep = async (cepToQuery?: string) => {
+    const clean = (cepToQuery || rawZipCode).replace(/\D/g, '');
+    if (clean.length !== 8) return;
+
+    setIsLoadingCep(true);
+    try {
+      const address = await fetchAddressByCep(clean);
+      if (address) {
+        if (address.state) {
+          setValue('state', address.state.toUpperCase(), { shouldValidate: true });
+        }
+        if (address.city) {
+          setValue('city', address.city, { shouldValidate: true });
+        }
+        if (address.neighborhood) {
+          setValue('district', address.neighborhood, { shouldValidate: true });
+        }
+        if (address.street) {
+          setValue('street', address.street, { shouldValidate: true });
+        }
+        toast.success('Endereço preenchido automaticamente pelo CEP!');
+      } else {
+        toast.info('CEP não localizado. Por favor, preencha o endereço manualmente.');
+      }
+    } catch {
+      toast.info('Não foi possível buscar o CEP automaticamente. Preencha manualmente.');
+    } finally {
+      setIsLoadingCep(false);
+    }
+  };
 
   const handleNextStep = async () => {
     setServerError(null);
-    const isValid = await trigger(['category', 'name']);
+    const isValid = await trigger(['name', 'email', 'password', 'phone', 'providerType', 'businessName']);
     if (isValid) {
       setCurrentStep(2);
     }
@@ -117,13 +227,16 @@ export const CompanyOnboardingPage: React.FC = () => {
   const onSubmit = async (data: OnboardingFormData) => {
     setServerError(null);
     try {
-      const contactPhone = data.phone || user?.phone || '11999999999';
+      const cleanPhone = data.phone.replace(/\D/g, '');
 
-      // Payload strictly matching POST /api/v1/company/create contract in docs/llm.md
+      // Single atomic request: POST /api/v1/company/create
       const payload = {
-        businessName: data.name.trim(),
-        providerType: data.category,
-        phone: contactPhone.replace(/\D/g, ''),
+        name: data.name.trim(),
+        email: data.email.trim().toLowerCase(),
+        password: data.password,
+        phone: cleanPhone,
+        businessName: data.businessName.trim(),
+        providerType: data.providerType,
         state: data.state,
         city: data.city.trim(),
         district: data.district.trim(),
@@ -132,10 +245,9 @@ export const CompanyOnboardingPage: React.FC = () => {
         zipCode: data.zipCode?.replace(/\D/g, '') || '00000000'
       };
 
-      // POST /api/v1/company/create
       const response = await api.post('/company/create', payload);
 
-      // Ingest new tokens with elevated COMPANY_OWNER role
+      // Ingest tokens and authenticate immediately
       if (response.data?.access_token && response.data?.refresh_token) {
         setAuthTokens({
           access_token: response.data.access_token,
@@ -143,14 +255,22 @@ export const CompanyOnboardingPage: React.FC = () => {
         });
       }
 
+      // Clear draft
+      sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+
       await refreshProfile();
-      toast.success('Estabelecimento configurado com sucesso! Bem-vindo ao painel.');
+      toast.success('Estabelecimento cadastrado com sucesso! Bem-vindo ao painel.');
       navigate('/painel', { replace: true });
     } catch (err: any) {
-      const message =
-        err.response?.data?.message ||
-        'Não foi possível criar o estabelecimento. Tente novamente mais tarde.';
-      const formattedMessage = Array.isArray(message) ? message.join(', ') : message;
+      let formattedMessage = 'Não foi possível cadastrar o estabelecimento.';
+      if (err.code === 'ERR_NETWORK' || !err.response) {
+        formattedMessage =
+          'Servidor backend indisponível em http://localhost:3000. Verifique se a API está em execução.';
+      } else if (err.response?.data?.message) {
+        const message = err.response.data.message;
+        formattedMessage = Array.isArray(message) ? message.join(', ') : message;
+      }
       setServerError(formattedMessage);
       toast.error(formattedMessage);
     }
@@ -161,17 +281,17 @@ export const CompanyOnboardingPage: React.FC = () => {
       {/* Header & Step Indicator */}
       <div className="space-y-3 text-center">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 text-teal-400 text-xs font-semibold">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Configuração Rápida do Estabelecimento</span>
+          <CalendarCheck className="w-3.5 h-3.5" />
+          <span>Cadastro de Estabelecimento & Dono</span>
         </div>
 
         <div className="space-y-1">
           <h2 className="text-xl sm:text-2xl font-bold text-[#F8FAFC]">
-            {currentStep === 1 ? 'Dados do seu Negócio' : 'Onde seu espaço está localizado?'}
+            {currentStep === 1 ? 'Seus Dados & Seu Estabelecimento' : 'Onde seu salão está localizado?'}
           </h2>
           <p className="text-xs text-[#94A3B8]">
             {currentStep === 1
-              ? 'Etapa 1 de 2 • Tipo de serviço e nome do seu estabelecimento'
+              ? 'Etapa 1 de 2 • Dados de acesso e nome do espaço'
               : 'Etapa 2 de 2 • Endereço para os clientes encontrarem você'}
           </p>
         </div>
@@ -188,17 +308,65 @@ export const CompanyOnboardingPage: React.FC = () => {
       </div>
 
       {serverError && (
-        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-400 font-medium">
+        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-400 font-medium leading-relaxed">
           {serverError}
         </div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* ==================== ETAPA 1: DADOS DO NEGÓCIO ==================== */}
+        {/* ==================== ETAPA 1: DADOS DO DONO & NEGÓCIO ==================== */}
         {currentStep === 1 && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
-            {/* Category Dropdown */}
-            <div className="space-y-1.5 text-left">
+          <div className="space-y-3.5 animate-in fade-in slide-in-from-right-4 duration-200">
+            <Input
+              label="Seu Nome Completo"
+              placeholder="Ex: Carlos Alberto"
+              leftIcon={<User className="w-4 h-4" />}
+              error={errors.name?.message}
+              {...register('name')}
+            />
+
+            <Input
+              label="Seu E-mail de Acesso"
+              type="email"
+              placeholder="carlos@exemplo.com"
+              leftIcon={<Mail className="w-4 h-4" />}
+              error={errors.email?.message}
+              {...register('email')}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                label="WhatsApp / Telefone"
+                type="tel"
+                placeholder="(11) 99999-9999"
+                value={rawPhone}
+                onChange={handlePhoneChange}
+                leftIcon={<Phone className="w-4 h-4" />}
+                error={errors.phone?.message}
+              />
+
+              <Input
+                label="Senha de Acesso"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Mínimo 6 caracteres"
+                leftIcon={<Lock className="w-4 h-4" />}
+                rightIcon={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="hover:text-white transition-colors cursor-pointer"
+                    aria-label={showPassword ? 'Ocultar senha' : 'Exibir senha'}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                }
+                error={errors.password?.message}
+                {...register('password')}
+              />
+            </div>
+
+            {/* Business Category */}
+            <div className="space-y-1.5 text-left pt-1">
               <label className="block text-xs font-semibold text-[#94A3B8] tracking-wide uppercase">
                 Tipo de Negócio / Categoria
               </label>
@@ -210,9 +378,9 @@ export const CompanyOnboardingPage: React.FC = () => {
                   className={cn(
                     'w-full h-11 pl-11 pr-4 rounded-xl bg-[#1E293B] text-[#F8FAFC] border border-slate-700/80 transition-all duration-200',
                     'focus:outline-none focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/20 cursor-pointer',
-                    errors.category && 'border-red-500'
+                    errors.providerType && 'border-red-500'
                   )}
-                  {...register('category')}
+                  {...register('providerType')}
                 >
                   {PROVIDER_TYPES.map((cat) => (
                     <option key={cat} value={cat} className="bg-[#1E293B] text-white">
@@ -221,8 +389,8 @@ export const CompanyOnboardingPage: React.FC = () => {
                   ))}
                 </select>
               </div>
-              {errors.category && (
-                <p className="text-xs text-red-400 font-medium">{errors.category.message}</p>
+              {errors.providerType && (
+                <p className="text-xs text-red-400 font-medium">{errors.providerType.message}</p>
               )}
             </div>
 
@@ -231,9 +399,9 @@ export const CompanyOnboardingPage: React.FC = () => {
               label="Nome do Estabelecimento"
               placeholder="Ex: Barbearia Vintage Club"
               leftIcon={<Store className="w-4 h-4" />}
-              helperText="O link da sua vitrine pública será gerado automaticamente a partir do nome"
-              error={errors.name?.message}
-              {...register('name')}
+              helperText="O link da sua vitrine de agendamentos será gerado automaticamente a partir do nome"
+              error={errors.businessName?.message}
+              {...register('businessName')}
             />
 
             <Button
@@ -250,6 +418,25 @@ export const CompanyOnboardingPage: React.FC = () => {
         {/* ==================== ETAPA 2: ENDEREÇO COMPLETO ==================== */}
         {currentStep === 2 && (
           <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
+            {/* CEP with BrasilAPI Lookup */}
+            <div className="space-y-1">
+              <Input
+                label="CEP"
+                placeholder="00000-000"
+                value={rawZipCode}
+                onChange={handleCepChange}
+                onBlur={() => handleLookupCep()}
+                leftIcon={<Search className="w-4 h-4 text-slate-400" />}
+                rightIcon={
+                  isLoadingCep ? (
+                    <Loader2 className="w-4 h-4 text-teal-400 animate-spin" />
+                  ) : undefined
+                }
+                helperText="Digite o CEP para preencher o endereço automaticamente"
+                error={errors.zipCode?.message}
+              />
+            </div>
+
             {/* State (UF) and City */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5 text-left">
@@ -313,13 +500,30 @@ export const CompanyOnboardingPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Optional CEP */}
-            <Input
-              label="CEP (Opcional)"
-              placeholder="00000-000"
-              error={errors.zipCode?.message}
-              {...register('zipCode')}
-            />
+            {/* Terms and Privacy Policy */}
+            <div className="space-y-1 pt-1">
+              <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-300 select-none">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 w-4 h-4 rounded border-slate-700 bg-[#1E293B] text-[#14B8A6] focus:ring-[#14B8A6] focus:ring-offset-0 transition-colors accent-[#14B8A6]"
+                  {...register('terms')}
+                />
+                <span>
+                  Li e concordo com os{' '}
+                  <a href="/#termos" target="_blank" className="text-[#14B8A6] font-semibold hover:underline">
+                    Termos de Uso
+                  </a>{' '}
+                  e a{' '}
+                  <a href="/#privacidade" target="_blank" className="text-[#14B8A6] font-semibold hover:underline">
+                    Política de Privacidade
+                  </a>
+                  .
+                </span>
+              </label>
+              {errors.terms && (
+                <p className="text-xs text-red-400 font-medium">{errors.terms.message}</p>
+              )}
+            </div>
 
             {/* Action Buttons: Back + Submit */}
             <div className="flex items-center gap-3 pt-2">
@@ -345,6 +549,13 @@ export const CompanyOnboardingPage: React.FC = () => {
           </div>
         )}
       </form>
+
+      <div className="pt-3 border-t border-slate-800 text-center text-xs text-[#94A3B8]">
+        Já possui uma conta?{' '}
+        <Link to="/login" className="text-[#14B8A6] font-bold hover:underline">
+          Fazer Login
+        </Link>
+      </div>
     </div>
   );
 };
