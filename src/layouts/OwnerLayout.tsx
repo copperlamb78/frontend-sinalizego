@@ -222,7 +222,9 @@ export const OwnerLayout: React.FC = () => {
 
         {/* Content Outlet */}
         <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
-          <Outlet />
+          <div className="max-w-5xl mx-auto w-full">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
