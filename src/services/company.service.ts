@@ -6,7 +6,7 @@ import type {
   CompanyDashboardMetrics,
   UpdateCompanyDto
 } from '@/types/company.types';
-import { MOCK_VINTAGE_CLUB } from '@/mocks/storefront.mock';
+import { MOCK_VINTAGE_CLUB, MOCK_BELLA_DONNA, MOCK_NAVALHA_DE_OURO, MOCK_COMPANIES } from '@/mocks/storefront.mock';
 import {
   MOCK_DASHBOARD_METRICS,
   MOCK_COMPANY_BALANCE,
@@ -22,15 +22,22 @@ export const companyService = {
    * GET /api/v1/company/slug/:slug
    */
   getCompanyBySlug: async (slug: string): Promise<CompanyStorefront> => {
-    if (slug === 'vintage-club' || slug === 'barbearia-vintage-club') {
-      return MOCK_VINTAGE_CLUB;
+    const normalized = slug.toLowerCase();
+    if (MOCK_COMPANIES[normalized]) {
+      return MOCK_COMPANIES[normalized];
     }
 
     try {
       const response = await api.get<CompanyStorefront>(`/company/slug/${slug}`);
       return response.data;
     } catch (err: any) {
-      if (slug.includes('vintage') || slug.includes('barbearia')) {
+      if (normalized.includes('bella') || normalized.includes('donna')) {
+        return MOCK_BELLA_DONNA;
+      }
+      if (normalized.includes('navalha') || normalized.includes('ouro')) {
+        return MOCK_NAVALHA_DE_OURO;
+      }
+      if (normalized.includes('vintage') || normalized.includes('barbearia')) {
         return MOCK_VINTAGE_CLUB;
       }
       throw err;
@@ -41,9 +48,10 @@ export const companyService = {
    * Fetches company by ID
    */
   getCompanyById: async (id: string): Promise<CompanyStorefront> => {
-    if (id === 'demo-vintage-club-id') {
-      return MOCK_VINTAGE_CLUB;
-    }
+    if (id === 'demo-vintage-club-id') return MOCK_VINTAGE_CLUB;
+    if (id === 'demo-bella-donna-id') return MOCK_BELLA_DONNA;
+    if (id === 'demo-navalha-de-ouro-id') return MOCK_NAVALHA_DE_OURO;
+
     try {
       const response = await api.get<CompanyStorefront>(`/company/${id}`);
       return response.data;
@@ -180,7 +188,7 @@ export const companyService = {
       const response = await api.get<CompanyStorefront[]>('/company/list');
       return response.data;
     } catch {
-      return [MOCK_VINTAGE_CLUB];
+      return [MOCK_VINTAGE_CLUB, MOCK_BELLA_DONNA, MOCK_NAVALHA_DE_OURO];
     }
   }
 };

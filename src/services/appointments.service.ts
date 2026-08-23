@@ -4,10 +4,16 @@ import type {
   CreateAppointmentDto,
   Appointment
 } from '@/types/appointment.types';
-import { MOCK_VINTAGE_CLUB } from '@/mocks/storefront.mock';
+import { MOCK_VINTAGE_CLUB, MOCK_BELLA_DONNA, MOCK_NAVALHA_DE_OURO } from '@/mocks/storefront.mock';
 import { MOCK_OWNER_APPOINTMENTS } from '@/mocks/owner.mock';
 
 const MOCK_SLOTS = ['09:00', '09:30', '10:00', '10:30', '11:30', '14:00', '14:30', '15:00', '16:00', '17:00', '18:00'];
+
+const getMockCompanyById = (id?: string) => {
+  if (id === 'demo-bella-donna-id' || id === 'bella-donna') return MOCK_BELLA_DONNA;
+  if (id === 'demo-navalha-de-ouro-id' || id === 'navalha-de-ouro') return MOCK_NAVALHA_DE_OURO;
+  return MOCK_VINTAGE_CLUB;
+};
 
 export const appointmentsService = {
   /**
@@ -19,7 +25,7 @@ export const appointmentsService = {
     serviceId: string,
     date: string
   ): Promise<AvailableSlotsResponse> => {
-    if (companyId === 'demo-vintage-club-id') {
+    if (companyId.startsWith('demo-')) {
       return {
         date,
         totalAvailable: MOCK_SLOTS.length,
@@ -51,11 +57,12 @@ export const appointmentsService = {
   createAppointment: async (
     dto: CreateAppointmentDto
   ): Promise<Appointment> => {
-    if (dto.companyId === 'demo-vintage-club-id') {
+    if (dto.companyId.startsWith('demo-')) {
       const demoId = `app-demo-${Date.now()}`;
-      const service = MOCK_VINTAGE_CLUB.serviceGroups
+      const mockComp = getMockCompanyById(dto.companyId);
+      const service = mockComp.serviceGroups
         .flatMap((g) => g.services)
-        .find((s) => s.id === dto.serviceId) || MOCK_VINTAGE_CLUB.serviceGroups[0].services[0];
+        .find((s) => s.id === dto.serviceId) || mockComp.serviceGroups[0].services[0];
 
       const downPaymentAmount = (service.totalPrice * dto.downPaymentPercent) / 100;
 
@@ -73,18 +80,18 @@ export const appointmentsService = {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         company: {
-          id: MOCK_VINTAGE_CLUB.id,
-          businessName: MOCK_VINTAGE_CLUB.businessName,
-          slug: MOCK_VINTAGE_CLUB.slug,
-          providerType: MOCK_VINTAGE_CLUB.providerType,
-          whatsapp: MOCK_VINTAGE_CLUB.whatsapp,
-          street: MOCK_VINTAGE_CLUB.street,
-          number: MOCK_VINTAGE_CLUB.number,
-          district: MOCK_VINTAGE_CLUB.district,
-          city: MOCK_VINTAGE_CLUB.city,
-          state: MOCK_VINTAGE_CLUB.state,
-          logoPhoto: MOCK_VINTAGE_CLUB.logoPhoto,
-          bannerPhoto: MOCK_VINTAGE_CLUB.bannerPhoto
+          id: mockComp.id,
+          businessName: mockComp.businessName,
+          slug: mockComp.slug,
+          providerType: mockComp.providerType,
+          whatsapp: mockComp.whatsapp,
+          street: mockComp.street,
+          number: mockComp.number,
+          district: mockComp.district,
+          city: mockComp.city,
+          state: mockComp.state,
+          logoPhoto: mockComp.logoPhoto,
+          bannerPhoto: mockComp.bannerPhoto
         },
         service: {
           id: service.id,
@@ -132,10 +139,11 @@ export const appointmentsService = {
         // ignore
       }
 
-      const service = MOCK_VINTAGE_CLUB.serviceGroups[0].services[0];
+      const mockComp = MOCK_VINTAGE_CLUB;
+      const service = mockComp.serviceGroups[0].services[0];
       return {
         id,
-        companyId: MOCK_VINTAGE_CLUB.id,
+        companyId: mockComp.id,
         serviceId: service.id,
         clientId: 'demo-client-id',
         appointmentDate: new Date(Date.now() + 86400000).toISOString(),
@@ -145,18 +153,18 @@ export const appointmentsService = {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         company: {
-          id: MOCK_VINTAGE_CLUB.id,
-          businessName: MOCK_VINTAGE_CLUB.businessName,
-          slug: MOCK_VINTAGE_CLUB.slug,
-          providerType: MOCK_VINTAGE_CLUB.providerType,
-          whatsapp: MOCK_VINTAGE_CLUB.whatsapp,
-          street: MOCK_VINTAGE_CLUB.street,
-          number: MOCK_VINTAGE_CLUB.number,
-          district: MOCK_VINTAGE_CLUB.district,
-          city: MOCK_VINTAGE_CLUB.city,
-          state: MOCK_VINTAGE_CLUB.state,
-          logoPhoto: MOCK_VINTAGE_CLUB.logoPhoto,
-          bannerPhoto: MOCK_VINTAGE_CLUB.bannerPhoto
+          id: mockComp.id,
+          businessName: mockComp.businessName,
+          slug: mockComp.slug,
+          providerType: mockComp.providerType,
+          whatsapp: mockComp.whatsapp,
+          street: mockComp.street,
+          number: mockComp.number,
+          district: mockComp.district,
+          city: mockComp.city,
+          state: mockComp.state,
+          logoPhoto: mockComp.logoPhoto,
+          bannerPhoto: mockComp.bannerPhoto
         },
         service: {
           id: service.id,
