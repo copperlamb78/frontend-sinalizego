@@ -3,7 +3,8 @@ import type {
   CompanyStorefront,
   CompanyBalance,
   CompanyWithdrawal,
-  CompanyDashboardMetrics
+  CompanyDashboardMetrics,
+  UpdateCompanyDto
 } from '@/types/company.types';
 import { MOCK_VINTAGE_CLUB } from '@/mocks/storefront.mock';
 import {
@@ -61,6 +62,45 @@ export const companyService = {
       return response.data;
     } catch {
       return MOCK_VINTAGE_CLUB;
+    }
+  },
+
+  /**
+   * Updates company info (name, address, whatsapp, banner, logo, etc.)
+   * PATCH /api/v1/company/update/:companyId
+   */
+  updateCompany: async (companyId: string, data: UpdateCompanyDto): Promise<CompanyStorefront> => {
+    try {
+      const response = await api.patch<CompanyStorefront>(`/company/update/${companyId}`, data);
+      return response.data;
+    } catch {
+      // Mock update fallback for demo
+      return {
+        ...MOCK_VINTAGE_CLUB,
+        ...data,
+        id: companyId
+      } as CompanyStorefront;
+    }
+  },
+
+  /**
+   * Uploads photo to Cloudinary
+   * POST /api/v1/upload/photo
+   */
+  uploadPhoto: async (file: File): Promise<{ url: string; message: string }> => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.post<{ url: string; message: string }>('/upload/photo', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      return response.data;
+    } catch {
+      const localUrl = URL.createObjectURL(file);
+      return {
+        url: localUrl,
+        message: 'Foto carregada com sucesso (Demo)'
+      };
     }
   },
 

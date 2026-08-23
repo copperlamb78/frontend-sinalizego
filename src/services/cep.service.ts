@@ -28,3 +28,7 @@ export const fetchAddressByCep = async (cep: string): Promise<CepResponse | null
     return null;
   }
 };
+
+export const cepService = {
+  fetchAddressByCep
+};

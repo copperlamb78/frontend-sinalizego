@@ -44,6 +44,21 @@ export interface CompanyStorefront {
   serviceGroups: ServiceGroup[];
 }
 
+export interface UpdateCompanyDto {
+  businessName?: string;
+  providerType?: string;
+  district?: string;
+  street?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  number?: string;
+  whatsapp?: string;
+  chairsCount?: number;
+  logoPhoto?: string | null;
+  bannerPhoto?: string | null;
+}
+
 export interface CompanyBalance {
   companyId: string;
   businessName: string;
