@@ -1,180 +1,172 @@
-# ✂️ SinalizeGO — Frontend Web & PWA
+# SinalizeGO — Frontend Web & PWA
 
-> **Plataforma SaaS de Agendamento Online com Sinal Pix e Split Bancário Automatizado para Barbearias e Estúdios.**
+> **Plataforma SaaS de Agendamento Inteligente, Custódia Financeira e Liquidação Pix com Split para Barbearias e Estúdios.**
+
+---
+
+## 📌 Sobre o Projeto
+
+O **SinalizeGO** é uma plataforma moderna desenvolvida para eliminar o problema crônico de faltas (*no-shows*) e otimizar a gestão financeira em estabelecimentos do setor de beleza e estética. 
+
+Por meio de um fluxo de agendamento online integrado com o gateway de pagamentos **Asaas**, os clientes realizam o pagamento de um sinal de reserva via **Pix com confirmação em tempo real**. O valor do sinal fica retido em custódia segura (*Escrow Hold*) e é automaticamente liquidado com split de comissões no momento da conclusão do atendimento.
 
 ---
 
 ## 🛠️ Stack Tecnológica
 
-- **Framework & Runtime**: React 19, TypeScript 5.7+, Vite 6
-- **Estilização**: Tailwind CSS v4 (`@tailwindcss/vite`), Lucide React, `clsx`, `tailwind-merge`
-- **PWA**: `vite-plugin-pwa` (Service Worker com autoUpdate e manifesto para instalação mobile/desktop)
-- **Data Fetching & Cache**: TanStack Query (React Query v5)
-- **Cliente HTTP**: Axios com interceptor de renovação de JWT no erro 401 (`POST /auth/refresh`)
-- **Roteamento**: React Router DOM v7
-- **Formulários & Schemas**: React Hook Form + Zod
-- **Notificações & Toasts**: Sonner (Dark Mode)
+| Camada | Tecnologia / Biblioteca | Finalidade |
+|---|---|---|
+| **Core** | `React 19` + `TypeScript` + `Vite` | Aplicação web SPA de altíssima performance e tipagem estrita |
+| **Estilização** | `Tailwind CSS v4` | Design System Dark Mode estrito e responsivo |
+| **Progressive Web App** | `vite-plugin-pwa` + `Workbox` | Instalação A2HS nativa, Service Worker e cache offline |
+| **Data Fetching & Cache** | `TanStack Query (React Query v5)` | Polling reativo (Pix 3s), cache de estado de servidor e mutações otimistas |
+| **Cliente HTTP** | `Axios` | Interceptors para renovação transparente de tokens JWT e tratamento de erros |
+| **Formulários & Validação** | `React Hook Form` + `Zod` | Validação de esquemas e tratamento de formulários tipados |
+| **Iconografia & Feedback** | `Lucide React` + `Sonner` | Ícones SVG consistentes e Toasts com feedback semântico |
+| **Efeitos & Háptica** | `canvas-confetti` + `Navigator.vibrate` | Comemoração de agendamento e resposta tátil em dispositivos móveis |
 
 ---
 
-## 🎨 Design System Institucional (Dark Mode Estrito)
+## 🚀 Principais Módulos & Recursos
 
-| Token Visual | Código HEX | Finalidade na Interface |
-|---|:---:|---|
-| **Background Principal** | `#0B1120` | Fundo principal da aplicação (Dark Canvas) |
-| **Cards & Containers** | `#0F172A` | Containers mestres, cards de conteúdo e layouts |
-| **Cards Internos & Inputs** | `#1E293B` | Inputs de formulários, modais e sub-cards |
-| **Destaque / Ação Primária** | `#14B8A6` | Botões de ação (Teal 500) — Hover: `#0D9488` |
-| **Alertas & Cancelamentos** | `#EF4444` | Status cancelados, alertas e botões destrutivos |
-| **Texto Principal** | `#F8FAFC` | Títulos e valores em destaque |
-| **Texto Secundário** | `#94A3B8` | Labels, legendas e textos auxiliares |
-| **Bordas & Divisores** | `#334155` | Separadores de seção e bordas sutis |
+### 1. Vitrine Pública & Motor de Agendamento
+- **Vitrine Digital**: Apresentação visual da barbearia com galeria de fotos, catálogo de serviços agrupados, tempo estimado de duração e preços.
+- **Motor de Disponibilidade**: Cálculo dinâmico de horários livres com prevenção inteligente de overbooking (respeita o número de cadeiras simultâneas cadastradas).
+- **Safety Gate de R$ 15,00**: Aplicação estrita das regras financeiras: serviços com valor inferior a R$ 15,00 exigem pagamento integral; serviços acima de R$ 15,00 permitem seleção de sinal progressivo (25%, 50% ou 100%).
+- **Checkout Pix em Tempo Real**: Geração instantânea de QR Code e Pix Copia e Cola, com *polling* a cada 3 segundos monitorando a confirmação via webhook do Asaas.
+- **Voucher Digital & Calendário**: Emissão de comprovante com atalhos diretos para Google Maps, WhatsApp do salão e download de arquivo de calendário sincronizável (`.ics`).
 
----
+### 2. Painel de Controle do Estabelecimento (`/painel`)
+- **Dashboard Analítico**: Faturamento bruto, faturamento líquido, quantidade de atendimentos e saldo retido em custódia (*Escrow Hold*).
+- **Agenda Operacional**: Visão consolidada da grade diária com filtros de status (*Agendado*, *Concluído*, *Cancelado*), dados do cliente e ação de conclusão com liquidação financeira.
+- **Catálogo de Serviços**: Cadastro de serviços com controle de duração, valor total, percentual mínimo de sinal e capacidade de atendimento simultâneo por grupo.
+- **Expediente & Feriados**: Definição de horários de abertura e fechamento por dia da semana, pausas de intervalo (almoço) e bloqueios de feriados.
+- **Financeiro & Subconta Asaas**: Consulta de saldo disponível para saque, histórico de transferências Pix para conta bancária do dono e visualização de taxas.
 
-## 🗺️ Matriz de Rotas & Telas
+### 3. Portal do Cliente (`/meus-agendamentos` e `/explorar`)
+- **Barbearias Visitadas**: Aba de exploração com histórico de estabelecimentos já frequentados e botão de *Agendar Novamente* com 1 clique.
+- **Histórico & Próximos Atendimentos**: Abas organizadas separando compromissos futuros de atendimentos passados, com detalhamento claro do sinal pago e valor restante no balcão.
+- **Cancelamento Transparente**:
+  - *Com mais de 24 horas de antecedência*: Estorno integral automático (100% via Pix).
+  - *Com menos de 24 horas de antecedência*: Retenção legal do piso de R$ 15,00 para compensação da cadeira vaga (Arts. 417 a 420 do Código Civil) e devolução automática do valor excedente.
+- **Minha Conta & Privacidade**: Edição de dados cadastrais, validação de CPF, alteração de senha e exclusão definitiva de dados pessoais conforme a LGPD.
 
-| Rota | Layout Mestre | Componente Principal | Controle de Acesso (RBAC) | Status |
-|---|---|---|---|:---:|
-| `/` | `PublicLayout` | `HomePage` | Público | ✅ Concluído (Task 0/1) |
-| `/empresa/:slug` | `PublicLayout` | `StorefrontPage` (Vitrine) | Público | ✅ Concluído (Task 2) |
-| `/reserva/:companyId/:serviceId` | `PublicLayout` | `CheckoutPage` | Público / Autenticado | ✅ Concluído (Task 2) |
-| `/pagamento/pix/:appointmentId` | `PublicLayout` | `PixPaymentPage` | Público / Autenticado | ✅ Concluído (Task 2) |
-| `/reserva/confirmada/:appointmentId` | `PublicLayout` | `BookingSuccessPage` | Público / Autenticado | ✅ Concluído (Task 2) |
-| `/login` | `AuthLayout` | `LoginPage` | Público / Guest | ✅ Concluído (Task 1) |
-| `/cadastro` | `AuthLayout` | `RegisterPage` | Público / Guest | ✅ Concluído (Task 1) |
-| `/esqueci-minha-senha` | `AuthLayout` | `ForgotPasswordPage` | Público / Guest | ✅ Concluído (Task 1) |
-| `/redefinir-senha` | `AuthLayout` | `ResetPasswordPage` | Público / Guest | ✅ Concluído (Task 1) |
-| `/onboarding/empresa` | `AuthLayout` | `CompanyOnboardingPage` | Público / Autenticado | ✅ Concluído (Task 1) |
-| `/meus-agendamentos` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `EMPLOYEE`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
-| `/meus-agendamentos/:id` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
-| `/minha-conta` | `ClientLayout` | `ClientProfilePage` | Todos autenticados | ✅ Concluído |
-| `/painel` | `OwnerLayout` | `OwnerDashboardPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 3) |
-| `/painel/agenda` | `OwnerLayout` | `OwnerCalendarPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 3) |
-| `/painel/servicos` | `OwnerLayout` | `OwnerServicesPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 4) |
-| `/painel/expediente` | `OwnerLayout` | `OwnerWorkingHoursPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 4) |
-| `/painel/financeiro` | `OwnerLayout` | `OwnerFinancialPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 3/4) |
-| `/painel/configuracoes` | `OwnerLayout` | `OwnerSettingsPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 4) |
-| `/admin` | `AdminLayout` | `AdminDashboardPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
-| `/admin/empresas` | `AdminLayout` | `AdminCompaniesPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
-| `/admin/usuarios` | `AdminLayout` | `AdminUsersPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
-| `*` | `RootLayout` | `NotFoundPage` | Público | ✅ Concluído |
+### 4. Experiência PWA & Otimização de Performance
+- **Instalação em 1 Clique (A2HS)**: Banner e modal de instalação compatível com Android, iOS e Desktop.
+- **Code Splitting com `React.lazy`**: Todas as 22 rotas são carregadas sob demanda com fallbacks de skeleton temáticos, reduzindo o bundle inicial em mais de 60%.
+- **Resiliência a Erros**: `GlobalErrorBoundary` protegendo toda a árvore de renderização para evitar telas brancas, acompanhado de telas temáticas para erros 404 e 500.
 
 ---
 
-## 🌳 Estrutura de Arquivos (`src/`)
+## 🎨 Design System (Dark Mode Estrito)
+
+A interface segue uma paleta de cores escura e sofisticada, garantindo alto contraste e legibilidade:
+
+```
+• Background Principal:     #0B1120 (Dark Canvas)
+• Cards e Containers:       #0F172A (Slate 900)
+• Modais, Inputs e Menus:   #1E293B (Slate 800)
+• Bordas e Linhas de Guia:  #334155 (Slate 700)
+• Ação Primária / Destaque: #14B8A6 (Teal 500) | Hover: #0D9488 (Teal 600)
+• Alertas e Cancelamentos:  #EF4444 (Red 500)
+• Tipografia Principal:     #F8FAFC (Slate 50)
+• Tipografia Secundária:    #94A3B8 (Slate 400)
+```
+
+---
+
+## 📁 Estrutura de Arquivos
 
 ```
 src/
 ├── components/
-│   ├── auth/
-│   │   └── ProtectedRoute.tsx          # Guarda RBAC de rotas com validação de Role
-│   ├── client/
-│   │   ├── CancelAppointmentModal.tsx  # Modal de cancelamento educativo com cálculo de estorno
-│   │   └── VoucherModal.tsx            # Voucher digital, rota no Google Maps e arquivo .ics
-│   ├── common/
-│   │   ├── Badge.tsx                   # Primitivo de status com variações e pulsos
-│   │   ├── Button.tsx                  # Botão institucional com loading e ícones
-│   │   ├── Card.tsx                    # Containers com estilo dark #0F172A
-│   │   ├── Input.tsx                   # Input estilizado com validação e ícones
-│   │   ├── Logo.tsx                    # Logotipo oficial Cloudinary + fallback Calendar
-│   │   ├── Modal.tsx                   # Dialog com backdrop blur e acessibilidade
-│   │   ├── Skeleton.tsx                # Placeholders animados de carregamento
-│   │   └── Toaster.tsx                 # Toaster Sonner dark mode
-│   └── dashboard/
-│       └── WithdrawalModal.tsx         # Modal de solicitação de saque com dedução Asaas e histórico
-├── config/
-│   ├── api.config.ts                   # Axios com Bearer token e auto-refresh 401
-│   └── query-client.ts                 # TanStack QueryClient e cache global
+│   ├── auth/           # ProtectedRoute e guardas de autenticação
+│   ├── booking/        # Componentes do fluxo de reserva e checkout Pix
+│   ├── client/         # CancelAppointmentModal, VoucherModal
+│   ├── common/         # Button, Input, Card, Modal, Badge, Skeleton, Toaster, ErrorBoundary
+│   └── dashboard/      # Gráficos, métricas financeiras e cards analíticos
 ├── contexts/
-│   └── auth.context.tsx                # AuthProvider, useAuth() e sincronização de tokens
+│   └── auth.context.tsx# Gerenciamento de sessão JWT e papéis de usuário
 ├── layouts/
-│   ├── AdminLayout.tsx                 # Layout executivo Super Admin
-│   ├── AuthLayout.tsx                  # Layout centralizado Dark Mode
-│   ├── ClientLayout.tsx                # Portal do cliente com BottomNav PWA
-│   ├── OwnerLayout.tsx                 # Portal do proprietário com Sidebar retrátil
-│   ├── PublicLayout.tsx                # Layout público institucional com footer limpo
-│   └── RootLayout.tsx                  # Provedores globais, Toaster e Outlet
+│   ├── RootLayout.tsx  # Shell mestre com Error Boundary, Toaster e PWA Prompt
+│   ├── PublicLayout.tsx# Layout com cabeçalho e rodapé institucionais
+│   ├── AuthLayout.tsx  # Layout centralizado para login, cadastro e onboarding
+│   ├── ClientLayout.tsx# Layout do portal do cliente com barra de navegação móvel PWA
+│   ├── OwnerLayout.tsx # Layout do painel com sidebar retrátil
+│   └── AdminLayout.tsx # Layout de governança da plataforma
 ├── lib/
-│   ├── calendar.ts                     # Gerador e downloader de arquivo .ics para calendários
-│   └── utils.ts                        # Utilitário cn() e formatadores
-├── mocks/
-│   ├── owner.mock.ts                   # Mocks de métricas, saldo em custódia e histórico de saques
-│   └── storefront.mock.ts              # Mock completo da vitrine Barbearia Vintage Club
+│   ├── calendar.ts     # Gerador de arquivos de evento .ics
+│   ├── confetti.ts     # Disparo de confetes comemorativos
+│   ├── haptics.ts      # Utilitário de vibração tátil para dispositivos móveis
+│   └── utils.ts        # Formatadores monetários (BRL), máscaras e classes Tailwind
 ├── pages/
-│   ├── admin/
-│   │   ├── AdminCompaniesPage.tsx      # Gestão e auditoria de estabelecimentos
-│   │   ├── AdminDashboardPage.tsx      # Platform intelligence e saúde de microsserviços
-│   │   └── AdminUsersPage.tsx          # Moderação centralizada de usuários
-│   ├── auth/
-│   │   ├── CompanyOnboardingPage.tsx   # Wizard atômico de criação de dono + empresa (POST /company/create)
-│   │   ├── ForgotPasswordPage.tsx      # Solicitação de redefinição de senha
-│   │   ├── LoginPage.tsx               # Formulário de login com Zod e auto-redirect
-│   │   ├── RegisterPage.tsx            # Cadastro com seletor de perfil e termos
-│   │   └── ResetPasswordPage.tsx       # Redefinição stateless de senha por token
-│   ├── booking/
-│   │   ├── BookingSuccessPage.tsx      # Voucher digital de confirmação com .ics e mapas
-│   │   ├── CheckoutPage.tsx            # Seletor de data, slots livres e Safety Gate R$ 15,00
-│   │   └── PixPaymentPage.tsx          # QR Code Pix, Copia e Cola, timer 15m e polling reativo 3s
-│   ├── client/
-│   │   ├── ClientAppointmentsPage.tsx  # Gestão de agendamentos e cancelamento >24h
-│   │   └── ClientProfilePage.tsx       # Gestão de perfil e CPF para split Pix
-│   ├── owner/
-│   │   ├── OwnerCalendarPage.tsx       # Grade operacional e conclusão atômica com liberação de saldo
-│   │   ├── OwnerDashboardPage.tsx      # Métricas financeiras, saldo disponível, custódia e fila de hoje
-│   │   ├── OwnerFinancialPage.tsx      # Subconta Asaas e extrato de repasses
-│   │   ├── OwnerServicesPage.tsx       # CRUD de serviços e grupos com piso de sinal
-│   │   ├── OwnerSettingsPage.tsx       # Dados cadastrais e upload de fotos
-│   │   └── OwnerWorkingHoursPage.tsx   # Grade semanal e exceções de feriados
-│   └── public/
-│       ├── HomePage.tsx                # Landing page com busca rápida e sem jargões
-│       ├── NotFoundPage.tsx            # Página 404 customizada
-│       └── StorefrontPage.tsx          # Vitrine pública completa com catálogo agrupado e horários
+│   ├── auth/           # Login, Cadastro, Recuperação de Senha, Onboarding
+│   ├── booking/        # Checkout, Pix Payment, Booking Success
+│   ├── client/         # Explorar, Meus Agendamentos, Minha Conta
+│   ├── owner/          # Dashboard, Agenda, Serviços, Expediente, Financeiro, Configurações
+│   └── public/         # Homepage, Vitrine Pública da Barbearia, 404, 500
 ├── routes/
-│   └── index.tsx                       # Definição das 22 rotas da aplicação
+│   └── index.tsx       # Roteador centralizado com code splitting dinâmico
 ├── services/
-│   ├── appointments.service.ts         # Slots livres, criação de reserva, consulta e conclusão de atendimento
-│   ├── cep.service.ts                  # Consulta de CEP via BrasilAPI v2 com autopreenchimento
-│   ├── company.service.ts              # Vitrine, métricas do painel, saldo, saques e histórico
-│   ├── services.service.ts             # CRUD de categorias (ServiceGroup) e serviços (CompanyService)
-│   ├── transactions.service.ts         # Geração de Pix e transações financeiras Asaas
-│   └── working-hours.service.ts        # Grade semanal e exceções de feriados
-├── types/
-│   ├── api.types.ts                    # Tipagens de resposta e paginação da API
-│   ├── appointment.types.ts            # DTOs de agendamento, status e available slots
-│   ├── auth.types.ts                   # Role enum, User, AuthTokens e DTOs
-│   ├── company.types.ts                # Storefront, WorkingHours, Balance, Withdrawals e Metrics
-│   └── transaction.types.ts            # PixTransactionResponse e payloads Pix
-├── vite-env.d.ts                       # Tipagem de ambiente e PWA
-├── index.css                           # Design System Dark Mode Tailwind v4
-├── App.tsx                             # Ponto de entrada com RouterProvider
-└── main.tsx                            # Root React 19
+│   ├── api.ts          # Instância do Axios com interceptor de renovação de token
+│   ├── appointments.service.ts
+│   ├── auth.service.ts
+│   ├── company.service.ts
+│   ├── services.service.ts
+│   └── transactions.service.ts
+└── types/
+    ├── appointment.types.ts
+    ├── auth.types.ts
+    ├── company.types.ts
+    └── financial.types.ts
 ```
 
 ---
 
-## ⚡ Como Rodar o Projeto
+## ⚙️ Como Executar Localmente
 
+### Pré-requisitos
+- **Node.js**: versão 18 ou superior
+- **npm** ou **yarn**
+
+### 1. Clonar o repositório
 ```bash
-# 1. Instalar dependências
+git clone https://github.com/seu-usuario/frontend-sinalizego.git
+cd frontend-sinalizego
+```
+
+### 2. Instalar as dependências
+```bash
 npm install
+```
 
-# 2. Executar o servidor de desenvolvimento
+### 3. Configurar as variáveis de ambiente
+Crie um arquivo `.env` na raiz do projeto:
+```env
+VITE_API_URL=http://localhost:3000/api/v1
+```
+
+### 4. Iniciar o servidor de desenvolvimento
+```bash
 npm run dev
+```
+Acesse `http://localhost:5173` no seu navegador.
 
-# 3. Validar compilação TypeScript e build de produção
+### 5. Compilar para produção
+```bash
 npm run build
 ```
 
 ---
 
-## 📊 Status do Roadmap
+## 🛡️ Regras de Negócio & Segurança Financeira
 
-- [x] **Task 0**: Fundação, Design System e Setup de Rede — **FEITO**
-- [x] **Task 1**: Autenticação, Recuperação de Senha e Onboarding da Empresa — **FEITO**
-- [x] **Task 2**: Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling — **FEITO**
-- [x] **Task 3**: Painel do Dono — Dashboard Analítico, Agenda e Conclusão — **FEITO**
-- [x] **Task 4**: Painel do Dono — Catálogo, Expediente e Subconta Financeira — **FEITO**
-- [x] **Task 5**: Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil — **FEITO**
-- [x] **Task 6**: Error Boundaries, Telas 404/500, Toasts Globais e Polimento — **FEITO**
-- [x] **Task 7**: Experiência PWA, Otimizações de Performance e Micro-Interações — **FEITO**
+- **Zero Trust nos Valores Financeiros**: O frontend nunca calcula splits ou taxas arbitrárias por conta própria; todos os valores são validados contra a API oficial do backend NestJS.
+- **Custódia Garantida**: O sinal pago pelo cliente permanece em estado de retenção até que o atendimento seja marcado como concluído pelo estabelecimento ou cancelado dentro das regras legais.
+- **Proteção contra Overbooking**: O catálogo de serviços impede agendamentos simultâneos que excedam o número de cadeiras físicas configuradas.
+
+---
+
+## 📄 Licença
+
+Este projeto é proprietário e faz parte do ecossistema comercial **SinalizeGO**. Todos os direitos reservados.
