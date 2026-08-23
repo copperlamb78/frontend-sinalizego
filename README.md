@@ -41,11 +41,11 @@
 | `/reserva/:companyId/:serviceId` | `PublicLayout` | `CheckoutPage` | Público | 🟡 Planejado (Task 2) |
 | `/pagamento/pix/:appointmentId` | `PublicLayout` | `PixPaymentPage` | Público | 🟡 Planejado (Task 2) |
 | `/reserva/confirmada/:appointmentId` | `PublicLayout` | `BookingSuccessPage` | Público | 🟡 Planejado (Task 2) |
-| `/login` | `AuthLayout` | `LoginPage` | Público / Guest | ✅ Concluído |
-| `/cadastro` | `AuthLayout` | `RegisterPage` | Público / Guest | ✅ Concluído |
-| `/esqueci-minha-senha` | `AuthLayout` | `ForgotPasswordPage` | Público / Guest | ✅ Concluído |
-| `/redefinir-senha` | `AuthLayout` | `ResetPasswordPage` | Público / Guest | ✅ Concluído |
-| `/onboarding/empresa` | `AuthLayout` | `CompanyOnboardingPage` | Autenticado (`CLIENT`, `COMPANY_OWNER`) | ✅ Concluído |
+| `/login` | `AuthLayout` | `LoginPage` | Público / Guest | ✅ Concluído (Task 1) |
+| `/cadastro` | `AuthLayout` | `RegisterPage` | Público / Guest | ✅ Concluído (Task 1) |
+| `/esqueci-minha-senha` | `AuthLayout` | `ForgotPasswordPage` | Público / Guest | ✅ Concluído (Task 1) |
+| `/redefinir-senha` | `AuthLayout` | `ResetPasswordPage` | Público / Guest | ✅ Concluído (Task 1) |
+| `/onboarding/empresa` | `AuthLayout` | `CompanyOnboardingPage` | Autenticado (`CLIENT`, `COMPANY_OWNER`) | ✅ Concluído (Task 1) |
 | `/meus-agendamentos` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `EMPLOYEE`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
 | `/meus-agendamentos/:id` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
 | `/minha-conta` | `ClientLayout` | `ClientProfilePage` | Todos autenticados | ✅ Concluído |
@@ -74,7 +74,7 @@ src/
 │       ├── Button.tsx                  # Botão institucional com loading e ícones
 │       ├── Card.tsx                    # Containers com estilo dark #0F172A
 │       ├── Input.tsx                   # Input estilizado com validação e ícones
-│       ├── Logo.tsx                    # Logotipo institucional com badge SaaS
+│       ├── Logo.tsx                    # Logotipo oficial Cloudinary + fallback Calendar
 │       ├── Modal.tsx                   # Dialog com backdrop blur e acessibilidade
 │       ├── Skeleton.tsx                # Placeholders animados de carregamento
 │       └── Toaster.tsx                 # Toaster Sonner dark mode
@@ -88,7 +88,7 @@ src/
 │   ├── AuthLayout.tsx                  # Layout centralizado Dark Mode
 │   ├── ClientLayout.tsx                # Portal do cliente com BottomNav PWA
 │   ├── OwnerLayout.tsx                 # Portal do proprietário com Sidebar retrátil
-│   ├── PublicLayout.tsx                # Layout público institucional com footer
+│   ├── PublicLayout.tsx                # Layout público institucional com footer limpo
 │   └── RootLayout.tsx                  # Provedores globais, Toaster e Outlet
 ├── lib/
 │   └── utils.ts                        # Utilitário cn() e formatadores
@@ -98,10 +98,10 @@ src/
 │   │   ├── AdminDashboardPage.tsx      # Platform intelligence e saúde de microsserviços
 │   │   └── AdminUsersPage.tsx          # Moderação centralizada de usuários
 │   ├── auth/
-│   │   ├── CompanyOnboardingPage.tsx   # Wizard de criação de empresa e promoção de role
+│   │   ├── CompanyOnboardingPage.tsx   # Wizard 2 etapas de criação de empresa e promoção de role
 │   │   ├── ForgotPasswordPage.tsx      # Solicitação de redefinição de senha
 │   │   ├── LoginPage.tsx               # Formulário de login com Zod e auto-redirect
-│   │   ├── RegisterPage.tsx            # Cadastro com seletor de perfil
+│   │   ├── RegisterPage.tsx            # Cadastro com seletor de perfil e termos
 │   │   └── ResetPasswordPage.tsx       # Redefinição stateless de senha por token
 │   ├── client/
 │   │   ├── ClientAppointmentsPage.tsx  # Gestão de agendamentos e cancelamento >24h
@@ -114,7 +114,7 @@ src/
 │   │   ├── OwnerSettingsPage.tsx       # Dados cadastrais e upload de fotos
 │   │   └── OwnerWorkingHoursPage.tsx   # Grade semanal e exceções de feriados
 │   └── public/
-│       ├── HomePage.tsx                # Landing page com busca rápida e vitrines demo
+│       ├── HomePage.tsx                # Landing page com busca rápida e sem jargões
 │       └── NotFoundPage.tsx            # Página 404 customizada
 ├── routes/
 │   └── index.tsx                       # Definição das 22 rotas da aplicação
@@ -131,22 +131,14 @@ src/
 
 ## ⚡ Como Rodar o Projeto
 
-### Pré-requisitos
-- Node.js 20+
-- npm / yarn / pnpm
-
-### Instalação & Execução Local
 ```bash
-# 1. Clonar e entrar no diretório
-cd frontend-sinalizego
-
-# 2. Instalar dependências
+# 1. Instalar dependências
 npm install
 
-# 3. Executar o servidor de desenvolvimento
+# 2. Executar o servidor de desenvolvimento
 npm run dev
 
-# 4. Validar compilação TypeScript e build de produção
+# 3. Validar compilação TypeScript e build de produção
 npm run build
 ```
 
@@ -155,7 +147,7 @@ npm run build
 ## 📊 Status do Roadmap
 
 - [x] **Task 0**: Fundação, Design System e Setup de Rede — **FEITO**
-- [ ] **Task 1**: Autenticação, Recuperação de Senha e Onboarding da Empresa
+- [x] **Task 1**: Autenticação, Recuperação de Senha e Onboarding da Empresa — **FEITO**
 - [ ] **Task 2**: Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling
 - [ ] **Task 3**: Painel do Dono — Dashboard Analítico, Agenda e Conclusão
 - [ ] **Task 4**: Painel do Dono — Catálogo, Expediente e Subconta Financeira

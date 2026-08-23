@@ -180,11 +180,11 @@ export const PublicLayout: React.FC = () => {
           <div className="space-y-4 md:col-span-2">
             <Logo size="md" />
             <p className="text-sm text-[#94A3B8] max-w-sm leading-relaxed">
-              O ecossistema definitivo para barbearias, salões e estúdios. Agendamentos sem no-show com sinal Pix automatizado e split bancário instantâneo.
+              A plataforma definitiva para barbearias, salões e estúdios. Agendamentos simples, horários garantidos e recebimento rápido via Pix.
             </p>
             <div className="flex items-center gap-2 text-xs text-slate-400">
               <ShieldCheck className="w-4 h-4 text-teal-400" />
-              <span>Pagamentos processados com segurança via Asaas Gateway</span>
+              <span>Pagamentos processados com segurança bancária via Pix</span>
             </div>
           </div>
 
@@ -200,7 +200,7 @@ export const PublicLayout: React.FC = () => {
               </li>
               <li>
                 <Link to="/cadastro" className="hover:text-white transition-colors">
-                  Cadastrar Barbearia
+                  Cadastrar Meu Estabelecimento
                 </Link>
               </li>
               <li>
@@ -223,7 +223,7 @@ export const PublicLayout: React.FC = () => {
               </li>
               <li>
                 <a href="#termos" className="hover:text-white transition-colors">
-                  Termos de Uso do Split Pix
+                  Termos de Uso
                 </a>
               </li>
               <li>
@@ -236,9 +236,9 @@ export const PublicLayout: React.FC = () => {
         </div>
 
         <div className="max-w-7xl mx-auto pt-8 mt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© {new Date().getFullYear()} SinalizeGO SaaS. Todos os direitos reservados.</p>
+          <p>© {new Date().getFullYear()} SinalizeGO — Plataforma de Gestão e Agendamentos.</p>
           <p className="flex items-center gap-1">
-            Feito para alta performance e zero vacância.
+            Mais praticidade para clientes e donos de estabelecimentos.
           </p>
         </div>
       </footer>

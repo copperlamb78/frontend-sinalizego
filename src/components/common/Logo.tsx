@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Scissors } from 'lucide-react';
+import { Calendar } from 'lucide-react';
+
+const LOGO_IMAGE_URL = 'https://res.cloudinary.com/dsg7aisg9/image/upload/v1787494139/Blue_and_Black_Minimalist_Professional_Business_Brand_Logo_khpcbp.png';
 
 interface LogoProps {
   className?: string;
@@ -13,33 +15,37 @@ export const Logo: React.FC<LogoProps> = ({
   size = 'md',
   showText = true
 }) => {
+  const [imageError, setImageError] = useState(false);
+
   const sizeMap = {
-    sm: { icon: 'w-6 h-6', text: 'text-lg', badge: 'text-[10px]' },
-    md: { icon: 'w-8 h-8', text: 'text-xl', badge: 'text-xs' },
-    lg: { icon: 'w-10 h-10', text: 'text-2xl', badge: 'text-xs' },
-    xl: { icon: 'w-14 h-14', text: 'text-4xl', badge: 'text-sm' }
+    sm: { img: 'w-7 h-7', text: 'text-lg', iconBox: 'w-7 h-7' },
+    md: { img: 'w-9 h-9', text: 'text-xl', iconBox: 'w-9 h-9' },
+    lg: { img: 'w-12 h-12', text: 'text-2xl', iconBox: 'w-12 h-12' },
+    xl: { img: 'w-16 h-16', text: 'text-4xl', iconBox: 'w-16 h-16' }
   };
 
   return (
     <div className={cn('flex items-center gap-2.5 select-none', className)}>
-      <div className={cn(
-        'relative flex items-center justify-center rounded-xl bg-gradient-to-br from-[#14B8A6] to-[#0F766E] text-white shadow-lg shadow-teal-500/20 border border-teal-400/30',
-        sizeMap[size].icon
-      )}>
-        <Scissors className="w-1/2 h-1/2 -rotate-45" />
-        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-teal-300 animate-pulse" />
-      </div>
+      {!imageError ? (
+        <img
+          src={LOGO_IMAGE_URL}
+          alt="SinalizeGO"
+          className={cn('rounded-xl object-contain shadow-md shadow-teal-950/20 shrink-0', sizeMap[size].img)}
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        <div className={cn(
+          'relative flex items-center justify-center rounded-xl bg-gradient-to-br from-[#14B8A6] to-[#0F766E] text-white shadow-lg shadow-teal-500/20 border border-teal-400/30 shrink-0',
+          sizeMap[size].iconBox
+        )}>
+          <Calendar className="w-1/2 h-1/2" />
+        </div>
+      )}
 
       {showText && (
         <div className="flex items-center tracking-tight">
           <span className={cn('font-black text-[#F8FAFC]', sizeMap[size].text)}>
             Sinalize<span className="text-[#14B8A6]">GO</span>
-          </span>
-          <span className={cn(
-            'ml-1.5 px-1.5 py-0.5 rounded font-mono font-bold bg-[#1E293B] text-teal-400 border border-slate-700/60 uppercase tracking-widest',
-            sizeMap[size].badge
-          )}>
-            SaaS
           </span>
         </div>
       )}

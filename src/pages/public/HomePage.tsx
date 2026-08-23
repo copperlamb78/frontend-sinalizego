@@ -38,25 +38,25 @@ export const HomePage: React.FC = () => {
       <section className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center space-y-8">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1E293B] border border-teal-500/30 text-teal-400 text-xs font-semibold glow-teal-sm animate-pulse">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Plataforma SaaS Anti-Vacância com Split Pix</span>
+          <span>Agendamentos Inteligentes com Sinal Pix</span>
         </div>
 
         <h1 className="text-4xl sm:text-6xl font-black text-[#F8FAFC] tracking-tight max-w-4xl mx-auto leading-tight">
-          Agendamentos sem no-show com{' '}
+          Agendamentos sem faltas com{' '}
           <span className="bg-gradient-to-r from-[#14B8A6] via-teal-300 to-emerald-400 bg-clip-text text-transparent">
             Sinal Pix Automático
           </span>
         </h1>
 
         <p className="text-base sm:text-lg text-[#94A3B8] max-w-2xl mx-auto leading-relaxed">
-          Gere reservas confirmadas com retenção de sinal financeiro. O cliente paga pelo Pix Asaas em segundos e seu salão nunca mais perde horário vago.
+          Gere reservas confirmadas com sinal antecipado. O cliente paga pelo Pix em segundos e seu estabelecimento tem o comparecimento garantido.
         </p>
 
         {/* Quick Search Bar */}
         <div className="max-w-xl mx-auto">
           <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
             <Input
-              placeholder="Digite o slug da barbearia (ex: vintage-club)"
+              placeholder="Digite o nome ou link do estabelecimento (ex: vintage-club)"
               value={searchSlug}
               onChange={(e) => setSearchSlug(e.target.value)}
               leftIcon={<Search className="w-5 h-5 text-slate-400" />}
@@ -99,10 +99,10 @@ export const HomePage: React.FC = () => {
       <section id="como-funciona" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center space-y-3">
           <h2 className="text-2xl sm:text-3xl font-bold text-[#F8FAFC]">
-            Engenharia Financeira & Operacional de Ponta
+            Mais Praticidade e Segurança para Todos
           </h2>
           <p className="text-sm text-[#94A3B8] max-w-xl mx-auto">
-            Criado com base no princípio Zero Trust para proteger o faturamento de donos de barbearia e a experiência dos clientes.
+            Desenvolvido para garantir agendamentos sem imprevistos, comodidade para os clientes e previsibilidade de caixa para os profissionais.
           </p>
         </div>
 
@@ -115,17 +115,17 @@ export const HomePage: React.FC = () => {
               </div>
               <CardTitle>Sinal Pix em Tempo Real</CardTitle>
               <CardDescription>
-                QR Code dinâmico Asaas com validade de 15 minutos e conciliação instantânea por webhook.
+                QR Code dinâmico com validade de 15 minutos e confirmação instantânea na tela.
               </CardDescription>
             </CardHeader>
             <CardContent className="text-xs text-slate-400 space-y-2">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
-                <span>Polling a cada 3s com redirecionamento automático</span>
+                <span>Atualização automática assim que o Pix é pago</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
-                <span>Split financeiro direto na subconta bancária</span>
+                <span>Recebimento direto na conta do profissional</span>
               </div>
             </CardContent>
           </Card>
@@ -136,19 +136,19 @@ export const HomePage: React.FC = () => {
               <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-2">
                 <ShieldAlert className="w-6 h-6" />
               </div>
-              <CardTitle>Trava Anti-Vacância (Safety Gate)</CardTitle>
+              <CardTitle>Comparecimento Garantido</CardTitle>
               <CardDescription>
-                Trava de segurança de R$ 15,00 para micro-transações com opções em blocos progressivos (25% a 100%).
+                Pagamento de sinal proporcional que protege o horário reservado e evita desistências.
               </CardDescription>
             </CardHeader>
             <CardContent className="text-xs text-slate-400 space-y-2">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Serviços &lt; R$ 15,00 com 100% de pagamento antecipado</span>
+                <span>Opções flexíveis de sinal para o cliente escolher</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Política justa de cancelamento (estorno só &gt; 24h)</span>
+                <span>Política clara de cancelamento e remarcação</span>
               </div>
             </CardContent>
           </Card>
@@ -159,19 +159,19 @@ export const HomePage: React.FC = () => {
               <div className="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 mb-2">
                 <TrendingUp className="w-6 h-6" />
               </div>
-              <CardTitle>Painel do Dono em Alta Definição</CardTitle>
+              <CardTitle>Painel do Estabelecimento</CardTitle>
               <CardDescription>
-                Métricas analíticas em tempo real: faturamento, sinais recebidos, taxas retidas e agenda com 1 clique.
+                Acompanhe seus agendamentos, faturamento, horários livres e clientes em uma única tela.
               </CardDescription>
             </CardHeader>
             <CardContent className="text-xs text-slate-400 space-y-2">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0" />
-                <span>Conclusão atômica de atendimentos com liberação de agenda</span>
+                <span>Finalização rápida dos atendimentos do dia</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0" />
-                <span>Gestão multi-cadeiras por grupo de serviços</span>
+                <span>Organização por serviços e profissionais</span>
               </div>
             </CardContent>
           </Card>

@@ -44,7 +44,7 @@ export const AuthLayout: React.FC = () => {
 
       {/* Bottom Footer */}
       <div className="relative z-10 max-w-md w-full mx-auto text-center text-xs text-slate-500">
-        <p>SinalizeGO — Plataforma de Gestão e Agendamentos com Split Pix</p>
+        <p>SinalizeGO — Plataforma de Gestão e Agendamentos</p>
       </div>
     </div>
   );

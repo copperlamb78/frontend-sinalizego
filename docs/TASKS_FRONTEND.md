@@ -1,6 +1,6 @@
 # 📋 Planejamento de Tarefas Frontend — SinalizeGO (P0, P1, P2)
 
-**Versão**: 1.0.0  
+**Versão**: 1.1.0  
 **Data**: 23 de Agosto de 2026  
 **Status**: Em Execução (Fase P0)  
 **Classificação**: P0 (Crítico/Core), P1 (Operacional/Gestão), P2 (Governança/Polimento)
@@ -16,7 +16,7 @@
 │    FASE P0 (Core) │       FASE P1 (Operação)       │ FASE P2 (Escala)  │
 ├───────────────────┼────────────────────────────────┼───────────────────┤
 │ • [X] Task 0: Setup│ • [ ] Task 3: Dashboard & Agenda│ • [ ] Task 6: Admin │
-│ • [ ] Task 1: Auth │ • [ ] Task 4: Serviços/Expediente│ • [ ] Task 7: PWA │
+│ • [X] Task 1: Auth │ • [ ] Task 4: Serviços/Expediente│ • [ ] Task 7: PWA │
 │ • [ ] Task 2: Book │ • [ ] Task 5: Portal Cliente   │                   │
 └───────────────────┴────────────────────────────────┴───────────────────┘
 ```
@@ -27,29 +27,29 @@
 
 | Rota | Layout Mestre | Componente Principal | Controle de Acesso (RBAC) | Status |
 |---|---|---|---|:---:|
-| `/` | `PublicLayout` | `HomePage` | Público | ✅ Pronto (Task 0) |
+| `/` | `PublicLayout` | `HomePage` | Público | ✅ Concluído (Task 0/1) |
 | `/empresa/:slug` | `PublicLayout` | `HomePage` (Vitrine) | Público | 🟡 Planejado (Task 2) |
 | `/reserva/:companyId/:serviceId` | `PublicLayout` | `CheckoutPage` | Público | 🟡 Planejado (Task 2) |
 | `/pagamento/pix/:appointmentId` | `PublicLayout` | `PixPaymentPage` | Público | 🟡 Planejado (Task 2) |
 | `/reserva/confirmada/:appointmentId` | `PublicLayout` | `BookingSuccessPage` | Público | 🟡 Planejado (Task 2) |
-| `/login` | `AuthLayout` | `LoginPage` | Público / Guest | ✅ Pronto (Task 0/1) |
-| `/cadastro` | `AuthLayout` | `RegisterPage` | Público / Guest | ✅ Pronto (Task 0/1) |
-| `/esqueci-minha-senha` | `AuthLayout` | `ForgotPasswordPage` | Público / Guest | ✅ Pronto (Task 0/1) |
-| `/redefinir-senha` | `AuthLayout` | `ResetPasswordPage` | Público / Guest | ✅ Pronto (Task 0/1) |
-| `/onboarding/empresa` | `AuthLayout` | `CompanyOnboardingPage` | Autenticado (`CLIENT`, `COMPANY_OWNER`) | ✅ Pronto (Task 0/1) |
-| `/meus-agendamentos` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `EMPLOYEE`, `ADMIN`, `SUPER_ADMIN` | ✅ Pronto (Task 0/5) |
-| `/meus-agendamentos/:id` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Pronto (Task 0/5) |
-| `/minha-conta` | `ClientLayout` | `ClientProfilePage` | Todos autenticados | ✅ Pronto (Task 0/5) |
-| `/painel` | `OwnerLayout` | `OwnerDashboardPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Pronto (Task 0/3) |
-| `/painel/agenda` | `OwnerLayout` | `OwnerCalendarPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Pronto (Task 0/3) |
-| `/painel/servicos` | `OwnerLayout` | `OwnerServicesPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Pronto (Task 0/4) |
-| `/painel/expediente` | `OwnerLayout` | `OwnerWorkingHoursPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Pronto (Task 0/4) |
-| `/painel/financeiro` | `OwnerLayout` | `OwnerFinancialPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Pronto (Task 0/4) |
-| `/painel/configuracoes` | `OwnerLayout` | `OwnerSettingsPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Pronto (Task 0/4) |
-| `/admin` | `AdminLayout` | `AdminDashboardPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Pronto (Task 0/6) |
-| `/admin/empresas` | `AdminLayout` | `AdminCompaniesPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Pronto (Task 0/6) |
-| `/admin/usuarios` | `AdminLayout` | `AdminUsersPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Pronto (Task 0/6) |
-| `*` | `RootLayout` | `NotFoundPage` | Público | ✅ Pronto (Task 0) |
+| `/login` | `AuthLayout` | `LoginPage` | Público / Guest | ✅ Concluído (Task 1) |
+| `/cadastro` | `AuthLayout` | `RegisterPage` | Público / Guest | ✅ Concluído (Task 1) |
+| `/esqueci-minha-senha` | `AuthLayout` | `ForgotPasswordPage` | Público / Guest | ✅ Concluído (Task 1) |
+| `/redefinir-senha` | `AuthLayout` | `ResetPasswordPage` | Público / Guest | ✅ Concluído (Task 1) |
+| `/onboarding/empresa` | `AuthLayout` | `CompanyOnboardingPage` | Autenticado (`CLIENT`, `COMPANY_OWNER`) | ✅ Concluído (Task 1) |
+| `/meus-agendamentos` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `EMPLOYEE`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/5) |
+| `/meus-agendamentos/:id` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/5) |
+| `/minha-conta` | `ClientLayout` | `ClientProfilePage` | Todos autenticados | ✅ Concluído (Task 0/5) |
+| `/painel` | `OwnerLayout` | `OwnerDashboardPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/3) |
+| `/painel/agenda` | `OwnerLayout` | `OwnerCalendarPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/3) |
+| `/painel/servicos` | `OwnerLayout` | `OwnerServicesPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/4) |
+| `/painel/expediente` | `OwnerLayout` | `OwnerWorkingHoursPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/4) |
+| `/painel/financeiro` | `OwnerLayout` | `OwnerFinancialPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/4) |
+| `/painel/configuracoes` | `OwnerLayout` | `OwnerSettingsPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/4) |
+| `/admin` | `AdminLayout` | `AdminDashboardPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/6) |
+| `/admin/empresas` | `AdminLayout` | `AdminCompaniesPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/6) |
+| `/admin/usuarios` | `AdminLayout` | `AdminUsersPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/6) |
+| `*` | `RootLayout` | `NotFoundPage` | Público | ✅ Concluído (Task 0) |
 
 ---
 
@@ -65,7 +65,7 @@ src/
 │       ├── Button.tsx                  # Botão institucional com loading e ícones
 │       ├── Card.tsx                    # Containers com estilo dark #0F172A
 │       ├── Input.tsx                   # Input estilizado com validação e ícones
-│       ├── Logo.tsx                    # Logotipo institucional com badge SaaS
+│       ├── Logo.tsx                    # Logotipo oficial Cloudinary + fallback Calendar
 │       ├── Modal.tsx                   # Dialog com backdrop blur e acessibilidade
 │       ├── Skeleton.tsx                # Placeholders animados de carregamento
 │       └── Toaster.tsx                 # Toaster Sonner dark mode
@@ -79,7 +79,7 @@ src/
 │   ├── AuthLayout.tsx                  # Layout centralizado Dark Mode
 │   ├── ClientLayout.tsx                # Portal do cliente com BottomNav PWA
 │   ├── OwnerLayout.tsx                 # Portal do proprietário com Sidebar retrátil
-│   ├── PublicLayout.tsx                # Layout público institucional com footer
+│   ├── PublicLayout.tsx                # Layout público institucional com footer limpo
 │   └── RootLayout.tsx                  # Provedores globais, Toaster e Outlet
 ├── lib/
 │   └── utils.ts                        # Utilitário cn() e formatadores
@@ -89,10 +89,10 @@ src/
 │   │   ├── AdminDashboardPage.tsx      # Platform intelligence e saúde de microsserviços
 │   │   └── AdminUsersPage.tsx          # Moderação centralizada de usuários
 │   ├── auth/
-│   │   ├── CompanyOnboardingPage.tsx   # Wizard de criação de empresa e promoção de role
+│   │   ├── CompanyOnboardingPage.tsx   # Wizard 2 etapas de criação de empresa e promoção de role
 │   │   ├── ForgotPasswordPage.tsx      # Solicitação de redefinição de senha
 │   │   ├── LoginPage.tsx               # Formulário de login com Zod e auto-redirect
-│   │   ├── RegisterPage.tsx            # Cadastro com seletor de perfil
+│   │   ├── RegisterPage.tsx            # Cadastro com seletor de perfil e termos
 │   │   └── ResetPasswordPage.tsx       # Redefinição stateless de senha por token
 │   ├── client/
 │   │   ├── ClientAppointmentsPage.tsx  # Gestão de agendamentos e cancelamento >24h
@@ -105,7 +105,7 @@ src/
 │   │   ├── OwnerSettingsPage.tsx       # Dados cadastrais e upload de fotos
 │   │   └── OwnerWorkingHoursPage.tsx   # Grade semanal e exceções de feriados
 │   └── public/
-│       ├── HomePage.tsx                # Landing page com busca rápida e vitrines demo
+│       ├── HomePage.tsx                # Landing page com busca rápida e sem jargões
 │       └── NotFoundPage.tsx            # Página 404 customizada
 ├── routes/
 │   └── index.tsx                       # Definição das 22 rotas da aplicação
@@ -151,7 +151,7 @@ src/
 
 ### 🔐 Task 1: Módulo de Autenticação, Recuperação de Senha e Onboarding da Empresa
 - **Prioridade**: P0
-- **Status**: [ ] Pendente
+- **Status**: [X] Concluído
 - **Complexidade**: Média
 - **Rotas**: `/login`, `/cadastro`, `/esqueci-minha-senha`, `/redefinir-senha`, `/onboarding/empresa`
 - **Endpoints Integrados**:
@@ -160,6 +160,20 @@ src/
   - `POST /auth/forgot-password` (Rate limit: 5 req/60s)
   - `POST /auth/reset-password`
   - `POST /company/create`
+
+#### Entregáveis Técnicos:
+1. **`LoginPage`**:
+   - [x] Formulário com React Hook Form + Zod, alternância de visibilidade de senha e feedback semântico de erro (401, 404, 429).
+2. **`RegisterPage`**:
+   - [x] Seletor de perfil no topo ("Quero agendar horários" vs "Tenho uma barbearia/estúdio").
+   - [x] Validação de formato de e-mail, máscara de telefone WhatsApp e senha forte.
+   - [x] Checkbox obrigatório de aceitação dos Termos de Uso e Política de Privacidade.
+3. **`ForgotPasswordPage` & `ResetPasswordPage`**:
+   - [x] Solicitação de e-mail com resposta de segurança genérica.
+   - [x] Formulário de redefinição consumindo token stateless da URL (`?token=...`).
+4. **`CompanyOnboardingPage`**:
+   - [x] Wizard guiado em 2 etapas com barra de progresso verde no topo (Etapa 1: Categoria + Nome com slug automático; Etapa 2: Endereço completo com UF e Cidade + botão Voltar).
+   - [x] Ao concluir (`POST /company/create`), captura o novo par de tokens (`access_token`, `refresh_token`), atualiza o `AuthContext` para `COMPANY_OWNER` e redireciona direto para `/painel`.
 
 ---
 
@@ -226,7 +240,7 @@ src/
 | Task | Título | Fase | Telas / Escopo | Status |
 |:---:|---|:---:|---|:---:|
 | **0** | Fundação, Design System Dark Mode e Camada HTTP/Auth | **P0** | Infraestrutura, Axios, TanStack Query, AuthContext, Layouts e PWA Base | ✅ **FEITO** |
-| **1** | Autenticação, Recuperação de Senha e Onboarding da Empresa | **P0** | `/login`, `/cadastro`, `/esqueci-minha-senha`, `/redefinir-senha`, `/onboarding/empresa` | 🟡 Pendente |
+| **1** | Autenticação, Recuperação de Senha e Onboarding da Empresa | **P0** | `/login`, `/cadastro`, `/esqueci-minha-senha`, `/redefinir-senha`, `/onboarding/empresa` | ✅ **FEITO** |
 | **2** | Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling | **P0** | `/`, `/empresa/:slug`, `/reserva/...`, `/pagamento/pix/...`, `/reserva/confirmada/...` | 🟡 Pendente |
 | **3** | Painel do Dono — Dashboard Analítico, Agenda e Conclusão | **P1** | `/painel`, `/painel/agenda` (Métricas, Conclusão de atendimentos) | 🟡 Pendente |
 | **4** | Painel do Dono — Catálogo, Expediente e Subconta Financeira | **P1** | `/painel/servicos`, `/painel/expediente`, `/painel/financeiro`, `/painel/configuracoes` | 🟡 Pendente |
