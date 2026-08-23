@@ -233,6 +233,31 @@ export const PixPaymentPage: React.FC = () => {
           <span className="w-2.5 h-2.5 rounded-full bg-teal-400 animate-ping" />
           <span>Aguardando pagamento... A tela atualizará automaticamente.</span>
         </div>
+
+        {/* Demo Simulator Button */}
+        {appointmentId?.startsWith('app-demo') && (
+          <div className="pt-3 border-t border-slate-800">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-full text-xs border-teal-500/40 text-teal-300 hover:bg-teal-500/10 cursor-pointer"
+              leftIcon={<Check className="w-3.5 h-3.5 text-teal-400" />}
+              onClick={() => {
+                const saved = sessionStorage.getItem(`@sinalizego:demo_app_${appointmentId}`);
+                if (saved) {
+                  const parsed = JSON.parse(saved);
+                  parsed.status = 'CONFIRMED';
+                  sessionStorage.setItem(`@sinalizego:demo_app_${appointmentId}`, JSON.stringify(parsed));
+                }
+                toast.success('Simulação: Pix confirmado instantaneamente!');
+                navigate(`/reserva/confirmada/${appointmentId}`, { replace: true });
+              }}
+            >
+              Simular Confirmação Pix (Webhook Asaas)
+            </Button>
+          </div>
+        )}
       </Card>
 
       {/* How to Pay Guide */}

@@ -138,7 +138,7 @@ export const appointmentsService = {
         serviceId: service.id,
         clientId: 'demo-client-id',
         appointmentDate: new Date(Date.now() + 86400000).toISOString(),
-        status: 'CONFIRMED',
+        status: 'PENDING_PAYMENT',
         servicePrice: service.totalPrice,
         downPaymentAmount: (service.totalPrice * 50) / 100,
         createdAt: new Date().toISOString(),

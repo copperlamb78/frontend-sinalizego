@@ -43,3 +43,58 @@ export interface CompanyStorefront {
   workingHours: WorkingHour[];
   serviceGroups: ServiceGroup[];
 }
+
+export interface CompanyBalance {
+  companyId: string;
+  businessName: string;
+  walletId?: string;
+  availableBalance: number;
+  escrowLockedBalance: number;
+  completedNetRevenue: number;
+  totalWithdrawn: number;
+  nextFreeWithdrawalDate: string; // ISO String (ex: toda segunda 06:00)
+  instantTransferFee: number; // R$ 5.00
+}
+
+export interface CompanyWithdrawal {
+  id: string;
+  requestedAmount: number;
+  transferFee: number;
+  netAmountTransferred: number;
+  status: 'CONFIRMED' | 'PENDING' | 'FAILED';
+  isFreeWeekly: boolean;
+  asaasTransferId?: string;
+  transferredAt: string;
+}
+
+export interface TodayAppointmentMetric {
+  id: string;
+  appointmentDate: string;
+  clientName: string;
+  clientPhone: string;
+  serviceName: string;
+  durationMinutes: number;
+  downPaymentAmount: number;
+  servicePrice: number;
+  amountToPayInSalon: number;
+  status?: string;
+}
+
+export interface CompanyDashboardMetrics {
+  revenue: {
+    totalRevenue: number;
+    totalDownPaymentCollected: number;
+    totalPlatformFees: number;
+    netIncome: number;
+    availableBalance: number;
+    escrowLockedBalance: number;
+    totalWithdrawn: number;
+  };
+  volume: {
+    total: number;
+    completed: number;
+    canceled: number;
+    occupancyRate: number;
+  };
+  todayAppointments: TodayAppointmentMetric[];
+}
