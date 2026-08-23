@@ -102,7 +102,7 @@ export const ClientAppointmentsPage: React.FC = () => {
               : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
           )}
         >
-          <span>Histórico / Concluídos</span>
+          <span>Histórico e Concluídos</span>
           {historyCount > 0 && (
             <span
               className={cn(
@@ -262,11 +262,11 @@ export const ClientAppointmentsPage: React.FC = () => {
                           <Button
                             variant="secondary"
                             size="sm"
-                            className="text-xs h-9 font-bold"
+                            className="text-xs h-9 font-bold cursor-pointer"
                             onClick={() => setVoucherAppointment(apt)}
                             leftIcon={<Receipt className="w-3.5 h-3.5 text-teal-400" />}
                           >
-                            Voucher / Rota
+                            Voucher e Rota
                           </Button>
 
                           <Button

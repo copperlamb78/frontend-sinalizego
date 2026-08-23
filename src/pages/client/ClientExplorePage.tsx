@@ -104,10 +104,10 @@ export const ClientExplorePage: React.FC = () => {
   return (
     <div className="space-y-8 max-w-4xl">
       {/* Top Header */}
-      <div className="space-y-1">
-        <h1 className="text-2xl font-black text-white flex items-center gap-2">
+      <div className="space-y-1 text-center max-w-xl mx-auto">
+        <h1 className="text-2xl font-black text-white flex items-center justify-center gap-2">
           <Compass className="w-6 h-6 text-teal-400" />
-          <span>Barbearias & Salões Visitados</span>
+          <span>Barbearias e Salões Visitados</span>
         </h1>
         <p className="text-xs text-slate-400">
           Acesse rapidamente o catálogo dos estabelecimentos que você já frequentou para agendar novamente com facilidade.
@@ -116,9 +116,9 @@ export const ClientExplorePage: React.FC = () => {
 
       {/* Visited Establishments List */}
       {visitedCompanies.length > 0 ? (
-        <div className="space-y-4">
-          {/* Search among visited */}
-          <div className="max-w-md">
+        <div className="space-y-6">
+          {/* Search among visited (Centered) */}
+          <div className="max-w-md mx-auto">
             <Input
               placeholder="Filtrar meus estabelecimentos..."
               value={searchQuery}

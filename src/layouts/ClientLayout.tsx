@@ -83,7 +83,7 @@ export const ClientLayout: React.FC = () => {
                 navigate('/login');
               }}
               title="Encerrar Sessão"
-              className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
             </button>
