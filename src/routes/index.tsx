@@ -1,3 +1,4 @@
+import React, { Suspense, lazy } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { RootLayout } from '@/layouts/RootLayout';
 import { PublicLayout } from '@/layouts/PublicLayout';
@@ -6,43 +7,51 @@ import { ClientLayout } from '@/layouts/ClientLayout';
 import { OwnerLayout } from '@/layouts/OwnerLayout';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { PageSkeleton } from '@/components/common/PageSkeleton';
 import { Role } from '@/types/auth.types';
 
-// Public pages
-import { HomePage } from '@/pages/public/HomePage';
-import { StorefrontPage } from '@/pages/public/StorefrontPage';
-import { NotFoundPage } from '@/pages/public/NotFoundPage';
 import { ServerErrorPage } from '@/pages/public/ServerErrorPage';
 
-// Booking & Pix flow pages
-import { CheckoutPage } from '@/pages/booking/CheckoutPage';
-import { PixPaymentPage } from '@/pages/booking/PixPaymentPage';
-import { BookingSuccessPage } from '@/pages/booking/BookingSuccessPage';
+// Lazy loaded public pages
+const HomePage = lazy(() => import('@/pages/public/HomePage').then(m => ({ default: m.HomePage })));
+const StorefrontPage = lazy(() => import('@/pages/public/StorefrontPage').then(m => ({ default: m.StorefrontPage })));
+const NotFoundPage = lazy(() => import('@/pages/public/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
-// Auth pages
-import { LoginPage } from '@/pages/auth/LoginPage';
-import { RegisterPage } from '@/pages/auth/RegisterPage';
-import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage';
-import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage';
-import { CompanyOnboardingPage } from '@/pages/auth/CompanyOnboardingPage';
+// Lazy loaded booking & Pix flow pages
+const CheckoutPage = lazy(() => import('@/pages/booking/CheckoutPage').then(m => ({ default: m.CheckoutPage })));
+const PixPaymentPage = lazy(() => import('@/pages/booking/PixPaymentPage').then(m => ({ default: m.PixPaymentPage })));
+const BookingSuccessPage = lazy(() => import('@/pages/booking/BookingSuccessPage').then(m => ({ default: m.BookingSuccessPage })));
 
-// Client pages
-import { ClientExplorePage } from '@/pages/client/ClientExplorePage';
-import { ClientAppointmentsPage } from '@/pages/client/ClientAppointmentsPage';
-import { ClientProfilePage } from '@/pages/client/ClientProfilePage';
+// Lazy loaded auth pages
+const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage').then(m => ({ default: m.RegisterPage })));
+const ForgotPasswordPage = lazy(() => import('@/pages/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
+const ResetPasswordPage = lazy(() => import('@/pages/auth/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
+const CompanyOnboardingPage = lazy(() => import('@/pages/auth/CompanyOnboardingPage').then(m => ({ default: m.CompanyOnboardingPage })));
 
-// Owner pages
-import { OwnerDashboardPage } from '@/pages/owner/OwnerDashboardPage';
-import { OwnerCalendarPage } from '@/pages/owner/OwnerCalendarPage';
-import { OwnerServicesPage } from '@/pages/owner/OwnerServicesPage';
-import { OwnerWorkingHoursPage } from '@/pages/owner/OwnerWorkingHoursPage';
-import { OwnerFinancialPage } from '@/pages/owner/OwnerFinancialPage';
-import { OwnerSettingsPage } from '@/pages/owner/OwnerSettingsPage';
+// Lazy loaded client pages
+const ClientExplorePage = lazy(() => import('@/pages/client/ClientExplorePage').then(m => ({ default: m.ClientExplorePage })));
+const ClientAppointmentsPage = lazy(() => import('@/pages/client/ClientAppointmentsPage').then(m => ({ default: m.ClientAppointmentsPage })));
+const ClientProfilePage = lazy(() => import('@/pages/client/ClientProfilePage').then(m => ({ default: m.ClientProfilePage })));
 
-// Admin pages
-import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
-import { AdminCompaniesPage } from '@/pages/admin/AdminCompaniesPage';
-import { AdminUsersPage } from '@/pages/admin/AdminUsersPage';
+// Lazy loaded owner pages
+const OwnerDashboardPage = lazy(() => import('@/pages/owner/OwnerDashboardPage').then(m => ({ default: m.OwnerDashboardPage })));
+const OwnerCalendarPage = lazy(() => import('@/pages/owner/OwnerCalendarPage').then(m => ({ default: m.OwnerCalendarPage })));
+const OwnerServicesPage = lazy(() => import('@/pages/owner/OwnerServicesPage').then(m => ({ default: m.OwnerServicesPage })));
+const OwnerWorkingHoursPage = lazy(() => import('@/pages/owner/OwnerWorkingHoursPage').then(m => ({ default: m.OwnerWorkingHoursPage })));
+const OwnerFinancialPage = lazy(() => import('@/pages/owner/OwnerFinancialPage').then(m => ({ default: m.OwnerFinancialPage })));
+const OwnerSettingsPage = lazy(() => import('@/pages/owner/OwnerSettingsPage').then(m => ({ default: m.OwnerSettingsPage })));
+
+// Lazy loaded admin pages
+const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
+const AdminCompaniesPage = lazy(() => import('@/pages/admin/AdminCompaniesPage').then(m => ({ default: m.AdminCompaniesPage })));
+const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })));
+
+const withSuspense = (Component: React.ComponentType) => (
+  <Suspense fallback={<PageSkeleton />}>
+    <Component />
+  </Suspense>
+);
 
 export const router = createBrowserRouter([
   {
@@ -55,23 +64,23 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <HomePage />
+            element: withSuspense(HomePage)
           },
           {
             path: 'empresa/:slug',
-            element: <StorefrontPage />
+            element: withSuspense(StorefrontPage)
           },
           {
             path: 'reserva/:companyId/:serviceId',
-            element: <CheckoutPage />
+            element: withSuspense(CheckoutPage)
           },
           {
             path: 'pagamento/pix/:appointmentId',
-            element: <PixPaymentPage />
+            element: withSuspense(PixPaymentPage)
           },
           {
             path: 'reserva/confirmada/:appointmentId',
-            element: <BookingSuccessPage />
+            element: withSuspense(BookingSuccessPage)
           }
         ]
       },
@@ -82,23 +91,23 @@ export const router = createBrowserRouter([
         children: [
           {
             path: 'login',
-            element: <LoginPage />
+            element: withSuspense(LoginPage)
           },
           {
             path: 'cadastro',
-            element: <RegisterPage />
+            element: withSuspense(RegisterPage)
           },
           {
             path: 'esqueci-minha-senha',
-            element: <ForgotPasswordPage />
+            element: withSuspense(ForgotPasswordPage)
           },
           {
             path: 'redefinir-senha',
-            element: <ResetPasswordPage />
+            element: withSuspense(ResetPasswordPage)
           },
           {
             path: 'onboarding/empresa',
-            element: <CompanyOnboardingPage />
+            element: withSuspense(CompanyOnboardingPage)
           }
         ]
       },
@@ -122,19 +131,19 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: 'explorar',
-                element: <ClientExplorePage />
+                element: withSuspense(ClientExplorePage)
               },
               {
                 path: 'meus-agendamentos',
-                element: <ClientAppointmentsPage />
+                element: withSuspense(ClientAppointmentsPage)
               },
               {
                 path: 'meus-agendamentos/:id',
-                element: <ClientAppointmentsPage />
+                element: withSuspense(ClientAppointmentsPage)
               },
               {
                 path: 'minha-conta',
-                element: <ClientProfilePage />
+                element: withSuspense(ClientProfilePage)
               }
             ]
           }
@@ -159,27 +168,27 @@ export const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <OwnerDashboardPage />
+                element: withSuspense(OwnerDashboardPage)
               },
               {
                 path: 'agenda',
-                element: <OwnerCalendarPage />
+                element: withSuspense(OwnerCalendarPage)
               },
               {
                 path: 'servicos',
-                element: <OwnerServicesPage />
+                element: withSuspense(OwnerServicesPage)
               },
               {
                 path: 'expediente',
-                element: <OwnerWorkingHoursPage />
+                element: withSuspense(OwnerWorkingHoursPage)
               },
               {
                 path: 'financeiro',
-                element: <OwnerFinancialPage />
+                element: withSuspense(OwnerFinancialPage)
               },
               {
                 path: 'configuracoes',
-                element: <OwnerSettingsPage />
+                element: withSuspense(OwnerSettingsPage)
               }
             ]
           }
@@ -200,19 +209,19 @@ export const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <AdminDashboardPage />
+                element: withSuspense(AdminDashboardPage)
               },
               {
                 path: 'empresas',
-                element: <AdminCompaniesPage />
+                element: withSuspense(AdminCompaniesPage)
               },
               {
                 path: 'empresas/:id',
-                element: <AdminCompaniesPage />
+                element: withSuspense(AdminCompaniesPage)
               },
               {
                 path: 'usuarios',
-                element: <AdminUsersPage />
+                element: withSuspense(AdminUsersPage)
               }
             ]
           }
@@ -228,7 +237,7 @@ export const router = createBrowserRouter([
       // 404 Catch-all
       {
         path: '*',
-        element: <NotFoundPage />
+        element: withSuspense(NotFoundPage)
       }
     ]
   }

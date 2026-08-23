@@ -273,9 +273,21 @@ src/
 
 ### ✨ Task 7: Experiência PWA, Otimizações de Performance & Feedback Tátil
 - **Prioridade**: P2
-- **Status**: [ ] Pendente
+- **Status**: [X] Concluído
 - **Complexidade**: Média
-- **Objetivo**: Polimento de usabilidade e transformação da aplicação em um PWA instalável de alta fidelidade.
+- **Objetivo**: Polimento de usabilidade, A2HS PWA instalável, feedback háptico, micro-interações elegantes e code splitting com `React.lazy`.
+
+#### Entregáveis Técnicos:
+1. **Instalação PWA (A2HS)**:
+   - [x] Componente `PwaInstallPrompt` capturando evento `beforeinstallprompt` para instalação em 1 clique.
+   - [x] Manifesto e Service Worker com tema dark `#0B1120`, display standalone e cache offline de assets.
+2. **Micro-interações & Feedback Háptico**:
+   - [x] Utilitário `triggerHaptic` com vibração tátil sutil em ações móveis de sucesso.
+   - [x] Efeito comemorativo de confetti suave (`canvas-confetti`) nas cores Teal & Gold em `BookingSuccessPage`.
+   - [x] Feedback de cópia do código Pix em `PixPaymentPage` com transição de ícone.
+3. **Otimizações de Performance & Code Splitting**:
+   - [x] Rotas migradas para `React.lazy` com `Suspense` e `PageSkeleton`.
+   - [x] Configuração de `manualChunks` em `vite.config.ts` para isolamento de pacotes (`vendor-react`, `vendor-tanstack`, `vendor-icons`, `vendor-utils`).
 
 ---
 
@@ -290,4 +302,4 @@ src/
 | **4** | Painel do Dono — Catálogo, Expediente e Subconta Financeira | **P1** | `/painel/servicos`, `/painel/expediente`, `/painel/financeiro`, `/painel/configuracoes` | ✅ **FEITO** |
 | **5** | Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil | **P1** | `/explorar`, `/meus-agendamentos`, `/meus-agendamentos/:id`, `/minha-conta` (Estorno >24h / <=24h) | ✅ **FEITO** |
 | **6** | Error Boundaries, Telas 404/500, Toasts Globais e Polimento | **P2** | `/404`, `/500`, `GlobalErrorBoundary`, `Toaster` e `ClientProfilePage` | ✅ **FEITO** |
-| **7** | Experiência PWA, Otimizações de Performance e Micro-Interações | **P2** | Add to Home Screen, Lazy Loading, Feedback Háptico e Confetti | 🟡 Pendente |
+| **7** | Experiência PWA, Otimizações de Performance e Micro-Interações | **P2** | Add to Home Screen, Lazy Loading, Feedback Háptico e Confetti | ✅ **FEITO** |

@@ -6,9 +6,11 @@ import {
   CalendarDays,
   User as UserIcon,
   Compass,
-  LogOut
+  LogOut,
+  Smartphone
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { openPwaInstallModal } from '@/components/common/PwaInstallPrompt';
 
 export const ClientLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -66,8 +68,17 @@ export const ClientLayout: React.FC = () => {
             ))}
           </nav>
 
-          {/* User profile & Logout */}
-          <div className="flex items-center gap-3">
+          {/* User profile & Install & Logout */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={openPwaInstallModal}
+              title="Instalar Aplicativo no Celular / Desktop"
+              className="p-2 rounded-xl text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
+            >
+              <Smartphone className="w-4 h-4" />
+              <span className="hidden md:inline">Instalar App</span>
+            </button>
+
             <div className="text-right hidden sm:block">
               <p className="text-xs font-semibold text-[#F8FAFC] leading-none">
                 {user?.name || 'Cliente'}

@@ -21,9 +21,17 @@ import {
 import { formatCurrency } from '@/lib/utils';
 import { downloadIcsFile } from '@/lib/calendar';
 import { toast } from 'sonner';
+import { triggerCelebrationConfetti } from '@/lib/confetti';
+import { triggerHaptic } from '@/lib/haptics';
 
 export const BookingSuccessPage: React.FC = () => {
   const { appointmentId } = useParams<{ appointmentId: string }>();
+
+  // Subtle celebratory confetti & haptic on load
+  React.useEffect(() => {
+    triggerCelebrationConfetti();
+    triggerHaptic('success');
+  }, []);
 
   const { data: appointment, isLoading } = useQuery({
     queryKey: ['appointment-success', appointmentId],

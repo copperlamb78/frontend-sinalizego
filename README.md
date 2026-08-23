@@ -177,4 +177,4 @@ npm run build
 - [x] **Task 4**: Painel do Dono — Catálogo, Expediente e Subconta Financeira — **FEITO**
 - [x] **Task 5**: Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil — **FEITO**
 - [x] **Task 6**: Error Boundaries, Telas 404/500, Toasts Globais e Polimento — **FEITO**
-- [ ] **Task 7**: Experiência PWA, Otimizações de Performance e Micro-Interações
+- [x] **Task 7**: Experiência PWA, Otimizações de Performance e Micro-Interações — **FEITO**

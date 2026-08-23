@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { formatCurrency, cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { triggerHaptic } from '@/lib/haptics';
 
 export const PixPaymentPage: React.FC = () => {
   const { appointmentId } = useParams<{ appointmentId: string }>();
@@ -91,6 +92,7 @@ export const PixPaymentPage: React.FC = () => {
     if (!pixData?.qrCodePayload) return;
     try {
       await navigator.clipboard.writeText(pixData.qrCodePayload);
+      triggerHaptic('light');
       setCopied(true);
       toast.success('Código Pix Copia e Cola copiado com sucesso!');
       setTimeout(() => setCopied(false), 3000);

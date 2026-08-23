@@ -20,9 +20,12 @@ import {
   LogOut,
   Trash2,
   AlertTriangle,
-  Lock
+  Lock,
+  Smartphone,
+  Download
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { openPwaInstallModal } from '@/components/common/PwaInstallPrompt';
 
 // 1. Profile Schema
 const profileSchema = z.object({
@@ -262,7 +265,38 @@ export const ClientProfilePage: React.FC = () => {
         </Card>
       </form>
 
-      {/* 3. Zona de Perigo e Privacidade */}
+      {/* 3. Aplicativo no Celular (PWA) */}
+      <Card className="p-6 bg-[#0F172A] border border-teal-500/30 space-y-4 shadow-lg">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Smartphone className="w-5 h-5 text-teal-400" />
+              <h2 className="text-sm font-bold text-white">Aplicativo no Celular (PWA)</h2>
+            </div>
+            <p className="text-xs text-slate-400">
+              Instale o SinalizeGO na sua tela inicial para acesso instantâneo aos seus agendamentos, notificações e checkouts.
+            </p>
+          </div>
+
+          <Badge variant="teal" size="sm">
+            INSTALÁVEL
+          </Badge>
+        </div>
+
+        <div className="pt-2 flex justify-start">
+          <Button
+            type="button"
+            size="sm"
+            onClick={openPwaInstallModal}
+            className="text-xs h-10 font-bold shadow-md shadow-teal-500/20 cursor-pointer"
+            leftIcon={<Download className="w-4 h-4" />}
+          >
+            Instalar Aplicativo
+          </Button>
+        </div>
+      </Card>
+
+      {/* 4. Zona de Perigo e Privacidade */}
       <Card className="p-6 bg-[#0F172A] border border-red-500/20 space-y-5 shadow-lg">
         <div className="border-b border-slate-800 pb-3">
           <h2 className="text-sm font-bold text-red-400 flex items-center gap-2">

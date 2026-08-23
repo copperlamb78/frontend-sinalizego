@@ -16,10 +16,12 @@ import {
   ChevronRight,
   ExternalLink,
   Store,
-  User as UserIcon
+  User as UserIcon,
+  Smartphone
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/common/Badge';
+import { openPwaInstallModal } from '@/components/common/PwaInstallPrompt';
 
 export const OwnerLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -242,6 +244,15 @@ export const OwnerLayout: React.FC = () => {
               <span>Ver Vitrine Pública</span>
               <ExternalLink className="w-3 h-3 text-slate-400" />
             </Link>
+
+            <button
+              onClick={openPwaInstallModal}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-xs font-semibold text-teal-400 border border-teal-500/30 transition-colors cursor-pointer"
+              title="Instalar o SinalizeGO no Celular ou Desktop"
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Instalar App</span>
+            </button>
 
             <Link
               to="/minha-conta"

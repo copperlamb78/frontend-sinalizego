@@ -5,6 +5,7 @@ import { queryClient } from '@/config/query-client';
 import { AuthProvider } from '@/contexts/auth.context';
 import { Toaster } from '@/components/common/Toaster';
 import { GlobalErrorBoundary } from '@/components/common/GlobalErrorBoundary';
+import { PwaInstallPrompt } from '@/components/common/PwaInstallPrompt';
 
 export const RootLayout: React.FC = () => {
   return (
@@ -14,6 +15,7 @@ export const RootLayout: React.FC = () => {
           <div className="min-h-screen bg-[#0B1120] text-[#F8FAFC] flex flex-col font-sans selection:bg-[#14B8A6] selection:text-white">
             <Outlet />
             <Toaster />
+            <PwaInstallPrompt />
           </div>
         </GlobalErrorBoundary>
       </AuthProvider>
