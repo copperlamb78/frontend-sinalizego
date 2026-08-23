@@ -8,6 +8,16 @@ export interface WorkingHour {
   isClosed: boolean;
 }
 
+export interface WorkingHourException {
+  id: string;
+  companyId?: string;
+  date: string; // YYYY-MM-DD
+  isClosed: boolean;
+  description?: string;
+  startTime?: string | null;
+  endTime?: string | null;
+}
+
 export interface CompanyService {
   id: string;
   name: string;
@@ -16,6 +26,7 @@ export interface CompanyService {
   totalPrice: number;
   downPaymentPercent: number; // 25, 50 or 100
   serviceGroupId?: string;
+  isActive?: boolean;
 }
 
 export interface ServiceGroup {
@@ -23,6 +34,20 @@ export interface ServiceGroup {
   name: string;
   capacity: number;
   services: CompanyService[];
+}
+
+export interface CreateServiceDto {
+  name: string;
+  description?: string;
+  durationMinutes: number;
+  totalPrice: number;
+  downPaymentPercent: number;
+  serviceGroupId: string;
+}
+
+export interface CreateServiceGroupDto {
+  name: string;
+  capacity?: number;
 }
 
 export interface CompanyStorefront {

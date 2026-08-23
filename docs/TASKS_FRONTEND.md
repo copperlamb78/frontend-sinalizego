@@ -1,6 +1,6 @@
 # 📋 Planejamento de Tarefas Frontend — SinalizeGO (P0, P1, P2)
 
-**Versão**: 1.3.0  
+**Versão**: 1.4.0  
 **Data**: 23 de Agosto de 2026  
 **Status**: Em Execução (Fase P1 em Andamento)  
 **Classificação**: P0 (Crítico/Core), P1 (Operacional/Gestão), P2 (Governança/Polimento)
@@ -16,7 +16,7 @@
 │    FASE P0 (Core) │       FASE P1 (Operação)       │ FASE P2 (Escala)  │
 ├───────────────────┼────────────────────────────────┼───────────────────┤
 │ • [X] Task 0: Setup│ • [X] Task 3: Dashboard & Agenda│ • [ ] Task 6: Admin │
-│ • [X] Task 1: Auth │ • [ ] Task 4: Serviços/Expediente│ • [ ] Task 7: PWA │
+│ • [X] Task 1: Auth │ • [X] Task 4: Serviços/Expediente│ • [ ] Task 7: PWA │
 │ • [X] Task 2: Book │ • [ ] Task 5: Portal Cliente   │                   │
 └───────────────────┴────────────────────────────────┴───────────────────┘
 ```
@@ -42,10 +42,10 @@
 | `/minha-conta` | `ClientLayout` | `ClientProfilePage` | Todos autenticados | ✅ Concluído (Task 0/5) |
 | `/painel` | `OwnerLayout` | `OwnerDashboardPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 3) |
 | `/painel/agenda` | `OwnerLayout` | `OwnerCalendarPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 3) |
-| `/painel/servicos` | `OwnerLayout` | `OwnerServicesPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/4) |
-| `/painel/expediente` | `OwnerLayout` | `OwnerWorkingHoursPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/4) |
-| `/painel/financeiro` | `OwnerLayout` | `OwnerFinancialPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/4) |
-| `/painel/configuracoes` | `OwnerLayout` | `OwnerSettingsPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/4) |
+| `/painel/servicos` | `OwnerLayout` | `OwnerServicesPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 4) |
+| `/painel/expediente` | `OwnerLayout` | `OwnerWorkingHoursPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 4) |
+| `/painel/financeiro` | `OwnerLayout` | `OwnerFinancialPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 3/4) |
+| `/painel/configuracoes` | `OwnerLayout` | `OwnerSettingsPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 4) |
 | `/admin` | `AdminLayout` | `AdminDashboardPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/6) |
 | `/admin/empresas` | `AdminLayout` | `AdminCompaniesPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/6) |
 | `/admin/usuarios` | `AdminLayout` | `AdminUsersPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/6) |
@@ -124,7 +124,9 @@ src/
 │   ├── appointments.service.ts         # Slots livres, criação de reserva, consulta e conclusão de atendimento
 │   ├── cep.service.ts                  # Consulta de CEP via BrasilAPI v2 com autopreenchimento
 │   ├── company.service.ts              # Vitrine, métricas do painel, saldo, saques e histórico
-│   └── transactions.service.ts         # Geração de Pix e transações financeiras Asaas
+│   ├── services.service.ts             # CRUD de categorias (ServiceGroup) e serviços (CompanyService)
+│   ├── transactions.service.ts         # Geração de Pix e transações financeiras Asaas
+│   └── working-hours.service.ts        # Grade semanal e exceções de feriados
 ├── types/
 │   ├── api.types.ts                    # Tipagens de resposta e paginação da API
 │   ├── appointment.types.ts            # DTOs de agendamento, status e available slots
@@ -192,25 +194,32 @@ src/
   - `GET /appointments/company` (Agenda operacional por data)
   - `PATCH /appointments/:id/complete` (Conclusão atômica com liberação de saldo em custódia)
 
-#### Entregáveis Técnicos:
-1. **`OwnerDashboardPage` (`/painel`)**:
-   - [x] Cards financeiros no topo: Saldo Disponível, Saldo em Custódia (Escrow Hold com tooltip explicativo), Próximo Saque Semanal (Taxa Zero) e Receita do Mês.
-   - [x] Fila de Atendimento de Hoje (`upcomingToday`) com badges financeiras `[Sinal Pix Pago]` e `[Cobrar no Balcão: R$ X]`.
-   - [x] Botão de ação rápida **"Concluir Atendimento"** que dispara `PATCH /complete` e atualiza instantaneamente o saldo liberado.
-2. **`WithdrawalModal`**:
-   - [x] Modal interativo de solicitação de saque com aviso do saque semanal gratuito (segunda-feira 06:00) e cálculo em tempo real da tarifa bancária Asaas de R$ 5,00 no saque avulso.
-   - [x] Aba de histórico auditado de transferências com status e badges "Semanal Gratuito" vs "Avulso".
-3. **`OwnerCalendarPage` (`/painel/agenda`)**:
-   - [x] Grade operacional com navegação por faixa de dias (Hoje, Ontem, Próximos dias).
-   - [x] Filtros por status (*Todos*, *Confirmados*, *Concluídos*), exibição de valores a receber no balcão e botão de conclusão rápida.
-
 ---
 
 ### ⚙️ Task 4: Painel do Dono — Catálogo de Serviços, Expediente e Subconta Financeira
 - **Prioridade**: P1
-- **Status**: [ ] Pendente
-- **Complexidade**: Média
+- **Status**: [X] Concluído
+- **Complexidade**: Média-Alta
 - **Rotas**: `/painel/servicos`, `/painel/expediente`, `/painel/financeiro`, `/painel/configuracoes`
+- **Endpoints Integrados**:
+  - `GET /service-group` & `POST /service-group` & `PATCH /service-group/:id` & `DELETE /service-group/:id`
+  - `POST /company-service` & `PATCH /company-service/:id` & `DELETE /company-service/:id`
+  - `GET /working-hours` & `PUT /working-hours`
+  - `GET /working-hours/exceptions` & `POST /working-hours/exceptions` & `DELETE /working-hours/exceptions/:id`
+  - `PATCH /company/update/:id` & `POST /upload/photo`
+
+#### Entregáveis Técnicos:
+1. **`OwnerServicesPage` (`/painel/servicos`)**:
+   - [x] Listagem hierárquica por categorias (`ServiceGroup`) com contadores de serviços e capacidade simultânea.
+   - [x] Modal de Serviço com cálculo dinâmico de sinal e Micro-Transaction Safety Gate de R$ 15,00.
+   - [x] Modal de Categoria/Grupo e modal de confirmação de exclusão.
+2. **`OwnerWorkingHoursPage` (`/painel/expediente`)**:
+   - [x] Grade semanal completa (Segunda a Domingo) com horário de início, término e intervalo de almoço/pausa.
+   - [x] Gestão de exceções/feriados (`working-hours/exceptions`) com criação e exclusão.
+3. **`OwnerSettingsPage` (`/painel/configuracoes`)**:
+   - [x] Banner panorâmico e logo com upload e preview em tempo real.
+   - [x] Autopreenchimento de endereço via BrasilAPI v2 no evento de CEP `onBlur`.
+   - [x] Barra de link público da vitrine com botão de 1-clique para cópia.
 
 ---
 
@@ -248,7 +257,7 @@ src/
 | **1** | Autenticação, Recuperação de Senha e Onboarding da Empresa | **P0** | `/login`, `/cadastro`, `/esqueci-minha-senha`, `/redefinir-senha`, `/onboarding/empresa` | ✅ **FEITO** |
 | **2** | Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling | **P0** | `/`, `/empresa/:slug`, `/reserva/...`, `/pagamento/pix/...`, `/reserva/confirmada/...` | ✅ **FEITO** |
 | **3** | Painel do Dono — Dashboard Analítico, Agenda e Conclusão | **P1** | `/painel`, `/painel/agenda` (Métricas, Escrow Hold, Saques e Conclusão) | ✅ **FEITO** |
-| **4** | Painel do Dono — Catálogo, Expediente e Subconta Financeira | **P1** | `/painel/servicos`, `/painel/expediente`, `/painel/financeiro`, `/painel/configuracoes` | 🟡 Pendente |
+| **4** | Painel do Dono — Catálogo, Expediente e Subconta Financeira | **P1** | `/painel/servicos`, `/painel/expediente`, `/painel/financeiro`, `/painel/configuracoes` | ✅ **FEITO** |
 | **5** | Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil | **P1** | `/meus-agendamentos`, `/meus-agendamentos/:id`, `/minha-conta` (Estorno >24h) | 🟡 Pendente |
 | **6** | Super Admin — Platform Intelligence e Moderação Global | **P2** | `/admin`, `/admin/empresas`, `/admin/empresas/:id`, `/admin/usuarios` | 🟡 Pendente |
 | **7** | Experiência PWA, Otimizações de Performance e Micro-Interações | **P2** | Add to Home Screen, Lazy Loading, Feedback Háptico e Confetti | 🟡 Pendente |

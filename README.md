@@ -51,10 +51,10 @@
 | `/minha-conta` | `ClientLayout` | `ClientProfilePage` | Todos autenticados | ✅ Concluído |
 | `/painel` | `OwnerLayout` | `OwnerDashboardPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 3) |
 | `/painel/agenda` | `OwnerLayout` | `OwnerCalendarPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 3) |
-| `/painel/servicos` | `OwnerLayout` | `OwnerServicesPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
-| `/painel/expediente` | `OwnerLayout` | `OwnerWorkingHoursPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
-| `/painel/financeiro` | `OwnerLayout` | `OwnerFinancialPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
-| `/painel/configuracoes` | `OwnerLayout` | `OwnerSettingsPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
+| `/painel/servicos` | `OwnerLayout` | `OwnerServicesPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 4) |
+| `/painel/expediente` | `OwnerLayout` | `OwnerWorkingHoursPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 4) |
+| `/painel/financeiro` | `OwnerLayout` | `OwnerFinancialPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 3/4) |
+| `/painel/configuracoes` | `OwnerLayout` | `OwnerSettingsPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 4) |
 | `/admin` | `AdminLayout` | `AdminDashboardPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
 | `/admin/empresas` | `AdminLayout` | `AdminCompaniesPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
 | `/admin/usuarios` | `AdminLayout` | `AdminUsersPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
@@ -133,7 +133,9 @@ src/
 │   ├── appointments.service.ts         # Slots livres, criação de reserva, consulta e conclusão de atendimento
 │   ├── cep.service.ts                  # Consulta de CEP via BrasilAPI v2 com autopreenchimento
 │   ├── company.service.ts              # Vitrine, métricas do painel, saldo, saques e histórico
-│   └── transactions.service.ts         # Geração de Pix e transações financeiras Asaas
+│   ├── services.service.ts             # CRUD de categorias (ServiceGroup) e serviços (CompanyService)
+│   ├── transactions.service.ts         # Geração de Pix e transações financeiras Asaas
+│   └── working-hours.service.ts        # Grade semanal e exceções de feriados
 ├── types/
 │   ├── api.types.ts                    # Tipagens de resposta e paginação da API
 │   ├── appointment.types.ts            # DTOs de agendamento, status e available slots
@@ -169,7 +171,7 @@ npm run build
 - [x] **Task 1**: Autenticação, Recuperação de Senha e Onboarding da Empresa — **FEITO**
 - [x] **Task 2**: Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling — **FEITO**
 - [x] **Task 3**: Painel do Dono — Dashboard Analítico, Agenda e Conclusão — **FEITO**
-- [ ] **Task 4**: Painel do Dono — Catálogo, Expediente e Subconta Financeira
+- [x] **Task 4**: Painel do Dono — Catálogo, Expediente e Subconta Financeira — **FEITO**
 - [ ] **Task 5**: Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil
 - [ ] **Task 6**: Super Admin — Platform Intelligence e Moderação Global
 - [ ] **Task 7**: Experiência PWA, Otimizações de Performance e Micro-Interações
