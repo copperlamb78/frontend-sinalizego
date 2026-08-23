@@ -78,12 +78,26 @@ A taxa retida pelo SinalizeGO segue faixas progressivas sobre o valor do sinal p
 - O cliente é limitado a no máximo **3 agendamentos com status `PENDING_PAYMENT` simultâneos**.
 - Polling reativo no frontend: Consultar `GET /api/v1/appointments/:id` a cada 3 segundos (`refetchInterval: 3000`). Quando o status mudar para `CONFIRMED`, redirecionar para a tela de voucher (`/reserva/confirmada/:appointmentId`).
 
-### 4.4. Regras de Cancelamento & Estorno
-- O cliente pode solicitar cancelamento via `DELETE /api/v1/appointments/:id/client`.
-- **> 24 horas antes do horário**: O backend cancela e dispara estorno automático integral do Pix via Asaas.
-- **<= 24 horas antes do horário**: O backend cancela o horário para liberar a agenda, mas **bloqueia o estorno**, repassando o sinal ao estabelecimento como compensação de vacância.
+### 4.4. Regras de Cancelamento, Estorno & Blindagem Jurídica (CDC Art. 51 / CC Arts. 417 a 420)
+- O cliente pode solicitar o cancelamento de um agendamento via `DELETE /api/v1/appointments/:id/client`.
+- **Cancelamento com Antecedência (> 24h)**: O backend cancela o horário e processa o **estorno integral (100%)** do valor pago online via Asaas.
+- **Cancelamento Tardio (<= 24h)**:
+  - O sistema calcula o sinal mínimo de garantia do serviço (`guaranteedDepositAmount` baseado no piso configurado de 25% ou 50% e no Safety Gate de R$ 15,00).
+  - Se o cliente pagou apenas o sinal mínimo (`paidAmount <= guaranteedDepositAmount`), o valor é **100% retido** pelo estabelecimento como indenização por hora ociosa (arras confirmatórias).
+  - Se o cliente adiantou valor superior no checkout (ex: 50%, 75% ou 100%), o backend **retem estritamente o sinal mínimo** e executa o **estorno parcial automático via Asaas** do montante excedente (`refundAmount = paidAmount - guaranteedDepositAmount`) para a conta do cliente via Pix.
+
+### 4.5. Liquidação Financeira (Escrow Hold) e Política de Saques
+1. **Trava de Custódia (Escrow Hold)**:
+   - Todo sinal pago online via Pix entra na subconta como saldo em custódia (`escrowLockedBalance`) até o agendamento transicionar para `COMPLETED`.
+   - A liberação do saldo para saque ocorre:
+     - Manualmente pelo estabelecimento: `PATCH /api/v1/appointments/:id/complete`.
+     - Automaticamente via Cron Job horário: Agendamentos confirmados cujo término ocorreu há mais de 24h sem contestação.
+2. **Política de Saques do Estabelecimento**:
+   - **Saque Automático Semanal Gratuito**: Toda segunda-feira às 06:00 (`@Cron('0 6 * * 1')`), o sistema transfere o saldo disponível (`availableBalance`) para a conta bancária/Pix cadastrada do estabelecimento com taxa de transferência 100% gratuita/subsidiada pela plataforma (`asaasFee = 0`).
+   - **Saque Avulso Sob Demanda (`POST /api/v1/company/withdraw`)**: O estabelecimento pode solicitar resgate avulso do saldo liberado fora da segunda-feira, mediante desconto da tarifa de transferência bancária Asaas de **R$ 5,00** (`ASAAS_TRANSFER_FEE`).
 
 ---
+
 
 ## 5. 🛡️ Segurança, Rate Limiting & Uploads
 
@@ -392,7 +406,10 @@ A API responde com **HTTP 429 Too Many Requests** se os seguintes limites forem 
       "totalRevenue": 2450.00,
       "totalDownPaymentCollected": 820.00,
       "totalPlatformFees": 112.50,
-      "netIncome": 2337.50
+      "netIncome": 2337.50,
+      "availableBalance": 720.00,
+      "escrowLockedBalance": 100.00,
+      "totalWithdrawn": 500.00
     },
     "volume": {
       "total": 56,
@@ -414,25 +431,90 @@ A API responde com **HTTP 429 Too Many Requests** se os seguintes limites forem 
         "clientPhone": "75999999999",
         "serviceName": "Corte Degradê",
         "durationMinutes": 30,
-        "downPaymentAmount": 10.00,
-        "servicePrice": 40.00,
-        "status": "CONFIRMED"
+        "downPaymentAmount": 15.00,
+        "servicePrice": 45.00,
+        "amountToPayInSalon": 30.00
       }
     ]
   }
   ```
 
-#### 17. `GET /api/v1/company/get-by-user-id`
+#### 17. `GET /api/v1/company/balance`
+- **Acesso**: `COMPANY_OWNER`, `ADMIN`
+- **Finalidade**: Consulta em tempo real o saldo disponível liberado para saque (`availableBalance`), saldo retido em custódia (`escrowLockedBalance`), total sacado e a data do próximo saque gratuito da plataforma.
+- **Resposta (200 OK)**:
+  ```json
+  {
+    "companyId": "uuid-company",
+    "businessName": "Barber Shop Vintage",
+    "walletId": "wal_1234567890",
+    "availableBalance": 720.00,
+    "escrowLockedBalance": 100.00,
+    "completedNetRevenue": 1220.00,
+    "totalWithdrawn": 500.00,
+    "nextFreeWithdrawalDate": "2026-08-31T06:00:00.000Z",
+    "instantTransferFee": 5.00
+  }
+  ```
+
+#### 18. `POST /api/v1/company/withdraw`
+- **Acesso**: `COMPANY_OWNER`, `ADMIN`
+- **Finalidade**: Solicitação de saque avulso sob demanda fora do ciclo semanal gratuito (aplica taxa de transferência bancária Asaas de R$ 5,00).
+- **Body** (opcional, se omitido transfere todo o saldo disponível liberado):
+  ```json
+  {
+    "amount": 100.00
+  }
+  ```
+- **Resposta (201 Created)**:
+  ```json
+  {
+    "message": "Saque avulso solicitado com sucesso.",
+    "withdrawal": {
+      "id": "uuid-transaction",
+      "requestedAmount": 100.00,
+      "transferFee": 5.00,
+      "netAmountTransferred": 95.00,
+      "status": "CONFIRMED",
+      "transferredAt": "2026-08-23T15:30:00.000Z",
+      "remainingAvailableBalance": 620.00,
+      "escrowLockedBalance": 100.00
+    }
+  }
+  ```
+
+#### 19. `GET /api/v1/company/withdrawals`
+- **Acesso**: `COMPANY_OWNER`, `ADMIN`
+- **Finalidade**: Consulta o histórico completo e auditado de saques e transferências da empresa (saques semanais gratuitos e saques avulsos).
+- **Resposta (200 OK)**:
+  ```json
+  [
+    {
+      "id": "uuid-transaction",
+      "requestedAmount": 100.00,
+      "transferFee": 5.00,
+      "netAmountTransferred": 95.00,
+      "status": "CONFIRMED",
+      "isFreeWeekly": false,
+      "asaasTransferId": "tra_123456",
+      "transferredAt": "2026-08-23T15:30:00.000Z"
+    }
+  ]
+  ```
+
+#### 20. `GET /api/v1/company/get-by-user-id`
 - **Acesso**: `COMPANY_OWNER`
 - **Resposta (200 OK)**: Retorna a empresa do usuário logado.
 
-#### 18. `PATCH /api/v1/company/update/:companyId`
+#### 21. `PATCH /api/v1/company/update/:companyId`
 - **Acesso**: `COMPANY_OWNER`
 - **Body**: `{ "businessName"?, "providerType"?, "district"?, "street"?, "city"?, "state"?, "zipCode"?, "number"?, "whatsapp"?, "chairsCount"?, "logoPhoto"?, "bannerPhoto"? }`
 
-#### 19. `DELETE /api/v1/company/deactivate/:companyId` & `PATCH /api/v1/company/activate/:companyId`
+#### 22. `DELETE /api/v1/company/deactivate/:companyId` & `PATCH /api/v1/company/activate/:companyId`
 - **Acesso**: `COMPANY_OWNER`
 - **Finalidade**: Desativação/Reativação voluntária do estabelecimento.
+
+
 
 ---
 
@@ -590,7 +672,12 @@ A API responde com **HTTP 429 Too Many Requests** se os seguintes limites forem 
 - **Acesso**: `COMPANY_OWNER`, `ADMIN`
 - **Body**: `{ "status": "COMPLETED" | "CANCELED" }`
 
-#### 38. `DELETE /api/v1/appointments/:id/deactivate`
+#### 38. `DELETE /api/v1/appointments/:id/client`
+- **Acesso**: `CLIENT`, `COMPANY_OWNER`
+- **Finalidade**: Cancelamento solicitado pelo cliente. Executa **estorno integral** via Asaas se solicitado `> 24h` antes do horário ou **estorno parcial do excedente** ao sinal mínimo de garantia (`guaranteedDepositAmount`) se `<= 24h` (CDC Art. 51 / Código Civil Arts. 417 a 420).
+- **Resposta (200 OK)**: `{ "id": "...", "status": "CANCELED", "isActive": false, "disabledAt": "..." }`
+
+#### 39. `DELETE /api/v1/appointments/:id/deactivate`
 - **Acesso**: `COMPANY_OWNER`, `ADMIN`
 - **Finalidade**: Cancelamento administrativo ou arquivamento de agendamento.
 

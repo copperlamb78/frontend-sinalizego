@@ -225,9 +225,26 @@ src/
 
 ### 👤 Task 5: Portal do Cliente — Meus Agendamentos, Cancelamento Transparente & Perfil
 - **Prioridade**: P1
-- **Status**: [ ] Pendente
+- **Status**: [X] Concluído
 - **Complexidade**: Média
-- **Rotas**: `/meus-agendamentos`, `/meus-agendamentos/:id`, `/minha-conta`
+- **Rotas**: `/explorar`, `/meus-agendamentos`, `/meus-agendamentos/:id`, `/minha-conta`
+- **Endpoints Integrados**:
+  - `GET /appointments/user` (ou `/appointments/client` - Histórico de agendamentos futuros e passados)
+  - `DELETE /appointments/:id/client` (Cancelamento com regras de estorno automático Pix Asaas)
+
+#### Entregáveis Técnicos:
+1. **`ClientAppointmentsPage` (`/meus-agendamentos`)**:
+   - [x] Abas "Próximos Agendamentos" e "Histórico / Concluídos" com contadores dinâmicos.
+   - [x] Cards ricos com endereço, horário, tempo de atendimento e detalhamento financeiro `[Sinal Pago via Pix]` vs `[Pagar no Balcão]`.
+   - [x] Atalho rápido para abertura do `VoucherModal` com mapa, download de arquivo `.ics` e WhatsApp.
+   - [x] Botão de cancelamento abrindo o modal educativo e transparente.
+2. **`CancelAppointmentModal`**:
+   - [x] Cálculo dinâmico do tempo restante até o atendimento.
+   - [x] Cenário > 24 horas: Estorno integral garantido (100% Pix) de volta para a conta de origem.
+   - [x] Cenário <= 24 horas: Explicação jurídica (Arts. 417 a 420 do Código Civil) sobre a retenção do piso de R$ 15,00 e devolução do valor excedente caso o sinal pago seja superior a R$ 15,00.
+3. **`ClientProfilePage` (`/minha-conta`)**:
+   - [x] Formulário de dados cadastrais com React Hook Form e validação via Zod.
+   - [x] Campo de CPF para segurança de estornos bancários e aviso de criptografia de ponta a ponta.
 
 ---
 
@@ -258,6 +275,6 @@ src/
 | **2** | Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling | **P0** | `/`, `/empresa/:slug`, `/reserva/...`, `/pagamento/pix/...`, `/reserva/confirmada/...` | ✅ **FEITO** |
 | **3** | Painel do Dono — Dashboard Analítico, Agenda e Conclusão | **P1** | `/painel`, `/painel/agenda` (Métricas, Escrow Hold, Saques e Conclusão) | ✅ **FEITO** |
 | **4** | Painel do Dono — Catálogo, Expediente e Subconta Financeira | **P1** | `/painel/servicos`, `/painel/expediente`, `/painel/financeiro`, `/painel/configuracoes` | ✅ **FEITO** |
-| **5** | Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil | **P1** | `/meus-agendamentos`, `/meus-agendamentos/:id`, `/minha-conta` (Estorno >24h) | 🟡 Pendente |
+| **5** | Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil | **P1** | `/explorar`, `/meus-agendamentos`, `/meus-agendamentos/:id`, `/minha-conta` (Estorno >24h / <=24h) | ✅ **FEITO** |
 | **6** | Super Admin — Platform Intelligence e Moderação Global | **P2** | `/admin`, `/admin/empresas`, `/admin/empresas/:id`, `/admin/usuarios` | 🟡 Pendente |
 | **7** | Experiência PWA, Otimizações de Performance e Micro-Interações | **P2** | Add to Home Screen, Lazy Loading, Feedback Háptico e Confetti | 🟡 Pendente |

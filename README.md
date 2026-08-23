@@ -69,6 +69,9 @@ src/
 ├── components/
 │   ├── auth/
 │   │   └── ProtectedRoute.tsx          # Guarda RBAC de rotas com validação de Role
+│   ├── client/
+│   │   ├── CancelAppointmentModal.tsx  # Modal de cancelamento educativo com cálculo de estorno
+│   │   └── VoucherModal.tsx            # Voucher digital, rota no Google Maps e arquivo .ics
 │   ├── common/
 │   │   ├── Badge.tsx                   # Primitivo de status com variações e pulsos
 │   │   ├── Button.tsx                  # Botão institucional com loading e ícones
@@ -172,6 +175,6 @@ npm run build
 - [x] **Task 2**: Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling — **FEITO**
 - [x] **Task 3**: Painel do Dono — Dashboard Analítico, Agenda e Conclusão — **FEITO**
 - [x] **Task 4**: Painel do Dono — Catálogo, Expediente e Subconta Financeira — **FEITO**
-- [ ] **Task 5**: Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil
+- [x] **Task 5**: Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil — **FEITO**
 - [ ] **Task 6**: Super Admin — Platform Intelligence e Moderação Global
 - [ ] **Task 7**: Experiência PWA, Otimizações de Performance e Micro-Interações

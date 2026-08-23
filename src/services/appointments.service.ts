@@ -299,5 +299,14 @@ export const appointmentsService = {
         } as Appointment;
       }
     }
+  },
+
+  /**
+   * Cancels an appointment from the client side and triggers Pix refund rules
+   * DELETE /api/v1/appointments/:id/client
+   */
+  cancelAppointmentByClient: async (id: string): Promise<Appointment> => {
+    const response = await api.delete<Appointment>(`/appointments/${id}/client`);
+    return response.data;
   }
 };
