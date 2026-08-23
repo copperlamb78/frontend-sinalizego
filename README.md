@@ -49,8 +49,8 @@
 | `/meus-agendamentos` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `EMPLOYEE`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
 | `/meus-agendamentos/:id` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
 | `/minha-conta` | `ClientLayout` | `ClientProfilePage` | Todos autenticados | ✅ Concluído |
-| `/painel` | `OwnerLayout` | `OwnerDashboardPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
-| `/painel/agenda` | `OwnerLayout` | `OwnerCalendarPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
+| `/painel` | `OwnerLayout` | `OwnerDashboardPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 3) |
+| `/painel/agenda` | `OwnerLayout` | `OwnerCalendarPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 3) |
 | `/painel/servicos` | `OwnerLayout` | `OwnerServicesPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
 | `/painel/expediente` | `OwnerLayout` | `OwnerWorkingHoursPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
 | `/painel/financeiro` | `OwnerLayout` | `OwnerFinancialPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
@@ -69,15 +69,17 @@ src/
 ├── components/
 │   ├── auth/
 │   │   └── ProtectedRoute.tsx          # Guarda RBAC de rotas com validação de Role
-│   └── common/
-│       ├── Badge.tsx                   # Primitivo de status com variações e pulsos
-│       ├── Button.tsx                  # Botão institucional com loading e ícones
-│       ├── Card.tsx                    # Containers com estilo dark #0F172A
-│       ├── Input.tsx                   # Input estilizado com validação e ícones
-│       ├── Logo.tsx                    # Logotipo oficial Cloudinary + fallback Calendar
-│       ├── Modal.tsx                   # Dialog com backdrop blur e acessibilidade
-│       ├── Skeleton.tsx                # Placeholders animados de carregamento
-│       └── Toaster.tsx                 # Toaster Sonner dark mode
+│   ├── common/
+│   │   ├── Badge.tsx                   # Primitivo de status com variações e pulsos
+│   │   ├── Button.tsx                  # Botão institucional com loading e ícones
+│   │   ├── Card.tsx                    # Containers com estilo dark #0F172A
+│   │   ├── Input.tsx                   # Input estilizado com validação e ícones
+│   │   ├── Logo.tsx                    # Logotipo oficial Cloudinary + fallback Calendar
+│   │   ├── Modal.tsx                   # Dialog com backdrop blur e acessibilidade
+│   │   ├── Skeleton.tsx                # Placeholders animados de carregamento
+│   │   └── Toaster.tsx                 # Toaster Sonner dark mode
+│   └── dashboard/
+│       └── WithdrawalModal.tsx         # Modal de solicitação de saque com dedução Asaas e histórico
 ├── config/
 │   ├── api.config.ts                   # Axios com Bearer token e auto-refresh 401
 │   └── query-client.ts                 # TanStack QueryClient e cache global
@@ -93,6 +95,9 @@ src/
 ├── lib/
 │   ├── calendar.ts                     # Gerador e downloader de arquivo .ics para calendários
 │   └── utils.ts                        # Utilitário cn() e formatadores
+├── mocks/
+│   ├── owner.mock.ts                   # Mocks de métricas, saldo em custódia e histórico de saques
+│   └── storefront.mock.ts              # Mock completo da vitrine Barbearia Vintage Club
 ├── pages/
 │   ├── admin/
 │   │   ├── AdminCompaniesPage.tsx      # Gestão e auditoria de estabelecimentos
@@ -112,8 +117,8 @@ src/
 │   │   ├── ClientAppointmentsPage.tsx  # Gestão de agendamentos e cancelamento >24h
 │   │   └── ClientProfilePage.tsx       # Gestão de perfil e CPF para split Pix
 │   ├── owner/
-│   │   ├── OwnerCalendarPage.tsx       # Grade operacional e conclusão atômica
-│   │   ├── OwnerDashboardPage.tsx      # Métricas de faturamento, sinais e fila do dia
+│   │   ├── OwnerCalendarPage.tsx       # Grade operacional e conclusão atômica com liberação de saldo
+│   │   ├── OwnerDashboardPage.tsx      # Métricas financeiras, saldo disponível, custódia e fila de hoje
 │   │   ├── OwnerFinancialPage.tsx      # Subconta Asaas e extrato de repasses
 │   │   ├── OwnerServicesPage.tsx       # CRUD de serviços e grupos com piso de sinal
 │   │   ├── OwnerSettingsPage.tsx       # Dados cadastrais e upload de fotos
@@ -125,15 +130,15 @@ src/
 ├── routes/
 │   └── index.tsx                       # Definição das 22 rotas da aplicação
 ├── services/
-│   ├── appointments.service.ts         # Slots livres, criação de reserva e consulta por ID
+│   ├── appointments.service.ts         # Slots livres, criação de reserva, consulta e conclusão de atendimento
 │   ├── cep.service.ts                  # Consulta de CEP via BrasilAPI v2 com autopreenchimento
-│   ├── company.service.ts              # Vitrine pública por slug e listagem de empresas
+│   ├── company.service.ts              # Vitrine, métricas do painel, saldo, saques e histórico
 │   └── transactions.service.ts         # Geração de Pix e transações financeiras Asaas
 ├── types/
 │   ├── api.types.ts                    # Tipagens de resposta e paginação da API
 │   ├── appointment.types.ts            # DTOs de agendamento, status e available slots
 │   ├── auth.types.ts                   # Role enum, User, AuthTokens e DTOs
-│   ├── company.types.ts                # Storefront, WorkingHours, ServiceGroup e Services
+│   ├── company.types.ts                # Storefront, WorkingHours, Balance, Withdrawals e Metrics
 │   └── transaction.types.ts            # PixTransactionResponse e payloads Pix
 ├── vite-env.d.ts                       # Tipagem de ambiente e PWA
 ├── index.css                           # Design System Dark Mode Tailwind v4
@@ -163,7 +168,7 @@ npm run build
 - [x] **Task 0**: Fundação, Design System e Setup de Rede — **FEITO**
 - [x] **Task 1**: Autenticação, Recuperação de Senha e Onboarding da Empresa — **FEITO**
 - [x] **Task 2**: Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling — **FEITO**
-- [ ] **Task 3**: Painel do Dono — Dashboard Analítico, Agenda e Conclusão
+- [x] **Task 3**: Painel do Dono — Dashboard Analítico, Agenda e Conclusão — **FEITO**
 - [ ] **Task 4**: Painel do Dono — Catálogo, Expediente e Subconta Financeira
 - [ ] **Task 5**: Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil
 - [ ] **Task 6**: Super Admin — Platform Intelligence e Moderação Global

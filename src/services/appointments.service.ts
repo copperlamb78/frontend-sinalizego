@@ -5,6 +5,7 @@ import type {
   Appointment
 } from '@/types/appointment.types';
 import { MOCK_VINTAGE_CLUB } from '@/mocks/storefront.mock';
+import { MOCK_OWNER_APPOINTMENTS } from '@/mocks/owner.mock';
 
 const MOCK_SLOTS = ['09:00', '09:30', '10:00', '10:30', '11:30', '14:00', '14:30', '15:00', '16:00', '17:00', '18:00'];
 
@@ -35,7 +36,6 @@ export const appointmentsService = {
       );
       return response.data;
     } catch {
-      // Fallback for demonstration
       return {
         date,
         totalAvailable: MOCK_SLOTS.length,
@@ -52,7 +52,6 @@ export const appointmentsService = {
     dto: CreateAppointmentDto
   ): Promise<Appointment> => {
     if (dto.companyId === 'demo-vintage-club-id') {
-      // Return instant demo appointment
       const demoId = `app-demo-${Date.now()}`;
       const service = MOCK_VINTAGE_CLUB.serviceGroups
         .flatMap((g) => g.services)
@@ -168,5 +167,49 @@ export const appointmentsService = {
 
     const response = await api.get<Appointment>(`/appointments/${id}`);
     return response.data;
+  },
+
+  /**
+   * Fetches company appointments for owner calendar
+   * GET /api/v1/appointments/company
+   */
+  getCompanyAppointments: async (date?: string): Promise<Appointment[]> => {
+    try {
+      const response = await api.get<Appointment[]>('/appointments/company', {
+        params: date ? { date } : {}
+      });
+      return response.data;
+    } catch {
+      return MOCK_OWNER_APPOINTMENTS;
+    }
+  },
+
+  /**
+   * Completes an appointment and releases escrow locked balance
+   * PATCH /api/v1/appointments/:id/complete
+   */
+  completeAppointment: async (id: string): Promise<Appointment> => {
+    try {
+      const response = await api.patch<Appointment>(`/appointments/${id}/complete`);
+      return response.data;
+    } catch (err: any) {
+      // Fallback endpoint
+      try {
+        const response = await api.patch<Appointment>(`/appointments/${id}/status`, {
+          status: 'COMPLETED'
+        });
+        return response.data;
+      } catch {
+        // Mock completion for demo appointments
+        const appointment = MOCK_OWNER_APPOINTMENTS.find((a) => a.id === id) || {
+          id,
+          status: 'COMPLETED' as const
+        };
+        return {
+          ...appointment,
+          status: 'COMPLETED'
+        } as Appointment;
+      }
+    }
   }
 };

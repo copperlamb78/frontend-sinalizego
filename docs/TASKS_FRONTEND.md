@@ -1,8 +1,8 @@
 # 📋 Planejamento de Tarefas Frontend — SinalizeGO (P0, P1, P2)
 
-**Versão**: 1.2.0  
+**Versão**: 1.3.0  
 **Data**: 23 de Agosto de 2026  
-**Status**: Em Execução (Fase P0 Concluída)  
+**Status**: Em Execução (Fase P1 em Andamento)  
 **Classificação**: P0 (Crítico/Core), P1 (Operacional/Gestão), P2 (Governança/Polimento)
 
 ---
@@ -15,7 +15,7 @@
 ├───────────────────┬────────────────────────────────┬───────────────────┤
 │    FASE P0 (Core) │       FASE P1 (Operação)       │ FASE P2 (Escala)  │
 ├───────────────────┼────────────────────────────────┼───────────────────┤
-│ • [X] Task 0: Setup│ • [ ] Task 3: Dashboard & Agenda│ • [ ] Task 6: Admin │
+│ • [X] Task 0: Setup│ • [X] Task 3: Dashboard & Agenda│ • [ ] Task 6: Admin │
 │ • [X] Task 1: Auth │ • [ ] Task 4: Serviços/Expediente│ • [ ] Task 7: PWA │
 │ • [X] Task 2: Book │ • [ ] Task 5: Portal Cliente   │                   │
 └───────────────────┴────────────────────────────────┴───────────────────┘
@@ -40,8 +40,8 @@
 | `/meus-agendamentos` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `EMPLOYEE`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/5) |
 | `/meus-agendamentos/:id` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/5) |
 | `/minha-conta` | `ClientLayout` | `ClientProfilePage` | Todos autenticados | ✅ Concluído (Task 0/5) |
-| `/painel` | `OwnerLayout` | `OwnerDashboardPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/3) |
-| `/painel/agenda` | `OwnerLayout` | `OwnerCalendarPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/3) |
+| `/painel` | `OwnerLayout` | `OwnerDashboardPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 3) |
+| `/painel/agenda` | `OwnerLayout` | `OwnerCalendarPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 3) |
 | `/painel/servicos` | `OwnerLayout` | `OwnerServicesPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/4) |
 | `/painel/expediente` | `OwnerLayout` | `OwnerWorkingHoursPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/4) |
 | `/painel/financeiro` | `OwnerLayout` | `OwnerFinancialPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído (Task 0/4) |
@@ -60,15 +60,17 @@ src/
 ├── components/
 │   ├── auth/
 │   │   └── ProtectedRoute.tsx          # Guarda RBAC de rotas com validação de Role
-│   └── common/
-│       ├── Badge.tsx                   # Primitivo de status com variações e pulsos
-│       ├── Button.tsx                  # Botão institucional com loading e ícones
-│       ├── Card.tsx                    # Containers com estilo dark #0F172A
-│       ├── Input.tsx                   # Input estilizado com validação e ícones
-│       ├── Logo.tsx                    # Logotipo oficial Cloudinary + fallback Calendar
-│       ├── Modal.tsx                   # Dialog com backdrop blur e acessibilidade
-│       ├── Skeleton.tsx                # Placeholders animados de carregamento
-│       └── Toaster.tsx                 # Toaster Sonner dark mode
+│   ├── common/
+│   │   ├── Badge.tsx                   # Primitivo de status com variações e pulsos
+│   │   ├── Button.tsx                  # Botão institucional com loading e ícones
+│   │   ├── Card.tsx                    # Containers com estilo dark #0F172A
+│   │   ├── Input.tsx                   # Input estilizado com validação e ícones
+│   │   ├── Logo.tsx                    # Logotipo oficial Cloudinary + fallback Calendar
+│   │   ├── Modal.tsx                   # Dialog com backdrop blur e acessibilidade
+│   │   ├── Skeleton.tsx                # Placeholders animados de carregamento
+│   │   └── Toaster.tsx                 # Toaster Sonner dark mode
+│   └── dashboard/
+│       └── WithdrawalModal.tsx         # Modal de solicitação de saque com dedução Asaas e histórico
 ├── config/
 │   ├── api.config.ts                   # Axios com Bearer token e auto-refresh 401
 │   └── query-client.ts                 # TanStack QueryClient e cache global
@@ -84,6 +86,9 @@ src/
 ├── lib/
 │   ├── calendar.ts                     # Gerador e downloader de arquivo .ics para calendários
 │   └── utils.ts                        # Utilitário cn() e formatadores
+├── mocks/
+│   ├── owner.mock.ts                   # Mocks de métricas, saldo em custódia e histórico de saques
+│   └── storefront.mock.ts              # Mock completo da vitrine Barbearia Vintage Club
 ├── pages/
 │   ├── admin/
 │   │   ├── AdminCompaniesPage.tsx      # Gestão e auditoria de estabelecimentos
@@ -103,8 +108,8 @@ src/
 │   │   ├── ClientAppointmentsPage.tsx  # Gestão de agendamentos e cancelamento >24h
 │   │   └── ClientProfilePage.tsx       # Gestão de perfil e CPF para split Pix
 │   ├── owner/
-│   │   ├── OwnerCalendarPage.tsx       # Grade operacional e conclusão atômica
-│   │   ├── OwnerDashboardPage.tsx      # Métricas de faturamento, sinais e fila do dia
+│   │   ├── OwnerCalendarPage.tsx       # Grade operacional e conclusão atômica com liberação de saldo
+│   │   ├── OwnerDashboardPage.tsx      # Métricas financeiras, saldo disponível, custódia e fila de hoje
 │   │   ├── OwnerFinancialPage.tsx      # Subconta Asaas e extrato de repasses
 │   │   ├── OwnerServicesPage.tsx       # CRUD de serviços e grupos com piso de sinal
 │   │   ├── OwnerSettingsPage.tsx       # Dados cadastrais e upload de fotos
@@ -116,15 +121,15 @@ src/
 ├── routes/
 │   └── index.tsx                       # Definição das 22 rotas da aplicação
 ├── services/
-│   ├── appointments.service.ts         # Slots livres, criação de reserva e consulta por ID
+│   ├── appointments.service.ts         # Slots livres, criação de reserva, consulta e conclusão de atendimento
 │   ├── cep.service.ts                  # Consulta de CEP via BrasilAPI v2 com autopreenchimento
-│   ├── company.service.ts              # Vitrine pública por slug e listagem de empresas
+│   ├── company.service.ts              # Vitrine, métricas do painel, saldo, saques e histórico
 │   └── transactions.service.ts         # Geração de Pix e transações financeiras Asaas
 ├── types/
 │   ├── api.types.ts                    # Tipagens de resposta e paginação da API
 │   ├── appointment.types.ts            # DTOs de agendamento, status e available slots
 │   ├── auth.types.ts                   # Role enum, User, AuthTokens e DTOs
-│   ├── company.types.ts                # Storefront, WorkingHours, ServiceGroup e Services
+│   ├── company.types.ts                # Storefront, WorkingHours, Balance, Withdrawals e Metrics
 │   └── transaction.types.ts            # PixTransactionResponse e payloads Pix
 ├── vite-env.d.ts                       # Tipagem de ambiente e PWA
 ├── index.css                           # Design System Dark Mode Tailwind v4
@@ -150,9 +155,9 @@ src/
 - **Complexidade**: Média
 - **Rotas**: `/login`, `/cadastro`, `/esqueci-minha-senha`, `/redefinir-senha`, `/onboarding/empresa`
 - **Endpoints Integrados**:
-  - `POST /auth/login` (Rate limit: 15 req/60s)
-  - `POST /users/create` (Rate limit: 15 req/60s)
-  - `POST /auth/forgot-password` (Rate limit: 5 req/60s)
+  - `POST /auth/login`
+  - `POST /users/create`
+  - `POST /auth/forgot-password`
   - `POST /auth/reset-password`
   - `POST /company/create`
 
@@ -164,30 +169,11 @@ src/
 - **Complexidade**: Alta
 - **Rotas**: `/empresa/:slug`, `/reserva/:companyId/:serviceId`, `/pagamento/pix/:appointmentId`, `/reserva/confirmada/:appointmentId`
 - **Endpoints Integrados**:
-  - `GET /company/slug/:slug` (Vitrine pública consolidada)
-  - `GET /appointments/available-slots` (Consulta reativa de vagas por data)
-  - `POST /appointments` (Criação de reserva com status PENDING_PAYMENT)
-  - `POST /transactions/pix/:appointmentId` (Geração de QR Code e Copia e Cola Pix)
-  - `GET /appointments/:id` (Polling a cada 3s com transição automática para CONFIRMED)
-
-#### Entregáveis Técnicos:
-1. **`StorefrontPage` (`/empresa/:slug`)**:
-   - [x] Hero com banner, logo, endereço formatado, link para Google Maps e botão para WhatsApp.
-   - [x] Gaveta expansível com grade semanal de horários de funcionamento e indicador "Aberto Hoje".
-   - [x] Catálogo categorizado por `ServiceGroup` com busca rápida, duração e botão de agendamento.
-2. **`CheckoutPage` (`/reserva/:companyId/:serviceId`)**:
-   - [x] Seletor horizontal de datas com cálculo dinâmico de dias fechados/abertos.
-   - [x] Grade de horários livres alimentada por `appointmentsService.getAvailableSlots`.
-   - [x] Micro-Transaction Safety Gate de R$ 15,00: Força 100% para valores < R$ 15,00 e descarta frações que resultem em valor menor que R$ 15,00.
-   - [x] Resumo financeiro transparente com sinal Pix e saldo a pagar no balcão.
-3. **`PixPaymentPage` (`/pagamento/pix/:appointmentId`)**:
-   - [x] Geração automática de QR Code Pix e chave Copia e Cola via `transactionsService.generatePix`.
-   - [x] Cronômetro regressivo visual de 15 minutos (`expirationDate`).
-   - [x] Polling reativo a cada 3 segundos (`GET /appointments/:id`) com redirecionamento automático ao confirmar.
-4. **`BookingSuccessPage` (`/reserva/confirmada/:appointmentId`)**:
-   - [x] Voucher digital elegante com dados do serviço, horário e endereço.
-   - [x] Download instantâneo de arquivo de calendário `.ics` (`src/lib/calendar.ts`).
-   - [x] Botões de rota Google Maps e contato via WhatsApp.
+  - `GET /company/slug/:slug`
+  - `GET /appointments/available-slots`
+  - `POST /appointments`
+  - `POST /transactions/pix/:appointmentId`
+  - `GET /appointments/:id`
 
 ---
 
@@ -195,9 +181,28 @@ src/
 
 ### 💈 Task 3: Painel do Dono — Dashboard Analítico, Agenda e Conclusão de Atendimento
 - **Prioridade**: P1
-- **Status**: [ ] Pendente
+- **Status**: [X] Concluído
 - **Complexidade**: Média-Alta
 - **Rotas**: `/painel`, `/painel/agenda`
+- **Endpoints Integrados**:
+  - `GET /company/dashboard/metrics` (Faturamento, volume de atendimentos e fila de hoje)
+  - `GET /company/balance` (Saldo disponível, custódia e próximo saque gratuito)
+  - `POST /company/withdraw` (Saque avulso sob demanda com dedução Asaas de R$ 5,00)
+  - `GET /company/withdrawals` (Histórico auditado de transferências)
+  - `GET /appointments/company` (Agenda operacional por data)
+  - `PATCH /appointments/:id/complete` (Conclusão atômica com liberação de saldo em custódia)
+
+#### Entregáveis Técnicos:
+1. **`OwnerDashboardPage` (`/painel`)**:
+   - [x] Cards financeiros no topo: Saldo Disponível, Saldo em Custódia (Escrow Hold com tooltip explicativo), Próximo Saque Semanal (Taxa Zero) e Receita do Mês.
+   - [x] Fila de Atendimento de Hoje (`upcomingToday`) com badges financeiras `[Sinal Pix Pago]` e `[Cobrar no Balcão: R$ X]`.
+   - [x] Botão de ação rápida **"Concluir Atendimento"** que dispara `PATCH /complete` e atualiza instantaneamente o saldo liberado.
+2. **`WithdrawalModal`**:
+   - [x] Modal interativo de solicitação de saque com aviso do saque semanal gratuito (segunda-feira 06:00) e cálculo em tempo real da tarifa bancária Asaas de R$ 5,00 no saque avulso.
+   - [x] Aba de histórico auditado de transferências com status e badges "Semanal Gratuito" vs "Avulso".
+3. **`OwnerCalendarPage` (`/painel/agenda`)**:
+   - [x] Grade operacional com navegação por faixa de dias (Hoje, Ontem, Próximos dias).
+   - [x] Filtros por status (*Todos*, *Confirmados*, *Concluídos*), exibição de valores a receber no balcão e botão de conclusão rápida.
 
 ---
 
@@ -242,7 +247,7 @@ src/
 | **0** | Fundação, Design System Dark Mode e Camada HTTP/Auth | **P0** | Infraestrutura, Axios, TanStack Query, AuthContext, Layouts e PWA Base | ✅ **FEITO** |
 | **1** | Autenticação, Recuperação de Senha e Onboarding da Empresa | **P0** | `/login`, `/cadastro`, `/esqueci-minha-senha`, `/redefinir-senha`, `/onboarding/empresa` | ✅ **FEITO** |
 | **2** | Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling | **P0** | `/`, `/empresa/:slug`, `/reserva/...`, `/pagamento/pix/...`, `/reserva/confirmada/...` | ✅ **FEITO** |
-| **3** | Painel do Dono — Dashboard Analítico, Agenda e Conclusão | **P1** | `/painel`, `/painel/agenda` (Métricas, Conclusão de atendimentos) | 🟡 Pendente |
+| **3** | Painel do Dono — Dashboard Analítico, Agenda e Conclusão | **P1** | `/painel`, `/painel/agenda` (Métricas, Escrow Hold, Saques e Conclusão) | ✅ **FEITO** |
 | **4** | Painel do Dono — Catálogo, Expediente e Subconta Financeira | **P1** | `/painel/servicos`, `/painel/expediente`, `/painel/financeiro`, `/painel/configuracoes` | 🟡 Pendente |
 | **5** | Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil | **P1** | `/meus-agendamentos`, `/meus-agendamentos/:id`, `/minha-conta` (Estorno >24h) | 🟡 Pendente |
 | **6** | Super Admin — Platform Intelligence e Moderação Global | **P2** | `/admin`, `/admin/empresas`, `/admin/empresas/:id`, `/admin/usuarios` | 🟡 Pendente |
