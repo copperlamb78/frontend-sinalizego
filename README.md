@@ -1,0 +1,164 @@
+# ✂️ SinalizeGO — Frontend Web & PWA
+
+> **Plataforma SaaS de Agendamento Online com Sinal Pix e Split Bancário Automatizado para Barbearias e Estúdios.**
+
+---
+
+## 🛠️ Stack Tecnológica
+
+- **Framework & Runtime**: React 19, TypeScript 5.7+, Vite 6
+- **Estilização**: Tailwind CSS v4 (`@tailwindcss/vite`), Lucide React, `clsx`, `tailwind-merge`
+- **PWA**: `vite-plugin-pwa` (Service Worker com autoUpdate e manifesto para instalação mobile/desktop)
+- **Data Fetching & Cache**: TanStack Query (React Query v5)
+- **Cliente HTTP**: Axios com interceptor de renovação de JWT no erro 401 (`POST /auth/refresh`)
+- **Roteamento**: React Router DOM v7
+- **Formulários & Schemas**: React Hook Form + Zod
+- **Notificações & Toasts**: Sonner (Dark Mode)
+
+---
+
+## 🎨 Design System Institucional (Dark Mode Estrito)
+
+| Token Visual | Código HEX | Finalidade na Interface |
+|---|:---:|---|
+| **Background Principal** | `#0B1120` | Fundo principal da aplicação (Dark Canvas) |
+| **Cards & Containers** | `#0F172A` | Containers mestres, cards de conteúdo e layouts |
+| **Cards Internos & Inputs** | `#1E293B` | Inputs de formulários, modais e sub-cards |
+| **Destaque / Ação Primária** | `#14B8A6` | Botões de ação (Teal 500) — Hover: `#0D9488` |
+| **Alertas & Cancelamentos** | `#EF4444` | Status cancelados, alertas e botões destrutivos |
+| **Texto Principal** | `#F8FAFC` | Títulos e valores em destaque |
+| **Texto Secundário** | `#94A3B8` | Labels, legendas e textos auxiliares |
+| **Bordas & Divisores** | `#334155` | Separadores de seção e bordas sutis |
+
+---
+
+## 🗺️ Matriz de Rotas & Telas
+
+| Rota | Layout Mestre | Componente Principal | Controle de Acesso (RBAC) | Status |
+|---|---|---|---|:---:|
+| `/` | `PublicLayout` | `HomePage` | Público | ✅ Concluído |
+| `/empresa/:slug` | `PublicLayout` | `HomePage` (Vitrine) | Público | 🟡 Planejado (Task 2) |
+| `/reserva/:companyId/:serviceId` | `PublicLayout` | `CheckoutPage` | Público | 🟡 Planejado (Task 2) |
+| `/pagamento/pix/:appointmentId` | `PublicLayout` | `PixPaymentPage` | Público | 🟡 Planejado (Task 2) |
+| `/reserva/confirmada/:appointmentId` | `PublicLayout` | `BookingSuccessPage` | Público | 🟡 Planejado (Task 2) |
+| `/login` | `AuthLayout` | `LoginPage` | Público / Guest | ✅ Concluído |
+| `/cadastro` | `AuthLayout` | `RegisterPage` | Público / Guest | ✅ Concluído |
+| `/esqueci-minha-senha` | `AuthLayout` | `ForgotPasswordPage` | Público / Guest | ✅ Concluído |
+| `/redefinir-senha` | `AuthLayout` | `ResetPasswordPage` | Público / Guest | ✅ Concluído |
+| `/onboarding/empresa` | `AuthLayout` | `CompanyOnboardingPage` | Autenticado (`CLIENT`, `COMPANY_OWNER`) | ✅ Concluído |
+| `/meus-agendamentos` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `EMPLOYEE`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
+| `/meus-agendamentos/:id` | `ClientLayout` | `ClientAppointmentsPage` | `CLIENT`, `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
+| `/minha-conta` | `ClientLayout` | `ClientProfilePage` | Todos autenticados | ✅ Concluído |
+| `/painel` | `OwnerLayout` | `OwnerDashboardPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
+| `/painel/agenda` | `OwnerLayout` | `OwnerCalendarPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
+| `/painel/servicos` | `OwnerLayout` | `OwnerServicesPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
+| `/painel/expediente` | `OwnerLayout` | `OwnerWorkingHoursPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
+| `/painel/financeiro` | `OwnerLayout` | `OwnerFinancialPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
+| `/painel/configuracoes` | `OwnerLayout` | `OwnerSettingsPage` | `COMPANY_OWNER`, `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
+| `/admin` | `AdminLayout` | `AdminDashboardPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
+| `/admin/empresas` | `AdminLayout` | `AdminCompaniesPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
+| `/admin/usuarios` | `AdminLayout` | `AdminUsersPage` | `ADMIN`, `SUPER_ADMIN` | ✅ Concluído |
+| `*` | `RootLayout` | `NotFoundPage` | Público | ✅ Concluído |
+
+---
+
+## 🌳 Estrutura de Arquivos (`src/`)
+
+```
+src/
+├── components/
+│   ├── auth/
+│   │   └── ProtectedRoute.tsx          # Guarda RBAC de rotas com validação de Role
+│   └── common/
+│       ├── Badge.tsx                   # Primitivo de status com variações e pulsos
+│       ├── Button.tsx                  # Botão institucional com loading e ícones
+│       ├── Card.tsx                    # Containers com estilo dark #0F172A
+│       ├── Input.tsx                   # Input estilizado com validação e ícones
+│       ├── Logo.tsx                    # Logotipo institucional com badge SaaS
+│       ├── Modal.tsx                   # Dialog com backdrop blur e acessibilidade
+│       ├── Skeleton.tsx                # Placeholders animados de carregamento
+│       └── Toaster.tsx                 # Toaster Sonner dark mode
+├── config/
+│   ├── api.config.ts                   # Axios com Bearer token e auto-refresh 401
+│   └── query-client.ts                 # TanStack QueryClient e cache global
+├── contexts/
+│   └── auth.context.tsx                # AuthProvider, useAuth() e sincronização de tokens
+├── layouts/
+│   ├── AdminLayout.tsx                 # Layout executivo Super Admin
+│   ├── AuthLayout.tsx                  # Layout centralizado Dark Mode
+│   ├── ClientLayout.tsx                # Portal do cliente com BottomNav PWA
+│   ├── OwnerLayout.tsx                 # Portal do proprietário com Sidebar retrátil
+│   ├── PublicLayout.tsx                # Layout público institucional com footer
+│   └── RootLayout.tsx                  # Provedores globais, Toaster e Outlet
+├── lib/
+│   └── utils.ts                        # Utilitário cn() e formatadores
+├── pages/
+│   ├── admin/
+│   │   ├── AdminCompaniesPage.tsx      # Gestão e auditoria de estabelecimentos
+│   │   ├── AdminDashboardPage.tsx      # Platform intelligence e saúde de microsserviços
+│   │   └── AdminUsersPage.tsx          # Moderação centralizada de usuários
+│   ├── auth/
+│   │   ├── CompanyOnboardingPage.tsx   # Wizard de criação de empresa e promoção de role
+│   │   ├── ForgotPasswordPage.tsx      # Solicitação de redefinição de senha
+│   │   ├── LoginPage.tsx               # Formulário de login com Zod e auto-redirect
+│   │   ├── RegisterPage.tsx            # Cadastro com seletor de perfil
+│   │   └── ResetPasswordPage.tsx       # Redefinição stateless de senha por token
+│   ├── client/
+│   │   ├── ClientAppointmentsPage.tsx  # Gestão de agendamentos e cancelamento >24h
+│   │   └── ClientProfilePage.tsx       # Gestão de perfil e CPF para split Pix
+│   ├── owner/
+│   │   ├── OwnerCalendarPage.tsx       # Grade operacional e conclusão atômica
+│   │   ├── OwnerDashboardPage.tsx      # Métricas de faturamento, sinais e fila do dia
+│   │   ├── OwnerFinancialPage.tsx      # Subconta Asaas e extrato de repasses
+│   │   ├── OwnerServicesPage.tsx       # CRUD de serviços e grupos com piso de sinal
+│   │   ├── OwnerSettingsPage.tsx       # Dados cadastrais e upload de fotos
+│   │   └── OwnerWorkingHoursPage.tsx   # Grade semanal e exceções de feriados
+│   └── public/
+│       ├── HomePage.tsx                # Landing page com busca rápida e vitrines demo
+│       └── NotFoundPage.tsx            # Página 404 customizada
+├── routes/
+│   └── index.tsx                       # Definição das 22 rotas da aplicação
+├── types/
+│   ├── api.types.ts                    # Tipagens de resposta e paginação da API
+│   └── auth.types.ts                   # Role enum, User, AuthTokens e DTOs
+├── vite-env.d.ts                       # Tipagem de ambiente e PWA
+├── index.css                           # Design System Dark Mode Tailwind v4
+├── App.tsx                             # Ponto de entrada com RouterProvider
+└── main.tsx                            # Root React 19
+```
+
+---
+
+## ⚡ Como Rodar o Projeto
+
+### Pré-requisitos
+- Node.js 20+
+- npm / yarn / pnpm
+
+### Instalação & Execução Local
+```bash
+# 1. Clonar e entrar no diretório
+cd frontend-sinalizego
+
+# 2. Instalar dependências
+npm install
+
+# 3. Executar o servidor de desenvolvimento
+npm run dev
+
+# 4. Validar compilação TypeScript e build de produção
+npm run build
+```
+
+---
+
+## 📊 Status do Roadmap
+
+- [x] **Task 0**: Fundação, Design System e Setup de Rede — **FEITO**
+- [ ] **Task 1**: Autenticação, Recuperação de Senha e Onboarding da Empresa
+- [ ] **Task 2**: Vitrine Pública, Motor de Agendamento & Checkout Pix com Polling
+- [ ] **Task 3**: Painel do Dono — Dashboard Analítico, Agenda e Conclusão
+- [ ] **Task 4**: Painel do Dono — Catálogo, Expediente e Subconta Financeira
+- [ ] **Task 5**: Portal do Cliente — Meus Agendamentos, Cancelamento e Perfil
+- [ ] **Task 6**: Super Admin — Platform Intelligence e Moderação Global
+- [ ] **Task 7**: Experiência PWA, Otimizações de Performance e Micro-Interações

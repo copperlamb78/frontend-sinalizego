@@ -1,0 +1,209 @@
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/common/Button';
+import { Input } from '@/components/common/Input';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/common/Card';
+import { Badge } from '@/components/common/Badge';
+import {
+  Scissors,
+  QrCode,
+  ShieldAlert,
+  Search,
+  ArrowRight,
+  Sparkles,
+  CheckCircle2,
+  TrendingUp
+} from 'lucide-react';
+
+export const HomePage: React.FC = () => {
+  const [searchSlug, setSearchSlug] = useState('');
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchSlug.trim()) {
+      navigate(`/empresa/${searchSlug.trim().toLowerCase()}`);
+    }
+  };
+
+  const sampleCompanies = [
+    { name: 'Barbearia Vintage Club', slug: 'vintage-club', city: 'São Paulo, SP', rating: '4.9', chairs: 4 },
+    { name: 'Studio Bella Donna', slug: 'bella-donna', city: 'Curitiba, PR', rating: '5.0', chairs: 6 },
+    { name: 'Navalha de Ouro', slug: 'navalha-de-ouro', city: 'Belo Horizonte, MG', rating: '4.8', chairs: 3 }
+  ];
+
+  return (
+    <div className="space-y-24 py-8 sm:py-16">
+      {/* Hero Section */}
+      <section className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center space-y-8">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1E293B] border border-teal-500/30 text-teal-400 text-xs font-semibold glow-teal-sm animate-pulse">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Plataforma SaaS Anti-Vacância com Split Pix</span>
+        </div>
+
+        <h1 className="text-4xl sm:text-6xl font-black text-[#F8FAFC] tracking-tight max-w-4xl mx-auto leading-tight">
+          Agendamentos sem no-show com{' '}
+          <span className="bg-gradient-to-r from-[#14B8A6] via-teal-300 to-emerald-400 bg-clip-text text-transparent">
+            Sinal Pix Automático
+          </span>
+        </h1>
+
+        <p className="text-base sm:text-lg text-[#94A3B8] max-w-2xl mx-auto leading-relaxed">
+          Gere reservas confirmadas com retenção de sinal financeiro. O cliente paga pelo Pix Asaas em segundos e seu salão nunca mais perde horário vago.
+        </p>
+
+        {/* Quick Search Bar */}
+        <div className="max-w-xl mx-auto">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+            <Input
+              placeholder="Digite o slug da barbearia (ex: vintage-club)"
+              value={searchSlug}
+              onChange={(e) => setSearchSlug(e.target.value)}
+              leftIcon={<Search className="w-5 h-5 text-slate-400" />}
+              className="h-12 text-sm"
+            />
+            <Button
+              type="submit"
+              size="lg"
+              className="shrink-0 h-12"
+              rightIcon={<ArrowRight className="w-4 h-4" />}
+            >
+              Buscar
+            </Button>
+          </form>
+        </div>
+
+        {/* Establishments Quick Showcase */}
+        <div className="pt-8">
+          <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider mb-4">
+            Ou explore estabelecimentos de demonstração:
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            {sampleCompanies.map((c) => (
+              <Link
+                key={c.slug}
+                to={`/empresa/${c.slug}`}
+                className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-[#0F172A] border border-slate-800 hover:border-teal-500/50 hover:bg-[#1E293B] text-xs font-medium text-slate-300 transition-all duration-200"
+              >
+                <Scissors className="w-3.5 h-3.5 text-teal-400" />
+                <span className="font-semibold text-white">{c.name}</span>
+                <span className="text-slate-500">• {c.city}</span>
+                <Badge variant="teal" size="sm">★ {c.rating}</Badge>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Pillars */}
+      <section id="como-funciona" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        <div className="text-center space-y-3">
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#F8FAFC]">
+            Engenharia Financeira & Operacional de Ponta
+          </h2>
+          <p className="text-sm text-[#94A3B8] max-w-xl mx-auto">
+            Criado com base no princípio Zero Trust para proteger o faturamento de donos de barbearia e a experiência dos clientes.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card hoverEffect className="relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-teal-500/5 rounded-bl-full pointer-events-none" />
+            <CardHeader>
+              <div className="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-2">
+                <QrCode className="w-6 h-6" />
+              </div>
+              <CardTitle>Sinal Pix em Tempo Real</CardTitle>
+              <CardDescription>
+                QR Code dinâmico Asaas com validade de 15 minutos e conciliação instantânea por webhook.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-xs text-slate-400 space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
+                <span>Polling a cada 3s com redirecionamento automático</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
+                <span>Split financeiro direto na subconta bancária</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card hoverEffect className="relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-bl-full pointer-events-none" />
+            <CardHeader>
+              <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-2">
+                <ShieldAlert className="w-6 h-6" />
+              </div>
+              <CardTitle>Trava Anti-Vacância (Safety Gate)</CardTitle>
+              <CardDescription>
+                Trava de segurança de R$ 15,00 para micro-transações com opções em blocos progressivos (25% a 100%).
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-xs text-slate-400 space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>Serviços &lt; R$ 15,00 com 100% de pagamento antecipado</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>Política justa de cancelamento (estorno só &gt; 24h)</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card hoverEffect className="relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-sky-500/5 rounded-bl-full pointer-events-none" />
+            <CardHeader>
+              <div className="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 mb-2">
+                <TrendingUp className="w-6 h-6" />
+              </div>
+              <CardTitle>Painel do Dono em Alta Definição</CardTitle>
+              <CardDescription>
+                Métricas analíticas em tempo real: faturamento, sinais recebidos, taxas retidas e agenda com 1 clique.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-xs text-slate-400 space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0" />
+                <span>Conclusão atômica de atendimentos com liberação de agenda</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0" />
+                <span>Gestão multi-cadeiras por grupo de serviços</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="rounded-3xl bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] border border-teal-500/30 p-8 sm:p-14 text-center space-y-6 shadow-2xl relative overflow-hidden">
+          <div className="max-w-2xl mx-auto space-y-4">
+            <h3 className="text-2xl sm:text-4xl font-extrabold text-[#F8FAFC] tracking-tight">
+              Pronto para transformar a agenda do seu estabelecimento?
+            </h3>
+            <p className="text-sm sm:text-base text-[#94A3B8]">
+              Cadastre sua barbearia em menos de 3 minutos, configure seus serviços e comece a receber reservas com sinal Pix garantido.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+            <Link to="/cadastro">
+              <Button size="lg" className="px-8 font-bold" rightIcon={<ArrowRight className="w-5 h-5" />}>
+                Começar Gratuitamente
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button variant="outline" size="lg" className="px-8">
+                Já tenho uma conta
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
