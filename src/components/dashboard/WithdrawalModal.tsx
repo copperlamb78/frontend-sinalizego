@@ -118,7 +118,7 @@ export const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
         {activeTab === 'request' && (
           <div className="space-y-5">
             {/* Free Weekly Withdrawal Banner */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-950/40 via-[#0F172A] to-teal-950/40 border border-teal-500/30 flex items-start justify-between gap-3">
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-950/40 via-[#0F172A] to-teal-950/40 border border-teal-500/30">
               <div className="space-y-1 text-xs">
                 <div className="flex items-center gap-1.5 text-teal-400 font-bold">
                   <Sparkles className="w-4 h-4 text-teal-400" />
@@ -134,7 +134,6 @@ export const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
                   </span>
                 )}
               </div>
-              <Badge variant="teal" size="sm">Taxa R$ 0,00</Badge>
             </div>
 
             {/* Instant Withdrawal Form */}
