@@ -178,7 +178,7 @@ export const OwnerDashboardPage: React.FC = () => {
               Toda Segunda às 06:00
             </span>
             <p className="text-[11px] text-slate-400 pt-0.5">
-              Transferência automática gratuita
+              Automático e gratuito (Mínimo R$ 100,00)
             </p>
           </div>
         </Card>

@@ -196,10 +196,10 @@ export const OwnerFinancialPage: React.FC = () => {
             <div className="p-3.5 rounded-xl bg-teal-500/10 border border-teal-500/30 space-y-1">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-teal-300">1. Saque Semanal Automático</span>
-                <Badge variant="teal" size="sm">Taxa R$ 0,00</Badge>
+                <Badge variant="teal" size="sm">Mínimo R$ 100,00 • Taxa R$ 0</Badge>
               </div>
               <p className="text-[11px] text-slate-300 leading-relaxed">
-                Toda <strong>segunda-feira às 06:00</strong> o sistema transfere o saldo liberado diretamente para seu Pix com taxa 100% gratuita.
+                Toda <strong>segunda-feira às 06:00</strong> o sistema transfere o saldo liberado diretamente para seu Pix com taxa 100% gratuita para saldos acumulados a partir de <strong>R$ 100,00</strong>.
               </p>
             </div>
 

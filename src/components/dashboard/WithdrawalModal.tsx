@@ -125,12 +125,12 @@ export const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
                   <span>Saque Semanal Automático Gratuito</span>
                 </div>
                 <p className="text-slate-300 leading-relaxed text-[11px]">
-                  Toda <strong>segunda-feira às 06:00</strong>, o saldo liberado é transferido para o seu Pix com <strong>taxa zero (100% gratuita)</strong>.
+                  Toda <strong>segunda-feira às 06:00</strong>, o saldo liberado é transferido para o seu Pix com <strong>taxa zero (100% gratuita)</strong> para saldos a partir de <strong>R$ 100,00</strong>.
                 </p>
                 {nextFreeDate && (
                   <span className="inline-flex items-center gap-1 text-[11px] text-teal-300/90 font-medium pt-1">
                     <Calendar className="w-3 h-3 text-teal-400" />
-                    Próximo saque gratuito: {new Date(nextFreeDate).toLocaleDateString('pt-BR')}
+                    Próximo saque gratuito: {new Date(nextFreeDate).toLocaleDateString('pt-BR')} (Mínimo R$ 100,00)
                   </span>
                 )}
               </div>
