@@ -28,6 +28,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   ) => {
     const generatedId = useId();
     const inputId = id || generatedId;
+    const errorId = `${inputId}-error`;
+    const helperId = `${inputId}-helper`;
 
     return (
       <div className="w-full space-y-1.5 text-left">
@@ -52,6 +54,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             type={type}
             disabled={disabled}
+            aria-invalid={!!error}
+            aria-describedby={
+              error ? errorId : helperText ? helperId : undefined
+            }
             className={cn(
               'w-full h-11 px-4 rounded-xl bg-[#1E293B] text-[#F8FAFC] placeholder-slate-500 border border-slate-700/80 transition-all duration-200',
               'focus:outline-none focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/20',
@@ -78,11 +84,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
 
         {error ? (
-          <p className="text-xs text-red-400 font-medium flex items-center gap-1 mt-1">
+          <p id={errorId} className="text-xs text-red-400 font-medium flex items-center gap-1 mt-1">
             {error}
           </p>
         ) : helperText ? (
-          <p className="text-xs text-slate-400 mt-1">{helperText}</p>
+          <p id={helperId} className="text-xs text-slate-400 mt-1">{helperText}</p>
         ) : null}
       </div>
     );
