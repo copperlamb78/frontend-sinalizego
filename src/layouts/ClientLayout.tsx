@@ -78,17 +78,29 @@ export const ClientLayout: React.FC = () => {
       : [])
   ];
 
+  // User initials calculation
+  const userInitials = user?.name
+    ? user.name
+        .split(' ')
+        .filter(Boolean)
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()
+    : 'U';
+
   return (
     <div className="min-h-screen flex flex-col bg-[#0B1120] text-[#F8FAFC]">
       {/* Top Header */}
-      <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-800">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
+      <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-800 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
+          {/* 1. Left: Brand Logo */}
+          <Link to="/" className="flex items-center gap-2 shrink-0">
             <Logo size="sm" />
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden sm:flex items-center gap-4">
+          {/* 2. Center: Desktop Nav Links (Medium Screens & Up) */}
+          <nav className="hidden md:flex items-center gap-1.5 lg:gap-2">
             {baseNavItems.map((item) => (
               <NavLink
                 key={item.to}
@@ -96,29 +108,29 @@ export const ClientLayout: React.FC = () => {
                 end={item.end}
                 className={({ isActive }) =>
                   cn(
-                    'text-sm font-medium transition-colors flex items-center gap-2 px-3 py-1.5 rounded-lg',
+                    'text-xs md:text-sm font-medium transition-all duration-150 flex items-center gap-2 px-3 py-1.5 rounded-xl whitespace-nowrap',
                     isActive
-                      ? 'text-[#14B8A6] bg-teal-500/10'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                      ? 'text-[#14B8A6] bg-teal-500/10 font-semibold border border-teal-500/20 shadow-sm'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                   )
                 }
               >
-                <item.icon className="w-4 h-4" />
-                <span>{item.label}</span>
+                <item.icon className="w-4 h-4 shrink-0" />
+                <span className="whitespace-nowrap">{item.label}</span>
               </NavLink>
             ))}
           </nav>
 
-          {/* User profile, Context Switcher, Install & Logout */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Context Switcher Buttons (Desktop) */}
+          {/* 3. Right: Context Switcher, Install, User Profile & Logout */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* Context Switcher Buttons (Desktop / Tablet) */}
             {isOwner && (
               <Link to="/painel" className="hidden sm:inline-block">
                 <Button
                   variant="secondary"
                   size="sm"
                   leftIcon={<Store className="w-3.5 h-3.5 text-teal-400" />}
-                  className="text-xs h-8 px-3 font-bold bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 shadow-sm"
+                  className="text-xs h-8 px-2.5 sm:px-3 font-semibold bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 shadow-sm whitespace-nowrap"
                 >
                   Minha Barbearia
                 </Button>
@@ -131,38 +143,51 @@ export const ClientLayout: React.FC = () => {
                   variant="secondary"
                   size="sm"
                   leftIcon={<ShieldAlert className="w-3.5 h-3.5 text-red-400" />}
-                  className="text-xs h-8 px-3 font-bold bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/30 shadow-sm"
+                  className="text-xs h-8 px-2.5 sm:px-3 font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/30 shadow-sm whitespace-nowrap"
                 >
                   Painel Admin
                 </Button>
               </Link>
             )}
 
+            {/* PWA Install Button */}
             <button
               onClick={openPwaInstallModal}
               title="Instalar Aplicativo no Celular / Desktop"
-              className="p-2 rounded-xl text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
+              className="p-1.5 sm:p-2 rounded-xl text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap shrink-0"
             >
-              <Smartphone className="w-4 h-4" />
-              <span className="hidden md:inline">Instalar App</span>
+              <Smartphone className="w-4 h-4 shrink-0" />
+              <span className="hidden lg:inline">Instalar App</span>
             </button>
 
-            <div className="text-right hidden sm:block">
-              <p className="text-xs font-semibold text-[#F8FAFC] leading-none">
-                {user?.name || 'Cliente'}
-              </p>
-              <p className="text-[11px] text-[#94A3B8] font-mono mt-0.5">
-                {user?.phone || user?.email}
-              </p>
-            </div>
+            {/* User Profile Card with Initials Avatar */}
+            <Link
+              to="/minha-conta"
+              className="flex items-center gap-2 p-1 sm:p-1.5 rounded-xl hover:bg-slate-800/60 transition-colors group cursor-pointer"
+              title="Acessar Minha Conta"
+            >
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500/20 to-teal-800/30 border border-teal-500/40 text-teal-300 text-xs font-black flex items-center justify-center shrink-0 shadow-sm group-hover:border-teal-400 transition-colors">
+                {userInitials}
+              </div>
 
+              <div className="text-left hidden sm:block">
+                <p className="text-xs font-bold text-white leading-tight truncate max-w-[90px] sm:max-w-[120px] lg:max-w-[160px] group-hover:text-teal-300 transition-colors whitespace-nowrap">
+                  {user?.name || 'Cliente'}
+                </p>
+                <p className="text-[10px] text-slate-400 font-mono leading-tight truncate max-w-[120px] lg:max-w-[160px] hidden md:block whitespace-nowrap">
+                  {user?.email || user?.phone || 'Conta Ativa'}
+                </p>
+              </div>
+            </Link>
+
+            {/* Logout Button */}
             <button
               onClick={() => {
                 logout();
                 navigate('/login');
               }}
               title="Encerrar Sessão"
-              className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer shrink-0"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -171,12 +196,12 @@ export const ClientLayout: React.FC = () => {
       </header>
 
       {/* Main Content Area (padding-bottom for mobile bottom nav) */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 pb-24 sm:pb-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8">
         <Outlet />
       </main>
 
-      {/* PWA Mobile Bottom Navigation Bar */}
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0F172A]/95 backdrop-blur-lg border-t border-slate-800 flex items-center justify-around px-2 py-2 safe-area-pb">
+      {/* PWA Mobile Bottom Navigation Bar (< 768px) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0F172A]/95 backdrop-blur-lg border-t border-slate-800 flex items-center justify-around px-2 py-2 safe-area-pb shadow-2xl">
         {mobileNavItems.map((item) => (
           <NavLink
             key={item.to}
@@ -184,7 +209,7 @@ export const ClientLayout: React.FC = () => {
             end={item.end}
             className={({ isActive }) =>
               cn(
-                'flex flex-col items-center justify-center flex-1 py-1 text-[11px] font-medium rounded-xl transition-all duration-150',
+                'flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-medium rounded-xl transition-all duration-150 whitespace-nowrap min-w-0',
                 isActive
                   ? item.isSpecial
                     ? 'text-teal-300 font-bold'
@@ -203,9 +228,9 @@ export const ClientLayout: React.FC = () => {
                     isActive && (item.isSpecial ? 'bg-teal-500/20 scale-110' : 'bg-teal-500/10 scale-110')
                   )}
                 >
-                  <item.icon className="w-5 h-5" />
+                  <item.icon className="w-5 h-5 shrink-0" />
                 </div>
-                <span className="mt-1">{item.label}</span>
+                <span className="mt-1 truncate max-w-[64px]">{item.label}</span>
               </>
             )}
           </NavLink>
