@@ -151,8 +151,9 @@ export const CompanyOnboardingPage: React.FC = () => {
   useEffect(() => {
     try {
       if (formValues.name || formValues.businessName || formValues.email) {
-        sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formValues));
-        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formValues));
+        const { password, ...safeFormValues } = formValues;
+        sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(safeFormValues));
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(safeFormValues));
       }
     } catch {
       // storage unavailable
