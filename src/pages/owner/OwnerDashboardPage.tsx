@@ -45,7 +45,13 @@ export const OwnerDashboardPage: React.FC = () => {
     refetchInterval: 15000
   });
 
-  // 3. Complete Appointment Mutation
+  // 3. Fetch Company Profile (for slug and info)
+  const { data: company } = useQuery({
+    queryKey: ['owner-company-profile'],
+    queryFn: () => companyService.getCompanyByUserId()
+  });
+
+  // 4. Complete Appointment Mutation
   const completeMutation = useMutation({
     mutationFn: (appointmentId: string) => appointmentsService.completeAppointment(appointmentId),
     onMutate: (id) => setCompletingId(id),
@@ -78,6 +84,7 @@ export const OwnerDashboardPage: React.FC = () => {
   const available = balance?.availableBalance ?? metrics?.revenue.availableBalance ?? 0;
   const escrow = balance?.escrowLockedBalance ?? metrics?.revenue.escrowLockedBalance ?? 0;
   const nextFreeDate = balance?.nextFreeWithdrawalDate;
+  const storefrontSlug = company?.slug || 'minha-empresa';
 
   return (
     <div className="space-y-8">
@@ -98,7 +105,7 @@ export const OwnerDashboardPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <Link to="/empresa/vintage-club" target="_blank">
+          <Link to={`/empresa/${storefrontSlug}`} target="_blank">
             <Button variant="outline" size="sm" rightIcon={<ExternalLink className="w-3.5 h-3.5" />}>
               Ver Minha Vitrine
             </Button>

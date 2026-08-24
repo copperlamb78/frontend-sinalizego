@@ -6,12 +6,26 @@ import type {
   CompanyDashboardMetrics,
   UpdateCompanyDto
 } from '@/types/company.types';
-import { MOCK_VINTAGE_CLUB, MOCK_BELLA_DONNA, MOCK_NAVALHA_DE_OURO, MOCK_COMPANIES } from '@/mocks/storefront.mock';
-import {
-  MOCK_DASHBOARD_METRICS,
-  MOCK_COMPANY_BALANCE,
-  MOCK_WITHDRAWALS_HISTORY
-} from '@/mocks/owner.mock';
+
+export interface CreateCompanyPayload {
+  businessName: string;
+  providerType: string;
+  phone: string;
+  state: string;
+  city: string;
+  district?: string;
+  street?: string;
+  zipCode?: string;
+  number?: string;
+  chairsCount?: number;
+}
+
+export interface CreateCompanyResponse {
+  message: string;
+  company: CompanyStorefront;
+  access_token: string;
+  refresh_token: string;
+}
 
 /**
  * Service for company, dashboard and balance endpoints
@@ -22,42 +36,17 @@ export const companyService = {
    * GET /api/v1/company/slug/:slug
    */
   getCompanyBySlug: async (slug: string): Promise<CompanyStorefront> => {
-    const normalized = slug.toLowerCase();
-    if (MOCK_COMPANIES[normalized]) {
-      return MOCK_COMPANIES[normalized];
-    }
-
-    try {
-      const response = await api.get<CompanyStorefront>(`/company/slug/${slug}`);
-      return response.data;
-    } catch (err: any) {
-      if (normalized.includes('bella') || normalized.includes('donna')) {
-        return MOCK_BELLA_DONNA;
-      }
-      if (normalized.includes('navalha') || normalized.includes('ouro')) {
-        return MOCK_NAVALHA_DE_OURO;
-      }
-      if (normalized.includes('vintage') || normalized.includes('barbearia')) {
-        return MOCK_VINTAGE_CLUB;
-      }
-      throw err;
-    }
+    const response = await api.get<CompanyStorefront>(`/company/slug/${slug}`);
+    return response.data;
   },
 
   /**
    * Fetches company by ID
+   * GET /api/v1/company/:id
    */
   getCompanyById: async (id: string): Promise<CompanyStorefront> => {
-    if (id === 'demo-vintage-club-id') return MOCK_VINTAGE_CLUB;
-    if (id === 'demo-bella-donna-id') return MOCK_BELLA_DONNA;
-    if (id === 'demo-navalha-de-ouro-id') return MOCK_NAVALHA_DE_OURO;
-
-    try {
-      const response = await api.get<CompanyStorefront>(`/company/${id}`);
-      return response.data;
-    } catch {
-      return MOCK_VINTAGE_CLUB;
-    }
+    const response = await api.get<CompanyStorefront>(`/company/${id}`);
+    return response.data;
   },
 
   /**
@@ -65,12 +54,17 @@ export const companyService = {
    * GET /api/v1/company/get-by-user-id
    */
   getCompanyByUserId: async (): Promise<CompanyStorefront> => {
-    try {
-      const response = await api.get<CompanyStorefront>('/company/get-by-user-id');
-      return response.data;
-    } catch {
-      return MOCK_VINTAGE_CLUB;
-    }
+    const response = await api.get<CompanyStorefront>('/company/get-by-user-id');
+    return response.data;
+  },
+
+  /**
+   * Creates a new company, generating slug automatically and elevating role to COMPANY_OWNER
+   * POST /api/v1/company/create
+   */
+  createCompany: async (data: CreateCompanyPayload): Promise<CreateCompanyResponse> => {
+    const response = await api.post<CreateCompanyResponse>('/company/create', data);
+    return response.data;
   },
 
   /**
@@ -78,51 +72,33 @@ export const companyService = {
    * PATCH /api/v1/company/update/:companyId
    */
   updateCompany: async (companyId: string, data: UpdateCompanyDto): Promise<CompanyStorefront> => {
-    try {
-      const response = await api.patch<CompanyStorefront>(`/company/update/${companyId}`, data);
-      return response.data;
-    } catch {
-      // Mock update fallback for demo
-      return {
-        ...MOCK_VINTAGE_CLUB,
-        ...data,
-        id: companyId
-      } as CompanyStorefront;
-    }
+    const response = await api.patch<CompanyStorefront>(`/company/update/${companyId}`, data);
+    return response.data;
   },
 
   /**
-   * Uploads photo to Cloudinary
-   * POST /api/v1/upload/photo
+   * Uploads image (logo / banner)
+   * POST /api/v1/upload/image
    */
-  uploadPhoto: async (file: File): Promise<{ url: string; message: string }> => {
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const response = await api.post<{ url: string; message: string }>('/upload/photo', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      return response.data;
-    } catch {
-      const localUrl = URL.createObjectURL(file);
-      return {
-        url: localUrl,
-        message: 'Foto carregada com sucesso (Demo)'
-      };
+  uploadPhoto: async (file: File, companyId?: string): Promise<{ url: string; public_id?: string; message?: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (companyId) {
+      formData.append('companyId', companyId);
     }
+    const response = await api.post<{ url: string; public_id?: string; message?: string }>('/upload/image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
   },
 
   /**
    * Fetches dashboard analytical metrics for company owner
    * GET /api/v1/company/dashboard/metrics
    */
-  getDashboardMetrics: async (): Promise<CompanyDashboardMetrics> => {
-    try {
-      const response = await api.get<CompanyDashboardMetrics>('/company/dashboard/metrics');
-      return response.data;
-    } catch {
-      return MOCK_DASHBOARD_METRICS;
-    }
+  getDashboardMetrics: async (params?: { startDate?: string; endDate?: string }): Promise<CompanyDashboardMetrics> => {
+    const response = await api.get<CompanyDashboardMetrics>('/company/dashboard/metrics', { params });
+    return response.data;
   },
 
   /**
@@ -130,12 +106,8 @@ export const companyService = {
    * GET /api/v1/company/balance
    */
   getBalance: async (): Promise<CompanyBalance> => {
-    try {
-      const response = await api.get<CompanyBalance>('/company/balance');
-      return response.data;
-    } catch {
-      return MOCK_COMPANY_BALANCE;
-    }
+    const response = await api.get<CompanyBalance>('/company/balance');
+    return response.data;
   },
 
   /**
@@ -143,27 +115,11 @@ export const companyService = {
    * POST /api/v1/company/withdraw
    */
   requestWithdrawal: async (amount?: number): Promise<{ message: string; withdrawal: CompanyWithdrawal }> => {
-    try {
-      const response = await api.post('/company/withdraw', amount ? { amount } : {});
-      return response.data;
-    } catch {
-      // Mock instant withdrawal for demo
-      const requested = amount || 100.0;
-      const fee = 5.0;
-      const mockWithdrawal: CompanyWithdrawal = {
-        id: `with-${Date.now()}`,
-        requestedAmount: requested,
-        transferFee: fee,
-        netAmountTransferred: Math.max(0, requested - fee),
-        status: 'CONFIRMED',
-        isFreeWeekly: false,
-        transferredAt: new Date().toISOString()
-      };
-      return {
-        message: 'Saque avulso solicitado com sucesso.',
-        withdrawal: mockWithdrawal
-      };
-    }
+    const response = await api.post<{ message: string; withdrawal: CompanyWithdrawal }>(
+      '/company/withdraw',
+      amount ? { amount } : {}
+    );
+    return response.data;
   },
 
   /**
@@ -171,12 +127,8 @@ export const companyService = {
    * GET /api/v1/company/withdrawals
    */
   getWithdrawalsHistory: async (): Promise<CompanyWithdrawal[]> => {
-    try {
-      const response = await api.get<CompanyWithdrawal[]>('/company/withdrawals');
-      return response.data;
-    } catch {
-      return MOCK_WITHDRAWALS_HISTORY;
-    }
+    const response = await api.get<CompanyWithdrawal[]>('/company/withdrawals');
+    return response.data;
   },
 
   /**
@@ -188,7 +140,25 @@ export const companyService = {
       const response = await api.get<CompanyStorefront[]>('/company/list');
       return response.data;
     } catch {
-      return [MOCK_VINTAGE_CLUB, MOCK_BELLA_DONNA, MOCK_NAVALHA_DE_OURO];
+      return [];
     }
+  },
+
+  /**
+   * Deactivates company (Soft delete)
+   * DELETE /api/v1/company/deactivate/:companyId
+   */
+  deactivateCompany: async (companyId: string): Promise<{ id: string; isActive: boolean }> => {
+    const response = await api.delete<{ id: string; isActive: boolean }>(`/company/deactivate/${companyId}`);
+    return response.data;
+  },
+
+  /**
+   * Activates company
+   * PATCH /api/v1/company/activate/:companyId
+   */
+  activateCompany: async (companyId: string): Promise<{ id: string; isActive: boolean }> => {
+    const response = await api.patch<{ id: string; isActive: boolean }>(`/company/activate/${companyId}`);
+    return response.data;
   }
 };

@@ -85,10 +85,8 @@ src/
 │   └── RootLayout.tsx                  # Provedores globais, Toaster e Outlet
 ├── lib/
 │   ├── calendar.ts                     # Gerador e downloader de arquivo .ics para calendários
+│   ├── haptics.ts                      # Utilitário de feedback háptico tátil
 │   └── utils.ts                        # Utilitário cn() e formatadores
-├── mocks/
-│   ├── owner.mock.ts                   # Mocks de métricas, saldo em custódia e histórico de saques
-│   └── storefront.mock.ts              # Mock completo da vitrine Barbearia Vintage Club
 ├── pages/
 │   ├── admin/
 │   │   ├── AdminCompaniesPage.tsx      # Gestão e auditoria de estabelecimentos
@@ -106,6 +104,7 @@ src/
 │   │   └── PixPaymentPage.tsx          # QR Code Pix, Copia e Cola, timer 15m e polling reativo 3s
 │   ├── client/
 │   │   ├── ClientAppointmentsPage.tsx  # Gestão de agendamentos e cancelamento >24h
+│   │   ├── ClientExplorePage.tsx       # Catálogo de estabelecimentos frequentados
 │   │   └── ClientProfilePage.tsx       # Gestão de perfil e CPF para split Pix
 │   ├── owner/
 │   │   ├── OwnerCalendarPage.tsx       # Grade operacional e conclusão atômica com liberação de saldo
@@ -121,13 +120,16 @@ src/
 ├── routes/
 │   └── index.tsx                       # Definição das 22 rotas da aplicação
 ├── services/
+│   ├── admin.service.ts                # Métricas do Super Admin, auditoria de empresas e moderação de usuários
 │   ├── appointments.service.ts         # Slots livres, criação de reserva, consulta e conclusão de atendimento
+│   ├── auth.service.ts                 # Autenticação JWT, renovação de token, perfil e gestão de conta
 │   ├── cep.service.ts                  # Consulta de CEP via BrasilAPI v2 com autopreenchimento
 │   ├── company.service.ts              # Vitrine, métricas do painel, saldo, saques e histórico
 │   ├── services.service.ts             # CRUD de categorias (ServiceGroup) e serviços (CompanyService)
 │   ├── transactions.service.ts         # Geração de Pix e transações financeiras Asaas
 │   └── working-hours.service.ts        # Grade semanal e exceções de feriados
 ├── types/
+│   ├── admin.types.ts                  # DTOs e métricas de inteligência da plataforma
 │   ├── api.types.ts                    # Tipagens de resposta e paginação da API
 │   ├── appointment.types.ts            # DTOs de agendamento, status e available slots
 │   ├── auth.types.ts                   # Role enum, User, AuthTokens e DTOs

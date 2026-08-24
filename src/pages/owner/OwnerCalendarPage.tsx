@@ -28,7 +28,7 @@ export const OwnerCalendarPage: React.FC = () => {
   // 1. Fetch Company Appointments for selected date
   const { data: appointments, isLoading } = useQuery({
     queryKey: ['company-appointments', selectedDate],
-    queryFn: () => appointmentsService.getCompanyAppointments(selectedDate)
+    queryFn: () => appointmentsService.getCompanyAppointments({ date: selectedDate })
   });
 
   // 2. Complete Mutation

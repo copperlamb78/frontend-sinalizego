@@ -5,7 +5,6 @@ import type {
   CreateServiceDto,
   CreateServiceGroupDto
 } from '@/types/company.types';
-import { MOCK_VINTAGE_CLUB } from '@/mocks/storefront.mock';
 
 export const servicesService = {
   /**
@@ -13,15 +12,17 @@ export const servicesService = {
    * GET /api/v1/service-group
    */
   getServiceGroups: async (): Promise<ServiceGroup[]> => {
-    try {
-      const response = await api.get<ServiceGroup[]>('/service-group');
-      if (Array.isArray(response.data) && response.data.length > 0) {
-        return response.data;
-      }
-      return MOCK_VINTAGE_CLUB.serviceGroups;
-    } catch {
-      return MOCK_VINTAGE_CLUB.serviceGroups;
-    }
+    const response = await api.get<ServiceGroup[]>('/service-group');
+    return response.data;
+  },
+
+  /**
+   * Fetches service groups for a specific company
+   * GET /api/v1/service-group/company/:companyId
+   */
+  getServiceGroupsByCompany: async (companyId: string): Promise<ServiceGroup[]> => {
+    const response = await api.get<ServiceGroup[]>(`/service-group/company/${companyId}`);
+    return response.data;
   },
 
   /**
@@ -29,35 +30,17 @@ export const servicesService = {
    * POST /api/v1/service-group
    */
   createServiceGroup: async (data: CreateServiceGroupDto): Promise<ServiceGroup> => {
-    try {
-      const response = await api.post<ServiceGroup>('/service-group', data);
-      return response.data;
-    } catch {
-      return {
-        id: `grp-${Date.now()}`,
-        name: data.name,
-        capacity: data.capacity || 3,
-        services: []
-      };
-    }
+    const response = await api.post<ServiceGroup>('/service-group', data);
+    return response.data;
   },
 
   /**
    * Updates an existing service group
-   * PATCH /api/v1/service-group/:id
+   * PUT /api/v1/service-group/:id
    */
   updateServiceGroup: async (id: string, data: Partial<CreateServiceGroupDto>): Promise<ServiceGroup> => {
-    try {
-      const response = await api.patch<ServiceGroup>(`/service-group/${id}`, data);
-      return response.data;
-    } catch {
-      return {
-        id,
-        name: data.name || 'Categoria Atualizada',
-        capacity: data.capacity || 3,
-        services: []
-      };
-    }
+    const response = await api.put<ServiceGroup>(`/service-group/${id}`, data);
+    return response.data;
   },
 
   /**
@@ -65,11 +48,25 @@ export const servicesService = {
    * DELETE /api/v1/service-group/:id
    */
   deleteServiceGroup: async (id: string): Promise<void> => {
-    try {
-      await api.delete(`/service-group/${id}`);
-    } catch {
-      // ignore in mock
-    }
+    await api.delete(`/service-group/${id}`);
+  },
+
+  /**
+   * Fetches all active services of the company
+   * GET /api/v1/company-service
+   */
+  getCompanyServices: async (): Promise<CompanyService[]> => {
+    const response = await api.get<CompanyService[]>('/company-service');
+    return response.data;
+  },
+
+  /**
+   * Fetches services of a specific company
+   * GET /api/v1/company-service/company/:companyId
+   */
+  getCompanyServicesByCompanyId: async (companyId: string): Promise<CompanyService[]> => {
+    const response = await api.get<CompanyService[]>(`/company-service/company/${companyId}`);
+    return response.data;
   },
 
   /**
@@ -77,43 +74,17 @@ export const servicesService = {
    * POST /api/v1/company-service
    */
   createService: async (data: CreateServiceDto): Promise<CompanyService> => {
-    try {
-      const response = await api.post<CompanyService>('/company-service', data);
-      return response.data;
-    } catch {
-      return {
-        id: `srv-${Date.now()}`,
-        name: data.name,
-        description: data.description,
-        durationMinutes: data.durationMinutes,
-        totalPrice: data.totalPrice,
-        downPaymentPercent: data.downPaymentPercent,
-        serviceGroupId: data.serviceGroupId,
-        isActive: true
-      };
-    }
+    const response = await api.post<CompanyService>('/company-service', data);
+    return response.data;
   },
 
   /**
    * Updates a service
-   * PATCH /api/v1/company-service/:id
+   * PUT /api/v1/company-service/:id
    */
   updateService: async (id: string, data: Partial<CreateServiceDto>): Promise<CompanyService> => {
-    try {
-      const response = await api.patch<CompanyService>(`/company-service/${id}`, data);
-      return response.data;
-    } catch {
-      return {
-        id,
-        name: data.name || 'Serviço',
-        description: data.description,
-        durationMinutes: data.durationMinutes || 30,
-        totalPrice: data.totalPrice || 40,
-        downPaymentPercent: data.downPaymentPercent || 50,
-        serviceGroupId: data.serviceGroupId,
-        isActive: true
-      };
-    }
+    const response = await api.put<CompanyService>(`/company-service/${id}`, data);
+    return response.data;
   },
 
   /**
@@ -121,10 +92,6 @@ export const servicesService = {
    * DELETE /api/v1/company-service/:id
    */
   deleteService: async (id: string): Promise<void> => {
-    try {
-      await api.delete(`/company-service/${id}`);
-    } catch {
-      // ignore in mock
-    }
+    await api.delete(`/company-service/${id}`);
   }
 };

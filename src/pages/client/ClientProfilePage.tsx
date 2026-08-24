@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth.context';
+import { authService } from '@/services/auth.service';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
@@ -51,7 +52,7 @@ const passwordSchema = z
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export const ClientProfilePage: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -91,22 +92,33 @@ export const ClientProfilePage: React.FC = () => {
     }
   }, [user, resetProfile]);
 
-  const onProfileSubmit = async (_data: ProfileFormData) => {
+  const onProfileSubmit = async (data: ProfileFormData) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      const cleanPhone = data.phone.replace(/\D/g, '');
+      await authService.updateProfile({ name: data.name, phone: cleanPhone });
+      if (data.cpf && data.cpf.trim() !== '') {
+        const cleanCpf = data.cpf.replace(/\D/g, '');
+        await authService.updateCpf({ cpfCnpj: cleanCpf });
+      }
+      await refreshProfile();
       toast.success('Dados cadastrais atualizados com sucesso!');
-    } catch {
-      toast.error('Erro ao atualizar perfil.');
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Erro ao atualizar perfil.';
+      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
     }
   };
 
-  const onPasswordSubmit = async (_data: PasswordFormData) => {
+  const onPasswordSubmit = async (data: PasswordFormData) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await authService.changePassword({
+        oldPassword: data.currentPassword,
+        newPassword: data.newPassword
+      });
       toast.success('Senha alterada com sucesso!');
       resetPassword();
-    } catch {
-      toast.error('Erro ao atualizar senha. Verifique sua senha atual.');
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Erro ao atualizar senha. Verifique sua senha atual.';
+      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
     }
   };
 
@@ -119,13 +131,14 @@ export const ClientProfilePage: React.FC = () => {
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await authService.deleteAccount();
       toast.success('Sua conta foi excluída com sucesso conforme a LGPD.');
       setIsDeleteModalOpen(false);
       logout();
       navigate('/login');
-    } catch {
-      toast.error('Não foi possível excluir sua conta no momento.');
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Não foi possível excluir sua conta no momento.';
+      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
     } finally {
       setIsDeleting(false);
     }

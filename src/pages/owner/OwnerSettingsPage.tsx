@@ -86,7 +86,10 @@ export const OwnerSettingsPage: React.FC = () => {
   // 2. Save Mutation
   const updateMutation = useMutation({
     mutationFn: (data: SettingsFormData) => {
-      return companyService.updateCompany(company?.id || 'demo-vintage-club-id', {
+      if (!company?.id) {
+        throw new Error('Estabelecimento não encontrado');
+      }
+      return companyService.updateCompany(company.id, {
         ...data,
         logoPhoto: logoPreview,
         bannerPhoto: bannerPreview
@@ -97,8 +100,9 @@ export const OwnerSettingsPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['company-owner-settings'] });
       queryClient.invalidateQueries({ queryKey: ['company-by-slug'] });
     },
-    onError: () => {
-      toast.error('Não foi possível salvar as configurações.');
+    onError: (err: any) => {
+      const msg = err.response?.data?.message || err.message || 'Não foi possível salvar as configurações.';
+      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
     }
   });
 
@@ -156,7 +160,9 @@ export const OwnerSettingsPage: React.FC = () => {
     }
   };
 
-  const storefrontUrl = `http://localhost:5173/empresa/${company?.slug || 'vintage-club'}`;
+  const storefrontUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/empresa/${company?.slug || ''}`
+    : `/empresa/${company?.slug || ''}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(storefrontUrl);

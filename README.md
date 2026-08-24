@@ -108,17 +108,21 @@ src/
 ├── routes/
 │   └── index.tsx       # Roteador centralizado com code splitting dinâmico
 ├── services/
-│   ├── api.ts          # Instância do Axios com interceptor de renovação de token
+│   ├── admin.service.ts
 │   ├── appointments.service.ts
 │   ├── auth.service.ts
+│   ├── cep.service.ts
 │   ├── company.service.ts
 │   ├── services.service.ts
-│   └── transactions.service.ts
+│   ├── transactions.service.ts
+│   └── working-hours.service.ts
 └── types/
+    ├── admin.types.ts
+    ├── api.types.ts
     ├── appointment.types.ts
     ├── auth.types.ts
     ├── company.types.ts
-    └── financial.types.ts
+    └── transaction.types.ts
 ```
 
 ---
