@@ -53,45 +53,79 @@ export const servicesService = {
 
   /**
    * Fetches all active services of the company
-   * GET /api/v1/company-service
+   * GET /api/v1/company-service/list
    */
   getCompanyServices: async (): Promise<CompanyService[]> => {
-    const response = await api.get<CompanyService[]>('/company-service');
-    return response.data;
+    try {
+      const response = await api.get<CompanyService[]>('/company-service/list');
+      return response.data;
+    } catch {
+      const fallbackRes = await api.get<CompanyService[]>('/company-service');
+      return fallbackRes.data;
+    }
   },
 
   /**
    * Fetches services of a specific company
-   * GET /api/v1/company-service/company/:companyId
+   * GET /api/v1/company-service/list/:slug (or /company/:companyId)
    */
   getCompanyServicesByCompanyId: async (companyId: string): Promise<CompanyService[]> => {
-    const response = await api.get<CompanyService[]>(`/company-service/company/${companyId}`);
-    return response.data;
+    try {
+      const response = await api.get<CompanyService[]>(`/company-service/company/${companyId}`);
+      return response.data;
+    } catch {
+      const fallbackRes = await api.get<CompanyService[]>(`/company-service/list/${companyId}`);
+      return fallbackRes.data;
+    }
   },
 
   /**
    * Creates a new service inside a category
-   * POST /api/v1/company-service
+   * POST /api/v1/company-service/create
    */
   createService: async (data: CreateServiceDto): Promise<CompanyService> => {
-    const response = await api.post<CompanyService>('/company-service', data);
-    return response.data;
+    try {
+      const response = await api.post<CompanyService>('/company-service/create', data);
+      return response.data;
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        const fallbackRes = await api.post<CompanyService>('/company-service', data);
+        return fallbackRes.data;
+      }
+      throw err;
+    }
   },
 
   /**
    * Updates a service
-   * PUT /api/v1/company-service/:id
+   * PATCH /api/v1/company-service/update/:serviceId
    */
   updateService: async (id: string, data: Partial<CreateServiceDto>): Promise<CompanyService> => {
-    const response = await api.put<CompanyService>(`/company-service/${id}`, data);
-    return response.data;
+    try {
+      const response = await api.patch<CompanyService>(`/company-service/update/${id}`, data);
+      return response.data;
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        const fallbackRes = await api.put<CompanyService>(`/company-service/${id}`, data);
+        return fallbackRes.data;
+      }
+      throw err;
+    }
   },
 
   /**
-   * Deletes a service
-   * DELETE /api/v1/company-service/:id
+   * Deactivates / Deletes a service
+   * DELETE /api/v1/company-service/deactivate/:serviceId
    */
   deleteService: async (id: string): Promise<void> => {
-    await api.delete(`/company-service/${id}`);
+    try {
+      await api.delete(`/company-service/deactivate/${id}`);
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        await api.delete(`/company-service/${id}`);
+      } else {
+        throw err;
+      }
+    }
   }
 };

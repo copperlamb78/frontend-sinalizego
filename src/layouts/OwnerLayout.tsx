@@ -19,8 +19,7 @@ import {
   ExternalLink,
   Store,
   User as UserIcon,
-  Smartphone,
-  CalendarDays
+  Smartphone
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/common/Badge';
@@ -284,7 +283,7 @@ export const OwnerLayout: React.FC = () => {
 
           <div className="flex items-center gap-3">
             <Link
-              to="/empresa/vintage-club"
+              to={company?.slug ? `/empresa/${company.slug}` : '/painel'}
               target="_blank" rel="noopener noreferrer"
               className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#1E293B] hover:bg-slate-700 text-xs font-medium text-slate-300 border border-slate-700 transition-colors"
             >
@@ -303,18 +302,9 @@ export const OwnerLayout: React.FC = () => {
             </button>
 
             <Link
-              to="/meus-agendamentos"
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-xs font-semibold text-teal-300 border border-teal-500/30 transition-colors"
-              title="Acessar meus agendamentos como cliente"
-            >
-              <CalendarDays className="w-3.5 h-3.5 text-teal-400" />
-              <span className="hidden sm:inline">Área do Cliente</span>
-            </Link>
-
-            <Link
               to="/minha-conta"
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#1E293B] hover:bg-slate-700 text-xs font-medium text-slate-300 border border-slate-700 transition-colors"
-              title="Meu perfil pessoal de cliente / usuário"
+              title="Meu perfil pessoal de usuário"
             >
               <UserIcon className="w-3.5 h-3.5 text-teal-400" />
               <span className="hidden sm:inline">Minha Conta</span>

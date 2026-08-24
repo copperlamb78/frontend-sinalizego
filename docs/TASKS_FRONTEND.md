@@ -216,10 +216,11 @@ src/
 - **Rotas**: `/painel/servicos`, `/painel/expediente`, `/painel/financeiro`, `/painel/configuracoes`
 - **Endpoints Integrados**:
   - `GET /service-group` & `POST /service-group` & `PATCH /service-group/:id` & `DELETE /service-group/:id`
-  - `POST /company-service` & `PATCH /company-service/:id` & `DELETE /company-service/:id`
+  - `POST /company-service/create` & `GET /company-service/list` & `PATCH /company-service/update/:id` & `DELETE /company-service/deactivate/:id`
+  - `POST /financial-profile/create` & `GET /financial-profile/list`
   - `GET /working-hours` & `PUT /working-hours`
   - `GET /working-hours/exceptions` & `POST /working-hours/exceptions` & `DELETE /working-hours/exceptions/:id`
-  - `PATCH /company/update/:id` & `POST /upload/photo`
+  - `PATCH /company/update/:id` & `POST /upload/photo` (com fallback `/upload/image`)
 
 #### Entregáveis Técnicos:
 1. **`OwnerServicesPage` (`/painel/servicos`)**:
@@ -230,9 +231,12 @@ src/
    - [x] Grade semanal completa (Segunda a Domingo) com horário de início, término e intervalo de almoço/pausa.
    - [x] Gestão de exceções/feriados (`working-hours/exceptions`) com criação e exclusão.
 3. **`OwnerSettingsPage` (`/painel/configuracoes`)**:
-   - [x] Banner panorâmico e logo com upload e preview em tempo real.
+   - [x] Banner panorâmico e logo com upload resiliente (limitação apenas de tamanho de arquivo até 10MB) e tratamento de erros aprofundado via `extractErrorMessage`.
    - [x] Autopreenchimento de endereço via BrasilAPI v2 no evento de CEP `onBlur`.
    - [x] Barra de link público da vitrine com botão de 1-clique para cópia.
+4. **`FinancialProfileModal` & `DatePicker`**:
+   - [x] Componente `DatePicker` customizado no estilo Shadcn UI em Dark Mode com navegação de mês/ano e pt-BR.
+   - [x] Autopreenchimento total de dados e validação de titular maior de 18 anos.
 
 ---
 

@@ -21,3 +21,162 @@ export function formatCurrency(value: number): string {
 export function formatPercent(value: number): string {
   return `${value}%`;
 }
+
+/**
+ * Sanitizes technical server/gateway jargon into human-friendly Portuguese
+ */
+function humanizeErrorText(text: string): string {
+  if (!text) return 'Ocorreu um erro ao processar a requisição.';
+
+  const lower = text.toLowerCase();
+
+  // 1. Request/Payload too large
+  if (
+    lower.includes('request entity too large') ||
+    lower.includes('payload too large') ||
+    lower.includes('payloadtoolargeerror') ||
+    lower.includes('entity too large') ||
+    lower.includes('413')
+  ) {
+    return 'O arquivo de imagem é muito pesado para salvar. Escolha uma foto menor ou com tamanho reduzido.';
+  }
+
+  // 2. Missing routes
+  if (
+    lower.includes('cannot post') ||
+    lower.includes('cannot get') ||
+    lower.includes('cannot patch') ||
+    lower.includes('cannot put') ||
+    lower.includes('cannot delete')
+  ) {
+    return 'Esta funcionalidade está temporariamente indisponível no servidor. Tente novamente em instantes.';
+  }
+
+  // 3. Network and connectivity
+  if (
+    lower.includes('network error') ||
+    lower.includes('failed to fetch') ||
+    lower.includes('econnrefused') ||
+    lower.includes('err_connection_refused') ||
+    lower.includes('conexão')
+  ) {
+    return 'Não foi possível conectar ao servidor. Verifique sua conexão com a internet.';
+  }
+
+  // 4. Authentication / Session
+  if (
+    lower.includes('unauthorized') ||
+    lower.includes('jwt expired') ||
+    lower.includes('token expired') ||
+    lower.includes('invalid token')
+  ) {
+    return 'Sua sessão expirou por segurança. Por favor, faça login novamente para continuar.';
+  }
+
+  // 5. Forbidden
+  if (lower.includes('forbidden') || lower.includes('access denied')) {
+    return 'Você não possui permissão para realizar esta ação no momento.';
+  }
+
+  // 6. Server 500
+  if (
+    lower.includes('internal server error') ||
+    lower.includes('server error') ||
+    lower.includes('500')
+  ) {
+    return 'Tivemos uma instabilidade temporária no servidor. Por favor, tente novamente em instantes.';
+  }
+
+  // 7. Timeouts
+  if (
+    lower.includes('timeout') ||
+    lower.includes('timed out') ||
+    lower.includes('econnaborted')
+  ) {
+    return 'O servidor demorou muito para responder. Por favor, tente novamente.';
+  }
+
+  // 8. Conflict
+  if (
+    lower.includes('already exists') ||
+    lower.includes('duplicate key') ||
+    lower.includes('já cadastrado') ||
+    lower.includes('já existe')
+  ) {
+    return 'Já existe um cadastro com essas informações.';
+  }
+
+  return text;
+}
+
+/**
+ * Extracts a clear, humanized and user-friendly error message from any API error or exception
+ */
+export function extractErrorMessage(
+  err: any,
+  defaultMessage = 'Ocorreu um imprevisto ao processar sua solicitação.'
+): string {
+  if (!err) return defaultMessage;
+  if (typeof err === 'string') return humanizeErrorText(err);
+
+  // 1. Check Axios response data
+  const data = err.response?.data;
+  if (data) {
+    // String body (e.g. "request entity too large" or HTML)
+    if (typeof data === 'string' && data.trim()) {
+      return humanizeErrorText(data);
+    }
+    // Array of validation error messages (NestJS class-validator)
+    if (Array.isArray(data.message) && data.message.length > 0) {
+      return humanizeErrorText(data.message.join(', '));
+    }
+    // Single message string
+    if (typeof data.message === 'string' && data.message.trim()) {
+      return humanizeErrorText(data.message);
+    }
+    // Asaas / Gateway errors array
+    if (Array.isArray(data.errors) && data.errors.length > 0) {
+      const combined = data.errors
+        .map((e: any) => e.description || e.message || JSON.stringify(e))
+        .join(', ');
+      return humanizeErrorText(combined);
+    }
+    // Error field
+    if (typeof data.error === 'string' && data.error.trim()) {
+      return humanizeErrorText(data.error);
+    }
+    // Details field
+    if (typeof data.details === 'string' && data.details.trim()) {
+      return humanizeErrorText(data.details);
+    }
+  }
+
+  // 2. Check HTTP status codes
+  if (err.response?.status) {
+    switch (err.response.status) {
+      case 413:
+        return 'O arquivo enviado é muito pesado. Selecione uma imagem com tamanho menor.';
+      case 415:
+        return 'Formato de arquivo não suportado. Por favor, envie uma foto em JPG, PNG ou WebP.';
+      case 401:
+        return 'Sua sessão expirou. Por favor, faça login novamente.';
+      case 403:
+        return 'Você não possui permissão para realizar esta alteração.';
+      case 404:
+        return 'O item ou funcionalidade solicitada não foi encontrada.';
+      case 409:
+        return humanizeErrorText(data?.message || 'Já existe um cadastro com esses dados.');
+      default:
+        if (err.response.status >= 500) {
+          return 'Tivemos uma instabilidade temporária no servidor. Tente novamente em instantes.';
+        }
+    }
+  }
+
+  // 3. Check err.message
+  if (typeof err.message === 'string' && err.message.trim()) {
+    return humanizeErrorText(err.message);
+  }
+
+  return defaultMessage;
+}

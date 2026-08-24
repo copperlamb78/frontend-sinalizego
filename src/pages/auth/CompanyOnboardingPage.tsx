@@ -24,14 +24,15 @@ import {
   Search,
   Loader2,
   Eye,
-  EyeOff
+  EyeOff,
+  Users
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { cn, extractErrorMessage } from '@/lib/utils';
 
 const DRAFT_STORAGE_KEY = '@sinalizego:onboarding_company_draft';
 
-// Step 1: Owner Profile + Business Details
+// Step 1: Owner Profile + Business Details + Capacity
 const step1Schema = z.object({
   name: z.string().min(3, 'Informe seu nome completo'),
   email: z.string().email('Insira um e-mail válido'),
@@ -41,7 +42,11 @@ const step1Schema = z.object({
     .min(10, 'Insira um WhatsApp/telefone válido com DDD')
     .regex(/^[0-9()\s-+]+$/, 'Formato de telefone inválido'),
   providerType: z.string().min(1, 'Selecione o tipo de negócio'),
-  businessName: z.string().min(3, 'O nome do estabelecimento deve ter pelo menos 3 caracteres')
+  businessName: z.string().min(3, 'O nome do estabelecimento deve ter pelo menos 3 caracteres'),
+  chairsCount: z.coerce
+    .number({ invalid_type_error: 'Informe um número válido' })
+    .min(1, 'Informe pelo menos 1 cadeira simultânea')
+    .max(50, 'Máximo de 50 cadeiras simultâneas')
 });
 
 // Step 2: Address Details + Terms
@@ -126,6 +131,7 @@ export const CompanyOnboardingPage: React.FC = () => {
       password: '',
       providerType: 'Barbearia',
       businessName: '',
+      chairsCount: 1,
       state: 'SP',
       terms: true as any
     };
@@ -209,7 +215,7 @@ export const CompanyOnboardingPage: React.FC = () => {
 
   const handleNextStep = async () => {
     setServerError(null);
-    const isValid = await trigger(['name', 'email', 'password', 'phone', 'providerType', 'businessName']);
+    const isValid = await trigger(['name', 'email', 'password', 'phone', 'providerType', 'businessName', 'chairsCount']);
     if (isValid) {
       // Save draft upon successful step 1 completion instead of every keystroke
       try {
@@ -241,6 +247,7 @@ export const CompanyOnboardingPage: React.FC = () => {
         phone: cleanPhone,
         businessName: data.businessName.trim(),
         providerType: data.providerType,
+        chairsCount: Number(data.chairsCount) || 1,
         state: data.state,
         city: data.city.trim(),
         district: data.district.trim(),
@@ -261,20 +268,13 @@ export const CompanyOnboardingPage: React.FC = () => {
 
       // Clear draft
       sessionStorage.removeItem(DRAFT_STORAGE_KEY);
-      localStorage.removeItem(DRAFT_STORAGE_KEY); // Clean up legacy plaintext leak
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
 
       await refreshProfile();
       toast.success('Estabelecimento cadastrado com sucesso! Bem-vindo ao painel.');
       navigate('/painel', { replace: true });
     } catch (err: any) {
-      let formattedMessage = 'Não foi possível cadastrar o estabelecimento.';
-      if (err.code === 'ERR_NETWORK' || !err.response) {
-        formattedMessage =
-          'Servidor backend indisponível em http://localhost:3000. Verifique se a API está em execução.';
-      } else if (err.response?.data?.message) {
-        const message = err.response.data.message;
-        formattedMessage = Array.isArray(message) ? message.join(', ') : message;
-      }
+      const formattedMessage = extractErrorMessage(err, 'Não foi possível cadastrar o estabelecimento.');
       setServerError(formattedMessage);
       toast.error(formattedMessage);
     }
@@ -406,6 +406,19 @@ export const CompanyOnboardingPage: React.FC = () => {
               helperText="O link da sua vitrine de agendamentos será gerado automaticamente a partir do nome"
               error={errors.businessName?.message}
               {...register('businessName')}
+            />
+
+            {/* Chairs Count / Simultaneous Capacity */}
+            <Input
+              label="Quantidade de Cadeiras / Atendimentos Simultâneos"
+              type="number"
+              min={1}
+              max={50}
+              placeholder="1"
+              leftIcon={<Users className="w-4 h-4" />}
+              helperText="Número de clientes que seu espaço consegue atender simultaneamente no mesmo horário"
+              error={errors.chairsCount?.message}
+              {...register('chairsCount')}
             />
 
             <Button

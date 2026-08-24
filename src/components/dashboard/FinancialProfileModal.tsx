@@ -1,19 +1,24 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { financialService } from '@/services/financial.service';
+import { companyService } from '@/services/company.service';
 import { cepService } from '@/services/cep.service';
+import { useAuth } from '@/contexts/auth.context';
 import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
+import { DatePicker } from '@/components/common/DatePicker';
 import {
   ShieldCheck,
   Building2,
-  ArrowRight
+  ArrowRight,
+  UserCheck
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { extractErrorMessage } from '@/lib/utils';
 
 const financialProfileSchema = z.object({
   name: z.string().min(3, 'Nome completo do titular é obrigatório'),
@@ -24,8 +29,19 @@ const financialProfileSchema = z.object({
     .max(18, 'CPF/CNPJ inválido'),
   birthDate: z
     .string()
-    .min(10, 'Data de nascimento obrigatória (AAAA-MM-DD)')
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato deve ser AAAA-MM-DD'),
+    .min(10, 'Data de nascimento é obrigatória')
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato deve ser AAAA-MM-DD')
+    .refine((dateStr) => {
+      const birth = new Date(dateStr);
+      if (isNaN(birth.getTime())) return false;
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const m = today.getMonth() - birth.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      return age >= 18 && birth <= today;
+    }, 'O titular deve ter no mínimo 18 anos'),
   mobilePhone: z.string().min(10, 'Celular com DDD é obrigatório'),
   incomeValue: z.coerce.number().min(100, 'Renda mensal mínima é de R$ 100,00'),
   postalCode: z.string().min(8, 'CEP é obrigatório'),
@@ -52,11 +68,21 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
   defaultPhone = ''
 }) => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [isSearchingCep, setIsSearchingCep] = useState(false);
+
+  // Fetch company data to extract registered address and contact
+  const { data: company } = useQuery({
+    queryKey: ['owner-company-profile'],
+    queryFn: () => companyService.getCompanyByUserId(),
+    staleTime: 1000 * 60 * 5,
+    enabled: isOpen
+  });
 
   const {
     register,
     handleSubmit,
+    control,
     setValue,
     watch,
     reset,
@@ -64,17 +90,49 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
   } = useForm<FinancialProfileFormData>({
     resolver: zodResolver(financialProfileSchema),
     defaultValues: {
-      name: defaultName,
-      email: defaultEmail,
-      mobilePhone: defaultPhone,
+      name: '',
+      email: '',
+      mobilePhone: '',
+      cpfCnpj: '',
       incomeValue: 3500,
-      birthDate: '1995-01-01'
+      birthDate: '',
+      postalCode: '',
+      address: '',
+      addressNumber: '',
+      province: ''
     }
   });
 
+  // Pre-fill form automatically from User and Company profiles when opened
+  useEffect(() => {
+    if (isOpen) {
+      const initialName = defaultName || user?.name || company?.businessName || '';
+      const initialEmail = defaultEmail || user?.email || '';
+      const initialPhone = defaultPhone || user?.phone || company?.whatsapp || '';
+      const initialCpfCnpj = user?.cpfCnpj || '';
+      const initialZip = company?.zipCode || '';
+      const initialStreet = company?.street || '';
+      const initialNumber = company?.number || '';
+      const initialDistrict = company?.district || '';
+
+      reset({
+        name: initialName,
+        email: initialEmail,
+        mobilePhone: initialPhone,
+        cpfCnpj: initialCpfCnpj,
+        incomeValue: 3500,
+        birthDate: '',
+        postalCode: initialZip,
+        address: initialStreet,
+        addressNumber: initialNumber,
+        province: initialDistrict
+      });
+    }
+  }, [isOpen, user, company, defaultName, defaultEmail, defaultPhone, reset]);
+
   const postalCodeValue = watch('postalCode');
 
-  // Handle CEP auto-fill
+  // Handle CEP auto-fill via BrasilAPI
   const handleCepBlur = async () => {
     const rawCep = postalCodeValue?.replace(/\D/g, '');
     if (rawCep && rawCep.length === 8) {
@@ -105,11 +163,11 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
       onClose();
     },
     onError: (err: any) => {
-      const message =
-        err.response?.data?.message ||
-        'Não foi possível criar a subconta Asaas. Verifique os dados e tente novamente.';
-      const formatted = Array.isArray(message) ? message.join(', ') : message;
-      toast.error(formatted);
+      const message = extractErrorMessage(
+        err,
+        'Não foi possível criar a subconta Asaas. Verifique os dados e tente novamente.'
+      );
+      toast.error(message);
     }
   });
 
@@ -142,121 +200,138 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
           </p>
         </div>
 
-        {/* Form Fields Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Titular Name */}
-          <div className="sm:col-span-2 space-y-1">
-            <Input
-              label="Nome Completo do Titular"
-              placeholder="Ex: Carlos Roberto da Silva"
-              error={errors.name?.message}
-              {...register('name')}
-            />
-          </div>
+        {/* Section: Titular Details */}
+        <div className="space-y-3">
+          <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <UserCheck className="w-3.5 h-3.5 text-teal-400" />
+            <span>Dados do Titular da Conta</span>
+          </h4>
 
-          {/* Email */}
-          <div className="space-y-1">
-            <Input
-              label="E-mail de Notificação"
-              type="email"
-              placeholder="seuemail@exemplo.com"
-              error={errors.email?.message}
-              {...register('email')}
-            />
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Titular Name */}
+            <div className="sm:col-span-2 space-y-1">
+              <Input
+                label="Nome Completo do Titular"
+                placeholder="Ex: Carlos Roberto da Silva"
+                error={errors.name?.message}
+                {...register('name')}
+              />
+            </div>
 
-          {/* CPF / CNPJ */}
-          <div className="space-y-1">
-            <Input
-              label="CPF ou CNPJ do Titular"
-              placeholder="000.000.000-00"
-              error={errors.cpfCnpj?.message}
-              {...register('cpfCnpj')}
-            />
-          </div>
+            {/* Email */}
+            <div className="space-y-1">
+              <Input
+                label="E-mail de Notificação"
+                type="email"
+                placeholder="seuemail@exemplo.com"
+                error={errors.email?.message}
+                {...register('email')}
+              />
+            </div>
 
-          {/* Birth Date */}
-          <div className="space-y-1">
-            <Input
-              label="Data de Nascimento"
-              type="date"
-              error={errors.birthDate?.message}
-              {...register('birthDate')}
-            />
-          </div>
+            {/* CPF / CNPJ */}
+            <div className="space-y-1">
+              <Input
+                label="CPF ou CNPJ do Titular"
+                placeholder="000.000.000-00"
+                error={errors.cpfCnpj?.message}
+                {...register('cpfCnpj')}
+              />
+            </div>
 
-          {/* Mobile Phone */}
-          <div className="space-y-1">
-            <Input
-              label="Celular com DDD"
-              placeholder="Ex: 75999998888"
-              error={errors.mobilePhone?.message}
-              {...register('mobilePhone')}
-            />
-          </div>
+            {/* Birth Date (Custom Shadcn DatePicker) */}
+            <div className="space-y-1">
+              <Controller
+                name="birthDate"
+                control={control}
+                render={({ field }) => (
+                  <DatePicker
+                    label="Data de Nascimento"
+                    placeholder="Selecione a data de nascimento"
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={errors.birthDate?.message}
+                    maxDate={new Date().toISOString().split('T')[0]}
+                  />
+                )}
+              />
+            </div>
 
-          {/* Income Value */}
-          <div className="sm:col-span-2 space-y-1">
-            <Input
-              label="Renda Mensal Estimada (R$)"
-              type="number"
-              step="100"
-              placeholder="3500"
-              error={errors.incomeValue?.message}
-              {...register('incomeValue')}
-            />
-          </div>
+            {/* Mobile Phone */}
+            <div className="space-y-1">
+              <Input
+                label="Celular com DDD"
+                placeholder="Ex: 75999998888"
+                error={errors.mobilePhone?.message}
+                {...register('mobilePhone')}
+              />
+            </div>
 
-          {/* Address Section */}
-          <div className="sm:col-span-2 pt-2 border-t border-slate-800">
-            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-              <Building2 className="w-3.5 h-3.5 text-teal-400" />
-              <span>Endereço do Titular / Estabelecimento</span>
-            </h4>
+            {/* Income Value */}
+            <div className="sm:col-span-2 space-y-1">
+              <Input
+                label="Renda Mensal Estimada (R$)"
+                type="number"
+                step="100"
+                placeholder="3500"
+                error={errors.incomeValue?.message}
+                {...register('incomeValue')}
+              />
+            </div>
           </div>
+        </div>
 
-          {/* Postal Code (CEP) */}
-          <div className="space-y-1">
-            <Input
-              label="CEP"
-              placeholder="44000-000"
-              error={errors.postalCode?.message}
-              {...register('postalCode')}
-              onBlur={handleCepBlur}
-            />
-            {isSearchingCep && (
-              <span className="text-[10px] text-teal-400 animate-pulse block">Buscando CEP...</span>
-            )}
-          </div>
+        {/* Section: Address */}
+        <div className="space-y-3 pt-2 border-t border-slate-800">
+          <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <Building2 className="w-3.5 h-3.5 text-teal-400" />
+            <span>Endereço do Titular / Estabelecimento</span>
+          </h4>
 
-          {/* Province / Bairro */}
-          <div className="space-y-1">
-            <Input
-              label="Bairro"
-              placeholder="Centro"
-              error={errors.province?.message}
-              {...register('province')}
-            />
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Postal Code (CEP) */}
+            <div className="space-y-1">
+              <Input
+                label="CEP"
+                placeholder="44000-000"
+                error={errors.postalCode?.message}
+                {...register('postalCode')}
+                onBlur={handleCepBlur}
+              />
+              {isSearchingCep && (
+                <span className="text-[10px] text-teal-400 animate-pulse block">Buscando CEP...</span>
+              )}
+            </div>
 
-          {/* Street */}
-          <div className="space-y-1">
-            <Input
-              label="Logradouro / Rua"
-              placeholder="Av. Getúlio Vargas"
-              error={errors.address?.message}
-              {...register('address')}
-            />
-          </div>
+            {/* Province / Bairro */}
+            <div className="space-y-1">
+              <Input
+                label="Bairro"
+                placeholder="Centro"
+                error={errors.province?.message}
+                {...register('province')}
+              />
+            </div>
 
-          {/* Number */}
-          <div className="space-y-1">
-            <Input
-              label="Número"
-              placeholder="123"
-              error={errors.addressNumber?.message}
-              {...register('addressNumber')}
-            />
+            {/* Street */}
+            <div className="space-y-1">
+              <Input
+                label="Logradouro / Rua"
+                placeholder="Av. Getúlio Vargas"
+                error={errors.address?.message}
+                {...register('address')}
+              />
+            </div>
+
+            {/* Number */}
+            <div className="space-y-1">
+              <Input
+                label="Número"
+                placeholder="123"
+                error={errors.addressNumber?.message}
+                {...register('addressNumber')}
+              />
+            </div>
           </div>
         </div>
 

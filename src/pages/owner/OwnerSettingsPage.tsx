@@ -24,6 +24,8 @@ import {
   Users
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { extractErrorMessage } from '@/lib/utils';
+import { compressLogoFile, compressBannerFile } from '@/lib/image.utils';
 
 const settingsSchema = z.object({
   businessName: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
@@ -101,8 +103,8 @@ export const OwnerSettingsPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['company-by-slug'] });
     },
     onError: (err: any) => {
-      const msg = err.response?.data?.message || 'Não foi possível salvar as configurações.';
-      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
+      const msg = extractErrorMessage(err, 'Não foi possível salvar as configurações.');
+      toast.error(msg);
     }
   });
 
@@ -121,26 +123,29 @@ export const OwnerSettingsPage: React.FC = () => {
           setValue('state', address.state);
           toast.success('Endereço autopreenchido via BrasilAPI');
         }
-      } catch {
-        toast.error('CEP não encontrado. Preencha o endereço manualmente.');
+      } catch (err: any) {
+        const msg = extractErrorMessage(err, 'CEP não encontrado. Preencha o endereço manualmente.');
+        toast.error(msg);
       }
     }
   };
 
-  // 4. File Upload Handlers
+  // 4. File Upload Handlers with Ultra-Compact Client-side Compression
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploadingPhoto(true);
     try {
-      const { url } = await companyService.uploadPhoto(file);
-      setLogoPreview(url);
-      toast.success('Logo atualizada com sucesso!');
-    } catch {
-      toast.error('Falha ao enviar logo.');
+      const { dataUrl } = await compressLogoFile(file);
+      setLogoPreview(dataUrl);
+      toast.success('Logo selecionada e otimizada!');
+    } catch (err: any) {
+      const errorMsg = extractErrorMessage(err, 'Falha ao carregar a logo.');
+      toast.error(`Erro no envio da logo: ${errorMsg}`);
     } finally {
       setIsUploadingPhoto(false);
+      e.target.value = '';
     }
   };
 
@@ -150,13 +155,15 @@ export const OwnerSettingsPage: React.FC = () => {
 
     setIsUploadingPhoto(true);
     try {
-      const { url } = await companyService.uploadPhoto(file);
-      setBannerPreview(url);
-      toast.success('Banner de capa atualizado!');
-    } catch {
-      toast.error('Falha ao enviar banner.');
+      const { dataUrl } = await compressBannerFile(file);
+      setBannerPreview(dataUrl);
+      toast.success('Banner de capa selecionado e otimizado!');
+    } catch (err: any) {
+      const errorMsg = extractErrorMessage(err, 'Falha ao carregar o banner.');
+      toast.error(`Erro no envio do banner: ${errorMsg}`);
     } finally {
       setIsUploadingPhoto(false);
+      e.target.value = '';
     }
   };
 
@@ -285,8 +292,8 @@ export const OwnerSettingsPage: React.FC = () => {
             </div>
           </div>
 
-          <p className="text-[11px] text-slate-500">
-            Recomendado: 1200x400px para o banner e 400x400px para a foto de perfil/logo (JPG, PNG ou WEBP).
+          <p className="text-[11px] text-slate-400">
+            Formatos suportados: JPG, PNG ou WebP (tamanho máximo de até 5MB).
           </p>
         </div>
 
