@@ -48,7 +48,7 @@ export const ClientAppointmentsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-4xl animate-pulse">
+      <div className="space-y-6 max-w-4xl mx-auto animate-pulse">
         <Skeleton className="h-16 w-full rounded-2xl" />
         <Skeleton className="h-48 w-full rounded-2xl" />
         <Skeleton className="h-48 w-full rounded-2xl" />
@@ -57,7 +57,7 @@ export const ClientAppointmentsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="space-y-1">
         <h1 className="text-2xl font-black text-white flex items-center gap-2">

@@ -91,7 +91,7 @@ export const ClientExplorePage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-4xl animate-pulse">
+      <div className="space-y-6 max-w-4xl mx-auto animate-pulse">
         <Skeleton className="h-20 w-full rounded-2xl" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Skeleton className="h-64 rounded-2xl" />
@@ -102,7 +102,7 @@ export const ClientExplorePage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8 max-w-4xl">
+    <div className="space-y-8 max-w-4xl mx-auto">
       {/* Top Header */}
       <div className="space-y-1 text-center max-w-xl mx-auto">
         <h1 className="text-2xl font-black text-white flex items-center justify-center gap-2">
