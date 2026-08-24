@@ -28,59 +28,61 @@ export const ClientExplorePage: React.FC = () => {
     queryFn: () => appointmentsService.getUserAppointments()
   });
 
-  // 2. Extract unique visited establishments
-  const visitedCompaniesMap = new Map<string, {
-    id: string;
-    businessName: string;
-    slug: string;
-    providerType: string;
-    address: string;
-    logoPhoto?: string | null;
-    bannerPhoto?: string | null;
-    lastVisitDate: string;
-    lastServiceName: string;
-    totalVisits: number;
-  }>();
+  // 2. Extract unique visited establishments, memoized for performance
+  const visitedCompanies = React.useMemo(() => {
+    const visitedCompaniesMap = new Map<string, {
+      id: string;
+      businessName: string;
+      slug: string;
+      providerType: string;
+      address: string;
+      logoPhoto?: string | null;
+      bannerPhoto?: string | null;
+      lastVisitDate: string;
+      lastServiceName: string;
+      totalVisits: number;
+    }>();
 
-  if (appointments && Array.isArray(appointments)) {
-    appointments.forEach((apt) => {
-      if (apt.company) {
-        const existing = visitedCompaniesMap.get(apt.company.id);
-        const address = [
-          apt.company.street,
-          apt.company.number,
-          apt.company.district,
-          apt.company.city ? `${apt.company.city}/${apt.company.state}` : ''
-        ].filter(Boolean).join(', ');
+    if (appointments && Array.isArray(appointments)) {
+      appointments.forEach((apt) => {
+        if (apt.company) {
+          const existing = visitedCompaniesMap.get(apt.company.id);
+          const address = [
+            apt.company.street,
+            apt.company.number,
+            apt.company.district,
+            apt.company.city ? `${apt.company.city}/${apt.company.state}` : ''
+          ].filter(Boolean).join(', ');
 
-        if (!existing) {
-          visitedCompaniesMap.set(apt.company.id, {
-            id: apt.company.id,
-            businessName: apt.company.businessName,
-            slug: apt.company.slug || 'vintage-club',
-            providerType: apt.company.providerType || 'Barbearia',
-            address: address || 'Endereço não informado',
-            logoPhoto: apt.company.logoPhoto,
-            bannerPhoto: apt.company.bannerPhoto,
-            lastVisitDate: apt.appointmentDate,
-            lastServiceName: apt.service?.name || 'Atendimento',
-            totalVisits: 1
-          });
-        } else {
-          existing.totalVisits += 1;
-          if (new Date(apt.appointmentDate) > new Date(existing.lastVisitDate)) {
-            existing.lastVisitDate = apt.appointmentDate;
-            existing.lastServiceName = apt.service?.name || existing.lastServiceName;
+          if (!existing) {
+            visitedCompaniesMap.set(apt.company.id, {
+              id: apt.company.id,
+              businessName: apt.company.businessName,
+              slug: apt.company.slug || 'vintage-club',
+              providerType: apt.company.providerType || 'Barbearia',
+              address: address || 'Endereço não informado',
+              logoPhoto: apt.company.logoPhoto,
+              bannerPhoto: apt.company.bannerPhoto,
+              lastVisitDate: apt.appointmentDate,
+              lastServiceName: apt.service?.name || 'Atendimento',
+              totalVisits: 1
+            });
+          } else {
+            existing.totalVisits += 1;
+            if (new Date(apt.appointmentDate) > new Date(existing.lastVisitDate)) {
+              existing.lastVisitDate = apt.appointmentDate;
+              existing.lastServiceName = apt.service?.name || existing.lastServiceName;
+            }
           }
         }
-      }
-    });
-  }
+      });
+    }
 
-  const visitedCompanies = Array.from(visitedCompaniesMap.values()).filter((c) =>
-    c.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.address.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    return Array.from(visitedCompaniesMap.values()).filter((c) =>
+      c.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.address.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [appointments, searchQuery]);
 
   const handleSlugSubmit = (e: React.FormEvent) => {
     e.preventDefault();
