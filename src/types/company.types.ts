@@ -139,6 +139,28 @@ export interface CompanyFinancialMetric {
   totalWithdrawn: number;
 }
 
+export interface ProtectedLossItem {
+  id: string;
+  clientName: string;
+  clientPhone?: string;
+  serviceName: string;
+  appointmentDate: string;
+  durationMinutes: number;
+  retainedAmount: number;
+  reason: 'NO_SHOW' | 'LATE_CANCELLATION';
+  createdAt?: string;
+}
+
+export interface ProtectedLossSummary {
+  totalSavedAmount: number;
+  totalProtectedMinutes: number;
+  totalProtectedHours: number;
+  noShowsCount: number;
+  lateCancellationsCount: number;
+  totalOccurrences: number;
+  items?: ProtectedLossItem[];
+}
+
 export interface CompanyDashboardMetrics {
   company?: {
     id: string;
@@ -156,11 +178,13 @@ export interface CompanyDashboardMetrics {
     completed: number;
     confirmed?: number;
     canceled: number;
+    noShow?: number;
     pendingPayment?: number;
     occupancyRate?: number;
     completionRate?: number;
   };
   todayAppointments?: TodayAppointmentMetric[];
   upcomingToday?: TodayAppointmentMetric[];
+  protectedLoss?: ProtectedLossSummary;
 }
 

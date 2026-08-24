@@ -40,7 +40,7 @@ export const ClientAppointmentsPage: React.FC = () => {
     for (const apt of list) {
       if (apt.status === 'CONFIRMED' || apt.status === 'PENDING_PAYMENT') {
         upcomingItems.push(apt);
-      } else if (apt.status === 'COMPLETED' || apt.status === 'CANCELED') {
+      } else if (apt.status === 'COMPLETED' || apt.status === 'CANCELED' || apt.status === 'NO_SHOW') {
         historyItems.push(apt);
       }
     }
@@ -180,6 +180,11 @@ export const ClientAppointmentsPage: React.FC = () => {
                       {apt.status === 'COMPLETED' && (
                         <Badge variant="neutral">
                           CONCLUÍDO
+                        </Badge>
+                      )}
+                      {apt.status === 'NO_SHOW' && (
+                        <Badge variant="warning">
+                          FALTA (NÃO COMPARECEU)
                         </Badge>
                       )}
                       {apt.status === 'CANCELED' && (

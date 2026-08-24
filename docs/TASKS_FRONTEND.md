@@ -189,7 +189,7 @@ src/
 
 ## 🟡 FASE P1 — Gestão do Estabelecimento & Portal do Cliente
 
-### 💈 Task 3: Painel do Dono — Dashboard Analítico, Agenda e Conclusão de Atendimento
+### 💈 Task 3: Painel do Dono — Dashboard Analítico, Agenda e Gestão de No-Show / Prejuízo Evitado
 - **Prioridade**: P1
 - **Status**: [X] Concluído
 - **Complexidade**: Média-Alta
@@ -200,7 +200,12 @@ src/
   - `POST /company/withdraw` (Saque avulso sob demanda com dedução Asaas de R$ 5,00)
   - `GET /company/withdrawals` (Histórico auditado de transferências)
   - `GET /appointments/company` (Agenda operacional por data)
-  - `PATCH /appointments/:id/complete` (Conclusão atômica com liberação de saldo em custódia)
+  - `PATCH /appointments/:id/complete` (Conclusão com trava temporal `now >= appointmentDate`)
+  - `PATCH /appointments/:id/no-show` (Registro de falta com trava temporal `now >= appointmentDate + 15 min` e liberação de sinal retido)
+- **Entregáveis Técnicos**:
+  - [x] Card e Modal de Auditoria "Prejuízo Evitado com SinalizeGO" (soma de faltas e cancelamentos tardios protegidos).
+  - [x] Travas temporais nos botões de ação ("Concluir" liberado no horário e "Cliente Faltou" liberado após 15 min de tolerância).
+  - [x] Modal de confirmação de No-Show com detalhamento do valor retido.
 
 ---
 

@@ -2,7 +2,8 @@ export type AppointmentStatus =
   | 'PENDING_PAYMENT'
   | 'CONFIRMED'
   | 'COMPLETED'
-  | 'CANCELED';
+  | 'CANCELED'
+  | 'NO_SHOW';
 
 export interface AvailableSlotsResponse {
   date: string;
@@ -28,7 +29,10 @@ export interface Appointment {
   status: AppointmentStatus;
   servicePrice: number;
   downPaymentAmount: number;
+  retainedDepositAmount?: number;
   platformFeeAmount?: number;
+  noShowAt?: string;
+  cancellationReason?: string;
   expiresAt?: string;
   createdAt: string;
   updatedAt: string;

@@ -79,6 +79,15 @@ export const appointmentsService = {
   },
 
   /**
+   * Marks an appointment as NO_SHOW (now >= appointmentDate + 15 min) and releases retained deposit
+   * PATCH /api/v1/appointments/:id/no-show
+   */
+  registerNoShow: async (id: string): Promise<Appointment> => {
+    const response = await api.patch<Appointment>(`/appointments/${id}/no-show`);
+    return response.data;
+  },
+
+  /**
    * Cancels an appointment from the client side and triggers Pix refund rules
    * DELETE /api/v1/appointments/:id/client
    */

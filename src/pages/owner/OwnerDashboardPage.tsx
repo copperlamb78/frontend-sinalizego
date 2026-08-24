@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { companyService } from '@/services/company.service';
@@ -6,9 +6,11 @@ import { appointmentsService } from '@/services/appointments.service';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
+import { Modal } from '@/components/common/Modal';
 import { Skeleton } from '@/components/common/Skeleton';
 import { WithdrawalModal } from '@/components/dashboard/WithdrawalModal';
 import { FinancialProfileModal } from '@/components/dashboard/FinancialProfileModal';
+import { ProtectedLossModal } from '@/components/dashboard/ProtectedLossModal';
 import {
   Wallet,
   Lock,
@@ -23,16 +25,20 @@ import {
   ExternalLink,
   ShieldCheck,
   HelpCircle,
-  ArrowRight
+  ArrowRight,
+  UserX
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
+import type { ProtectedLossSummary, ProtectedLossItem, TodayAppointmentMetric } from '@/types/company.types';
 
 export const OwnerDashboardPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [isFinancialModalOpen, setIsFinancialModalOpen] = useState(false);
+  const [isProtectedLossModalOpen, setIsProtectedLossModalOpen] = useState(false);
   const [completingId, setCompletingId] = useState<string | null>(null);
+  const [noShowTarget, setNoShowTarget] = useState<TodayAppointmentMetric | null>(null);
 
   // 1. Fetch Company Profile (Source of truth for subaccount and slug)
   const { data: company, isLoading: isLoadingCompany } = useQuery({
@@ -67,7 +73,15 @@ export const OwnerDashboardPage: React.FC = () => {
     refetchInterval: hasSubaccount ? 30000 : false // Poll every 30s only when subaccount is active
   });
 
-  // 4. Complete Appointment Mutation
+  // 4. Fetch All Appointments for Loss Avoidance Audit
+  const { data: allAppointments } = useQuery({
+    queryKey: ['company-appointments-loss-audit'],
+    queryFn: () => appointmentsService.getCompanyAppointments(),
+    enabled: hasSubaccount,
+    staleTime: 1000 * 60 * 2
+  });
+
+  // 5. Complete Appointment Mutation
   const completeMutation = useMutation({
     mutationFn: (appointmentId: string) => appointmentsService.completeAppointment(appointmentId),
     onMutate: (id) => setCompletingId(id),
@@ -77,11 +91,75 @@ export const OwnerDashboardPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['company-balance'] });
       queryClient.invalidateQueries({ queryKey: ['company-appointments'] });
     },
-    onError: () => {
-      toast.error('Não foi possível concluir o atendimento.');
+    onError: (err: any) => {
+      const msg = err.response?.data?.message || 'Não foi possível concluir o atendimento antes do horário agendado.';
+      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
     },
     onSettled: () => setCompletingId(null)
   });
+
+  // 6. No-Show Mutation
+  const noShowMutation = useMutation({
+    mutationFn: (appointmentId: string) => appointmentsService.registerNoShow(appointmentId),
+    onSuccess: () => {
+      toast.success('Falta (No-Show) registrada com sucesso! O sinal de reserva foi liberado para sua carteira.');
+      queryClient.invalidateQueries({ queryKey: ['company-metrics'] });
+      queryClient.invalidateQueries({ queryKey: ['company-balance'] });
+      queryClient.invalidateQueries({ queryKey: ['company-appointments'] });
+      queryClient.invalidateQueries({ queryKey: ['company-appointments-loss-audit'] });
+      setNoShowTarget(null);
+    },
+    onError: (err: any) => {
+      const msg = err.response?.data?.message || 'A falta só pode ser registrada após 15 minutos de tolerância do horário de início.';
+      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
+    }
+  });
+
+  // Aggregated Protected Loss Metrics
+  const protectedLossData: ProtectedLossSummary = useMemo(() => {
+    if (metrics?.protectedLoss) return metrics.protectedLoss;
+
+    const noShows = (allAppointments || []).filter((a) => a.status === 'NO_SHOW');
+    const lateCancels = (allAppointments || []).filter(
+      (a) => a.status === 'CANCELED' && (a.retainedDepositAmount || 0) > 0
+    );
+
+    const items: ProtectedLossItem[] = [
+      ...noShows.map((a) => ({
+        id: a.id,
+        clientName: a.client?.name || 'Cliente',
+        clientPhone: a.client?.phone,
+        serviceName: a.service?.name || 'Serviço',
+        appointmentDate: a.appointmentDate,
+        durationMinutes: a.service?.durationMinutes || 30,
+        retainedAmount: a.retainedDepositAmount || a.downPaymentAmount || 0,
+        reason: 'NO_SHOW' as const
+      })),
+      ...lateCancels.map((a) => ({
+        id: a.id,
+        clientName: a.client?.name || 'Cliente',
+        clientPhone: a.client?.phone,
+        serviceName: a.service?.name || 'Serviço',
+        appointmentDate: a.appointmentDate,
+        durationMinutes: a.service?.durationMinutes || 30,
+        retainedAmount: a.retainedDepositAmount || a.downPaymentAmount || 0,
+        reason: 'LATE_CANCELLATION' as const
+      }))
+    ];
+
+    const totalSavedAmount = items.reduce((acc, i) => acc + i.retainedAmount, 0);
+    const totalProtectedMinutes = items.reduce((acc, i) => acc + i.durationMinutes, 0);
+
+    return {
+      totalSavedAmount,
+      totalProtectedMinutes,
+      totalProtectedHours: Math.round((totalProtectedMinutes / 60) * 10) / 10,
+      noShowsCount: noShows.length,
+      lateCancellationsCount: lateCancels.length,
+      totalOccurrences: items.length,
+      items
+    };
+  }, [metrics?.protectedLoss, allAppointments]);
 
   if (isLoadingCompany || (isLoadingMetrics && hasSubaccount)) {
     return (
@@ -284,6 +362,61 @@ export const OwnerDashboardPage: React.FC = () => {
         </Card>
       </div>
 
+      {/* Prejuízo Evitado com SinalizeGO Banner / Card */}
+      {hasSubaccount && (
+        <Card className="p-6 bg-gradient-to-r from-emerald-950/40 via-[#0F172A] to-[#0F172A] border border-emerald-500/30 shadow-xl relative overflow-hidden">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-xl">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-black text-white">
+                  Prejuízo Evitado com SinalizeGO
+                </h3>
+                <Badge variant="teal" size="sm">CUSTÓDIA PROTEGIDA</Badge>
+              </div>
+
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Valores e tempo de cadeira 100% resguardados pelo sinal antecipado. Quando o cliente falta ou cancela em cima da hora, você não fica no prejuízo.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+              <div className="p-3.5 rounded-2xl bg-[#0B1120] border border-slate-800 min-w-[130px]">
+                <span className="text-[10px] text-slate-400 font-semibold uppercase block">
+                  Valor Total Salvo
+                </span>
+                <span className="text-xl font-black text-emerald-400">
+                  {formatCurrency(protectedLossData.totalSavedAmount)}
+                </span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-[#0B1120] border border-slate-800 min-w-[130px]">
+                <span className="text-[10px] text-slate-400 font-semibold uppercase block">
+                  Cadeira Paga
+                </span>
+                <span className="text-xl font-black text-white">
+                  {protectedLossData.totalProtectedHours > 0
+                    ? `${protectedLossData.totalProtectedHours}h`
+                    : `${protectedLossData.totalProtectedMinutes}m`}
+                </span>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-11 font-bold text-xs"
+                onClick={() => setIsProtectedLossModalOpen(true)}
+                rightIcon={<ArrowRight className="w-4 h-4" />}
+              >
+                Ver Auditoria ({protectedLossData.totalOccurrences})
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Today's Queue Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -293,7 +426,7 @@ export const OwnerDashboardPage: React.FC = () => {
               <span>Fila de Atendimento de Hoje</span>
             </h2>
             <p className="text-xs text-slate-400">
-              Gerencie a fila em tempo real e confirme a conclusão dos serviços para liberar os valores.
+              Gerencie a fila em tempo real, confirme a conclusão dos serviços ou registre faltas após a tolerância de 15 minutos.
             </p>
           </div>
 
@@ -307,11 +440,23 @@ export const OwnerDashboardPage: React.FC = () => {
         {todayAppointments && todayAppointments.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {todayAppointments.map((app) => {
-              const time = new Date(app.appointmentDate).toLocaleTimeString('pt-BR', {
+              const apptDate = new Date(app.appointmentDate);
+              const time = apptDate.toLocaleTimeString('pt-BR', {
                 hour: '2-digit',
                 minute: '2-digit'
               });
+              const now = Date.now();
+              const apptTime = apptDate.getTime();
+              const canComplete = now >= apptTime;
+              const canNoShow = now >= apptTime + 15 * 60 * 1000;
+              const minutesUntilNoShow = Math.max(
+                0,
+                Math.ceil((apptTime + 15 * 60 * 1000 - now) / (1000 * 60))
+              );
               const isCompleting = completingId === app.id;
+              const isNoShowing = noShowMutation.isPending && noShowTarget?.id === app.id;
+              const isNoShowStatus = app.status === 'NO_SHOW';
+              const isCompletedStatus = app.status === 'COMPLETED';
 
               return (
                 <Card
@@ -372,17 +517,52 @@ export const OwnerDashboardPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Action Button */}
-                  <Button
-                    size="sm"
-                    className="w-full h-10 font-bold text-xs"
-                    isLoading={isCompleting}
-                    disabled={isCompleting}
-                    onClick={() => completeMutation.mutate(app.id)}
-                    leftIcon={<CheckCircle2 className="w-4 h-4 text-white" />}
-                  >
-                    Concluir Atendimento (Liberar R$)
-                  </Button>
+                  {/* Action Buttons & Temporal Locks */}
+                  {isCompletedStatus ? (
+                    <div className="w-full p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold text-center flex items-center justify-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Atendimento Concluído</span>
+                    </div>
+                  ) : isNoShowStatus ? (
+                    <div className="w-full p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-bold text-center flex items-center justify-center gap-1.5">
+                      <UserX className="w-4 h-4" />
+                      <span>Falta Registrada (Sinal Retido)</span>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                      <Button
+                        size="sm"
+                        className="h-10 font-bold text-xs"
+                        isLoading={isCompleting}
+                        disabled={!canComplete || isCompleting || isNoShowing}
+                        onClick={() => completeMutation.mutate(app.id)}
+                        leftIcon={<CheckCircle2 className="w-4 h-4 text-white" />}
+                        title={
+                          !canComplete
+                            ? `Disponível a partir das ${time}`
+                            : 'Concluir atendimento e liberar custódia'
+                        }
+                      >
+                        {canComplete ? 'Concluir' : `Aguardando ${time}`}
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-10 font-bold text-xs text-amber-300 hover:text-amber-200 border-amber-500/30 hover:bg-amber-500/10"
+                        disabled={!canNoShow || isCompleting || isNoShowing}
+                        onClick={() => setNoShowTarget(app)}
+                        leftIcon={<UserX className="w-4 h-4 text-amber-400" />}
+                        title={
+                          !canNoShow
+                            ? `Tolerância de 15 min até ${new Date(apptTime + 15 * 60 * 1000).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                            : 'Registrar falta do cliente e liberar o sinal retido'
+                        }
+                      >
+                        {canNoShow ? 'Cliente Faltou' : `Tolerância (${minutesUntilNoShow}m)`}
+                      </Button>
+                    </div>
+                  )}
                 </Card>
               );
             })}
@@ -404,9 +584,71 @@ export const OwnerDashboardPage: React.FC = () => {
       <div className="p-4 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center gap-3 text-xs text-slate-400">
         <ShieldCheck className="w-5 h-5 text-teal-400 shrink-0" />
         <span>
-          O sinal Pix recebido fica protegido em custódia até você concluir o serviço ou após 24h sem contestação, garantindo total segurança contra estornos indevidos.
+          O sinal Pix recebido fica protegido em custódia até você concluir o serviço ou registrar no-show após a tolerância de 15 minutos, garantindo total segurança contra prejuízos de agenda vazia.
         </span>
       </div>
+
+      {/* Modal de Confirmação de No-Show */}
+      <Modal
+        isOpen={!!noShowTarget}
+        onClose={() => setNoShowTarget(null)}
+        title="Confirmar Falta do Cliente (No-Show)"
+        description="Esta ação libera o sinal de reserva diretamente para a sua conta."
+        size="sm"
+      >
+        {noShowTarget && (
+          <div className="space-y-4 text-xs text-slate-300">
+            <div className="p-3.5 rounded-xl bg-[#0B1120] border border-slate-800 space-y-2">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Cliente:</span>
+                <strong className="text-white">{noShowTarget.clientName}</strong>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Serviço:</span>
+                <span className="text-slate-200 font-medium">{noShowTarget.serviceName}</span>
+              </div>
+              <div className="flex justify-between pt-1 border-t border-slate-800">
+                <span className="text-teal-400 font-bold">Sinal a ser transferido:</span>
+                <strong className="text-teal-400 text-sm">
+                  {formatCurrency(noShowTarget.downPaymentAmount)}
+                </strong>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              O cliente ultrapassou a tolerância máxima de 15 minutos. O sinal pago antecipadamente será liberado integralmente para o seu saldo como compensação de agenda vazia.
+            </p>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setNoShowTarget(null)}
+                disabled={noShowMutation.isPending}
+              >
+                Cancelar
+              </Button>
+              <Button
+                size="sm"
+                className="bg-amber-600 hover:bg-amber-500 font-bold"
+                isLoading={noShowMutation.isPending}
+                onClick={() => noShowMutation.mutate(noShowTarget.id)}
+              >
+                Confirmar Falta & Liberar Sinal
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Protected Loss Audit Modal */}
+      <ProtectedLossModal
+        isOpen={isProtectedLossModalOpen}
+        onClose={() => setIsProtectedLossModalOpen(false)}
+        summary={protectedLossData}
+        items={protectedLossData.items}
+      />
 
       {/* Withdrawal Modal */}
       <WithdrawalModal

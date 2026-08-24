@@ -5,6 +5,7 @@ import { companyService } from '@/services/company.service';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
+import { Modal } from '@/components/common/Modal';
 import { Skeleton } from '@/components/common/Skeleton';
 import {
   Calendar as CalendarIcon,
@@ -13,11 +14,12 @@ import {
   Phone,
   CheckCircle2,
   Check,
-  Lock
+  Lock,
+  UserX
 } from 'lucide-react';
 import { formatCurrency, cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import type { AppointmentStatus } from '@/types/appointment.types';
+import type { Appointment, AppointmentStatus } from '@/types/appointment.types';
 
 export const OwnerCalendarPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -26,6 +28,7 @@ export const OwnerCalendarPage: React.FC = () => {
   });
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [completingId, setCompletingId] = useState<string | null>(null);
+  const [noShowTarget, setNoShowTarget] = useState<Appointment | null>(null);
 
   // 1. Fetch Company Profile (for subaccount check)
   const { data: company } = useQuery({
@@ -47,7 +50,7 @@ export const OwnerCalendarPage: React.FC = () => {
     queryFn: () => appointmentsService.getCompanyAppointments({ date: selectedDate })
   });
 
-  // 2. Complete Mutation
+  // 3. Complete Mutation
   const completeMutation = useMutation({
     mutationFn: (appointmentId: string) => appointmentsService.completeAppointment(appointmentId),
     onMutate: (id) => setCompletingId(id),
@@ -57,10 +60,27 @@ export const OwnerCalendarPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['company-metrics'] });
       queryClient.invalidateQueries({ queryKey: ['company-balance'] });
     },
-    onError: () => {
-      toast.error('Não foi possível concluir o atendimento.');
+    onError: (err: any) => {
+      const msg = err.response?.data?.message || 'Não foi possível concluir o atendimento antes do horário agendado.';
+      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
     },
     onSettled: () => setCompletingId(null)
+  });
+
+  // 4. No-Show Mutation
+  const noShowMutation = useMutation({
+    mutationFn: (appointmentId: string) => appointmentsService.registerNoShow(appointmentId),
+    onSuccess: () => {
+      toast.success('Falta (No-Show) registrada com sucesso! Sinal liberado para o seu saldo.');
+      queryClient.invalidateQueries({ queryKey: ['company-appointments'] });
+      queryClient.invalidateQueries({ queryKey: ['company-metrics'] });
+      queryClient.invalidateQueries({ queryKey: ['company-balance'] });
+      setNoShowTarget(null);
+    },
+    onError: (err: any) => {
+      const msg = err.response?.data?.message || 'A falta só pode ser registrada após 15 minutos de tolerância do horário agendado.';
+      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
+    }
   });
 
   // Days Navigation Strip (Previous 3 days, Today, Next 7 days)
@@ -97,6 +117,8 @@ export const OwnerCalendarPage: React.FC = () => {
         return <Badge variant="teal" size="sm">Confirmado</Badge>;
       case 'COMPLETED':
         return <Badge variant="success" size="sm">Concluído</Badge>;
+      case 'NO_SHOW':
+        return <Badge variant="warning" size="sm">Falta (No-Show)</Badge>;
       case 'PENDING_PAYMENT':
         return <Badge variant="warning" size="sm">Aguardando Pix</Badge>;
       case 'CANCELED':
@@ -121,17 +143,19 @@ export const OwnerCalendarPage: React.FC = () => {
         </div>
 
         {/* Status Filters */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#0F172A] border border-slate-800 self-start sm:self-auto">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#0F172A] border border-slate-800 self-start sm:self-auto overflow-x-auto max-w-full">
           {[
             { key: 'ALL', label: 'Todos' },
             { key: 'CONFIRMED', label: 'Confirmados' },
-            { key: 'COMPLETED', label: 'Concluídos' }
+            { key: 'COMPLETED', label: 'Concluídos' },
+            { key: 'NO_SHOW', label: 'Faltas (No-Show)' },
+            { key: 'CANCELED', label: 'Cancelados' }
           ].map((f) => (
             <button
               key={f.key}
               onClick={() => setStatusFilter(f.key)}
               className={cn(
-                'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer select-none',
+                'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer select-none whitespace-nowrap',
                 statusFilter === f.key
                   ? 'bg-teal-500 text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
@@ -193,20 +217,32 @@ export const OwnerCalendarPage: React.FC = () => {
       ) : filteredAppointments.length > 0 ? (
         <div className="space-y-3">
           {filteredAppointments.map((app) => {
-            const time = new Date(app.appointmentDate).toLocaleTimeString('pt-BR', {
+            const apptDate = new Date(app.appointmentDate);
+            const time = apptDate.toLocaleTimeString('pt-BR', {
               hour: '2-digit',
               minute: '2-digit'
             });
+            const now = Date.now();
+            const apptTime = apptDate.getTime();
+            const canComplete = now >= apptTime;
+            const canNoShow = now >= apptTime + 15 * 60 * 1000;
+            const minutesUntilNoShow = Math.max(
+              0,
+              Math.ceil((apptTime + 15 * 60 * 1000 - now) / (1000 * 60))
+            );
+
             const remaining = Math.max(0, (app.servicePrice || 0) - (app.downPaymentAmount || 0));
             const isCompleted = app.status === 'COMPLETED';
+            const isNoShow = app.status === 'NO_SHOW';
             const isCompleting = completingId === app.id;
+            const isNoShowing = noShowMutation.isPending && noShowTarget?.id === app.id;
 
             return (
               <Card
                 key={app.id}
                 className={cn(
                   'p-5 bg-[#0F172A] border-slate-800 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4',
-                  isCompleted && 'opacity-75 bg-[#0F172A]/60'
+                  (isCompleted || isNoShow) && 'opacity-80 bg-[#0F172A]/70'
                 )}
               >
                 {/* Left: Time & Client Details */}
@@ -247,17 +283,19 @@ export const OwnerCalendarPage: React.FC = () => {
                 </div>
 
                 {/* Right: Financial Settlement & Actions */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between md:justify-end gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-slate-800">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between md:justify-end gap-4 pt-3 md:pt-0 border-t md:border-t-0 border-slate-800">
                   <div className="grid grid-cols-2 md:grid-cols-1 gap-3 md:gap-1 text-xs text-left md:text-right">
                     <div>
-                      <span className="text-[10px] text-slate-500 block uppercase">Sinal Pix</span>
+                      <span className="text-[10px] text-slate-500 block uppercase font-semibold">
+                        Sinal Pix
+                      </span>
                       <span className="font-bold text-teal-400">
                         {formatCurrency(app.downPaymentAmount)}
                       </span>
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-amber-400 font-bold block uppercase">
+                      <span className="text-[10px] text-amber-400 font-bold block uppercase tracking-wider">
                         Cobrar no Balcão
                       </span>
                       <span className="font-black text-amber-300 text-sm">
@@ -268,22 +306,52 @@ export const OwnerCalendarPage: React.FC = () => {
 
                   <div className="w-full sm:w-auto">
                     {app.status === 'CONFIRMED' && (
-                      <Button
-                        size="sm"
-                        className="w-full sm:w-auto h-10 font-bold text-xs"
-                        isLoading={isCompleting}
-                        disabled={isCompleting}
-                        onClick={() => completeMutation.mutate(app.id)}
-                        leftIcon={<CheckCircle2 className="w-4 h-4" />}
-                      >
-                        Concluir
-                      </Button>
+                      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <Button
+                          size="sm"
+                          className="h-10 font-bold text-xs"
+                          isLoading={isCompleting}
+                          disabled={!canComplete || isCompleting || isNoShowing}
+                          onClick={() => completeMutation.mutate(app.id)}
+                          leftIcon={<CheckCircle2 className="w-4 h-4" />}
+                          title={
+                            !canComplete
+                              ? `Disponível a partir das ${time}`
+                              : 'Concluir atendimento e liberar custódia'
+                          }
+                        >
+                          {canComplete ? 'Concluir' : `Aguardando ${time}`}
+                        </Button>
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-10 font-bold text-xs text-amber-300 hover:text-amber-200 border-amber-500/30 hover:bg-amber-500/10"
+                          disabled={!canNoShow || isCompleting || isNoShowing}
+                          onClick={() => setNoShowTarget(app)}
+                          leftIcon={<UserX className="w-4 h-4 text-amber-400" />}
+                          title={
+                            !canNoShow
+                              ? `Tolerância de 15 min até ${new Date(apptTime + 15 * 60 * 1000).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                              : 'Registrar falta do cliente e liberar sinal'
+                          }
+                        >
+                          {canNoShow ? 'Faltou' : `Tolerância (${minutesUntilNoShow}m)`}
+                        </Button>
+                      </div>
                     )}
 
                     {app.status === 'COMPLETED' && (
                       <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
                         <Check className="w-4 h-4" />
                         <span>Concluído</span>
+                      </div>
+                    )}
+
+                    {app.status === 'NO_SHOW' && (
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold">
+                        <UserX className="w-4 h-4" />
+                        <span>Falta (Sinal Retido)</span>
                       </div>
                     )}
                   </div>
@@ -301,6 +369,60 @@ export const OwnerCalendarPage: React.FC = () => {
           </p>
         </div>
       )}
+
+      {/* Modal de Confirmação de No-Show */}
+      <Modal
+        isOpen={!!noShowTarget}
+        onClose={() => setNoShowTarget(null)}
+        title="Confirmar Falta do Cliente (No-Show)"
+        description="Esta ação libera o sinal de reserva diretamente para a sua conta."
+        size="sm"
+      >
+        {noShowTarget && (
+          <div className="space-y-4 text-xs text-slate-300">
+            <div className="p-3.5 rounded-xl bg-[#0B1120] border border-slate-800 space-y-2">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Cliente:</span>
+                <strong className="text-white">{noShowTarget.client?.name || 'Cliente'}</strong>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Serviço:</span>
+                <span className="text-slate-200 font-medium">{noShowTarget.service?.name || 'Serviço'}</span>
+              </div>
+              <div className="flex justify-between pt-1 border-t border-slate-800">
+                <span className="text-teal-400 font-bold">Sinal a ser transferido:</span>
+                <strong className="text-teal-400 text-sm">
+                  {formatCurrency(noShowTarget.downPaymentAmount)}
+                </strong>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              O cliente ultrapassou a tolerância máxima de 15 minutos. O sinal pago antecipadamente será liberado integralmente para o seu saldo como compensação de agenda vazia.
+            </p>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setNoShowTarget(null)}
+                disabled={noShowMutation.isPending}
+              >
+                Cancelar
+              </Button>
+              <Button
+                size="sm"
+                className="bg-amber-600 hover:bg-amber-500 font-bold"
+                isLoading={noShowMutation.isPending}
+                onClick={() => noShowMutation.mutate(noShowTarget.id)}
+              >
+                Confirmar Falta & Liberar Sinal
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
