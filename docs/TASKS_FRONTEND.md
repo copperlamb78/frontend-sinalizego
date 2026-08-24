@@ -219,7 +219,7 @@ src/
 #### Entregáveis Técnicos:
 1. **`OwnerServicesPage` (`/painel/servicos`)**:
    - [x] Listagem hierárquica por categorias (`ServiceGroup`) com contadores de serviços e capacidade simultânea.
-   - [x] Modal de Serviço com cálculo dinâmico de sinal e Micro-Transaction Safety Gate de R$ 15,00.
+   - [x] Modal de Serviço com cálculo dinâmico de sinal: 50% padrão, 30% flexível para serviços de alto ticket ($\ge$ R$ 400) e 100% para micro-transações (< R$ 15,00).
    - [x] Modal de Categoria/Grupo e modal de confirmação de exclusão.
 2. **`OwnerWorkingHoursPage` (`/painel/expediente`)**:
    - [x] Grade semanal completa (Segunda a Domingo) com horário de início, término e intervalo de almoço/pausa.

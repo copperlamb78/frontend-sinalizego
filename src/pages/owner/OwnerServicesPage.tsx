@@ -21,7 +21,9 @@ import {
   Users,
   Info,
   Lock,
-  ArrowRight
+  ArrowRight,
+  Sparkles,
+  CheckCircle2
 } from 'lucide-react';
 import { formatCurrency, cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -77,13 +79,25 @@ export const OwnerServicesPage: React.FC = () => {
         throw new Error('É necessário ativar a subconta Asaas antes de cadastrar serviços.');
       }
       const price = parseFloat(svcPrice.replace(',', '.')) || 0;
+      
+      // Calculate final deposit percentage based on price rules
+      let finalDownPayment = 50;
+      if (price < 15.0) {
+        finalDownPayment = 100;
+      } else if (price >= 400.0) {
+        finalDownPayment = svcDownPaymentPercent === 30 ? 30 : 50;
+      } else {
+        finalDownPayment = 50;
+      }
+
       if (editingService) {
         return servicesService.updateService(editingService.id, {
           name: svcName,
           description: svcDescription,
           durationMinutes: svcDuration,
           totalPrice: price,
-          downPaymentPercent: svcDownPaymentPercent,
+          downPaymentPercent: finalDownPayment,
+          depositPercentage: finalDownPayment,
           serviceGroupId: svcGroupId
         });
       }
@@ -92,7 +106,8 @@ export const OwnerServicesPage: React.FC = () => {
         description: svcDescription,
         durationMinutes: svcDuration,
         totalPrice: price,
-        downPaymentPercent: svcDownPaymentPercent,
+        downPaymentPercent: finalDownPayment,
+        depositPercentage: finalDownPayment,
         serviceGroupId: svcGroupId || groups?.[0]?.id || 'grp-default'
       });
     },
@@ -184,7 +199,8 @@ export const OwnerServicesPage: React.FC = () => {
     setSvcDescription(service.description || '');
     setSvcDuration(service.durationMinutes);
     setSvcPrice(service.totalPrice.toString());
-    setSvcDownPaymentPercent(service.downPaymentPercent);
+    const pct = service.downPaymentPercent || service.depositPercentage || 50;
+    setSvcDownPaymentPercent(service.totalPrice >= 400 && pct === 30 ? 30 : 50);
     setSvcGroupId(groupId);
     setIsServiceModalOpen(true);
   };
@@ -196,12 +212,16 @@ export const OwnerServicesPage: React.FC = () => {
     setIsGroupModalOpen(true);
   };
 
-  // Calculations for live Safety Gate check
+  // Calculations for live Safety Gate & High Ticket check
   const numericPrice = parseFloat(svcPrice.replace(',', '.')) || 0;
   const isMicroTransaction = numericPrice < 15.0;
-  const calculatedDeposit = isMicroTransaction
-    ? numericPrice
-    : (numericPrice * svcDownPaymentPercent) / 100;
+  const isHighTicket = numericPrice >= 400.0;
+  const effectiveDownPaymentPercent = isMicroTransaction
+    ? 100
+    : isHighTicket
+    ? (svcDownPaymentPercent === 30 ? 30 : 50)
+    : 50;
+  const calculatedDeposit = (numericPrice * effectiveDownPaymentPercent) / 100;
   const remainingInSalon = Math.max(0, numericPrice - calculatedDeposit);
 
   if (isLoading) {
@@ -368,9 +388,10 @@ export const OwnerServicesPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-2 sm:pl-4">
                   {group.services.map((svc) => {
                     const isBelowThreshold = svc.totalPrice < 15.0;
-                    const calculatedDownPayment = isBelowThreshold
-                      ? svc.totalPrice
-                      : (svc.totalPrice * svc.downPaymentPercent) / 100;
+                    const pct = isBelowThreshold
+                      ? 100
+                      : svc.downPaymentPercent || svc.depositPercentage || 50;
+                    const calculatedDownPayment = (svc.totalPrice * pct) / 100;
 
                     return (
                       <Card
@@ -380,8 +401,12 @@ export const OwnerServicesPage: React.FC = () => {
                         <div className="space-y-1.5">
                           <div className="flex items-start justify-between gap-2">
                             <h3 className="text-sm font-bold text-white">{svc.name}</h3>
-                            <Badge variant={isBelowThreshold ? 'warning' : 'teal'} size="sm">
-                              {isBelowThreshold ? 'Sinal 100% (Piso)' : `Sinal ${svc.downPaymentPercent}%`}
+                            <Badge variant={isBelowThreshold ? 'warning' : pct === 30 ? 'teal' : 'neutral'} size="sm">
+                              {isBelowThreshold
+                                ? 'Sinal 100% (Piso)'
+                                : pct === 30
+                                ? 'Sinal 30% (Flex)'
+                                : `Sinal ${pct}%`}
                             </Badge>
                           </div>
 
@@ -560,43 +585,92 @@ export const OwnerServicesPage: React.FC = () => {
             />
           </div>
 
-          {/* Down Payment Percent Selector */}
-          <div className="space-y-2 pt-2 border-t border-slate-800">
+          {/* Down Payment Rules & High Ticket Flex */}
+          <div className="space-y-3 pt-2 border-t border-slate-800">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-semibold text-slate-300">
-                Percentual do Sinal Pix
+                Regra de Sinal de Reserva (Pix)
               </label>
-              <span className="text-[11px] text-slate-500">Piso mínimo de R$ 15,00</span>
+              <span className="text-[11px] text-slate-500">
+                {isMicroTransaction
+                  ? 'Piso micro-transação'
+                  : isHighTicket
+                  ? 'Alto Ticket'
+                  : 'Padrão 50%'}
+              </span>
             </div>
 
             {isMicroTransaction ? (
               <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>
-                  Para serviços abaixo de R$ 15,00, o sinal é fixado em 100% no checkout.
+                  Para serviços abaixo de R$ 15,00, o sinal é fixado em 100% no checkout conforme a política de segurança financeira.
                 </span>
               </div>
-            ) : (
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { percent: 25, label: '25% (Piso Leve)' },
-                  { percent: 50, label: '50% (Recomendado)' },
-                  { percent: 100, label: '100% (Integral)' }
-                ].map((opt) => (
+            ) : isHighTicket ? (
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-teal-500/10 via-[#1E293B] to-[#0F172A] border border-teal-500/30 space-y-3 shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-teal-400" />
+                    <span className="text-xs font-black text-white">
+                      Condição Especial para Serviços de Alto Ticket
+                    </span>
+                  </div>
+                  <Badge variant="teal" size="sm">FLEXÍVEL</Badge>
+                </div>
+
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Para serviços a partir de R$ 400,00, você pode flexibilizar o sinal para 30% para acelerar as reservas com seus clientes.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                   <button
-                    key={opt.percent}
                     type="button"
-                    onClick={() => setSvcDownPaymentPercent(opt.percent)}
+                    onClick={() => setSvcDownPaymentPercent(50)}
                     className={cn(
-                      'py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center cursor-pointer select-none',
-                      svcDownPaymentPercent === opt.percent
-                        ? 'bg-teal-500 text-white border-teal-500 shadow-md'
-                        : 'bg-[#1E293B] border-slate-700 text-slate-400 hover:text-white'
+                      'p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer select-none',
+                      effectiveDownPaymentPercent === 50
+                        ? 'bg-teal-500/20 border-teal-500 text-white shadow-md ring-1 ring-teal-500'
+                        : 'bg-[#0B1120] border-slate-700 text-slate-400 hover:border-slate-600'
                     )}
                   >
-                    {opt.label}
+                    <div>
+                      <span className="text-xs font-bold text-slate-200 block">50% de Sinal (Padrão)</span>
+                      <span className="text-xs text-teal-400 font-extrabold">
+                        {formatCurrency((numericPrice * 50) / 100)}
+                      </span>
+                    </div>
+                    {effectiveDownPaymentPercent === 50 && (
+                      <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
+                    )}
                   </button>
-                ))}
+
+                  <button
+                    type="button"
+                    onClick={() => setSvcDownPaymentPercent(30)}
+                    className={cn(
+                      'p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer select-none',
+                      effectiveDownPaymentPercent === 30
+                        ? 'bg-teal-500/20 border-teal-500 text-white shadow-md ring-1 ring-teal-500'
+                        : 'bg-[#0B1120] border-slate-700 text-slate-400 hover:border-slate-600'
+                    )}
+                  >
+                    <div>
+                      <span className="text-xs font-bold text-slate-200 block">30% de Sinal (Flexível)</span>
+                      <span className="text-xs text-teal-400 font-extrabold">
+                        {formatCurrency((numericPrice * 30) / 100)}
+                      </span>
+                    </div>
+                    {effectiveDownPaymentPercent === 30 && (
+                      <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3 rounded-xl bg-[#1E293B] border border-slate-800 flex items-center justify-between text-xs">
+                <span className="text-slate-300 font-medium">Sinal de Reserva Padrão (50%)</span>
+                <span className="font-bold text-teal-400">{formatCurrency(calculatedDeposit)}</span>
               </div>
             )}
 
@@ -604,7 +678,7 @@ export const OwnerServicesPage: React.FC = () => {
             {numericPrice > 0 && (
               <div className="p-3 rounded-xl bg-[#0B1120] border border-slate-800 space-y-1 text-xs">
                 <div className="flex items-center justify-between text-slate-400">
-                  <span>Sinal Online Pago no Pix:</span>
+                  <span>Sinal Online Pago no Pix ({effectiveDownPaymentPercent}%):</span>
                   <span className="font-bold text-teal-400 text-sm">
                     {formatCurrency(calculatedDeposit)}
                   </span>

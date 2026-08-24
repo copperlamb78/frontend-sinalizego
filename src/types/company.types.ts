@@ -26,7 +26,8 @@ export interface CompanyService {
   description?: string;
   durationMinutes: number;
   totalPrice: number;
-  downPaymentPercent: number; // 25, 50 or 100
+  downPaymentPercent: number; // 30, 50 or 100
+  depositPercentage?: number; // Alias
   serviceGroupId?: string;
   isActive?: boolean;
 }
@@ -44,6 +45,7 @@ export interface CreateServiceDto {
   durationMinutes: number;
   totalPrice: number;
   downPaymentPercent: number;
+  depositPercentage?: number;
   serviceGroupId: string;
 }
 

@@ -15,10 +15,9 @@ import {
   ArrowLeft,
   AlertCircle,
   Scissors,
-  CheckCircle2,
   ShieldCheck,
-  Flame,
   Zap,
+  Flame,
   TrendingUp
 } from 'lucide-react';
 import { formatCurrency, cn } from '@/lib/utils';
@@ -35,7 +34,6 @@ export const CheckoutPage: React.FC = () => {
     return today.toISOString().split('T')[0];
   });
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  const [selectedDownPaymentPercent, setSelectedDownPaymentPercent] = useState<number>(50);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch company data to extract service details and working hours
@@ -109,89 +107,13 @@ export const CheckoutPage: React.FC = () => {
     return days;
   }, [company]);
 
-  // Calculate Zero Trust Safety Gate deposit options (Threshold R$ 15.00)
-  const depositOptions = useMemo(() => {
-    if (!selectedService) {
-      return [
-        {
-          percent: 100,
-          amount: 0,
-          label: 'Pagamento Integral (100%)',
-          description: 'Valor total quitado com cadeira garantida'
-        }
-      ];
-    }
-
-    const price = selectedService.totalPrice;
-
-    // RULE 1: Under R$ 15.00 forces 100% upfront
-    if (price < 15.0) {
-      return [
-        {
-          percent: 100,
-          amount: price,
-          label: 'Pagamento Integral (100%)',
-          description: 'Cadeira garantida e valor integral quitado sem acertos no local'
-        }
-      ];
-    }
-
-    // RULE 2: Over or equal R$ 15.00 allows progressive blocks, discarding < R$ 15.00
-    const rawOptions = [
-      {
-        percent: 25,
-        label: 'Sinal de Reserva (25%)',
-        description: 'Garante sua cadeira e horário marcado na agenda'
-      },
-      {
-        percent: 50,
-        label: 'Reserva Prioritária (50%)',
-        description: 'Garante atendimento pontual sem espera na recepção'
-      },
-      {
-        percent: 100,
-        label: 'Pagamento Integral (100%)',
-        description: 'Valor total quitado com cadeira garantida sem acertos no local'
-      }
-    ];
-
-    const valid = rawOptions
-      .map((opt) => {
-        const amount = (price * opt.percent) / 100;
-        return {
-          percent: opt.percent,
-          amount,
-          label: opt.label,
-          description: opt.description
-        };
-      })
-      .filter((opt) => opt.amount >= 15.0);
-
-    return valid.length > 0
-      ? valid
-      : [
-          {
-            percent: 100,
-            amount: price,
-            label: 'Pagamento Integral (100%)',
-            description: 'Valor integral para serviços com valor abaixo de R$ 15,00'
-          }
-        ];
-  }, [selectedService]);
-
-  // Ensure default down payment selection conforms to available options
-  useMemo(() => {
-    if (depositOptions.length > 0) {
-      const exists = depositOptions.find((d) => d.percent === selectedDownPaymentPercent);
-      if (!exists) {
-        setSelectedDownPaymentPercent(depositOptions[0].percent);
-      }
-    }
-  }, [depositOptions, selectedDownPaymentPercent]);
-
-  // Calculation summaries
+  // Direct calculation of deposit based on service configuration and Safety Gate
   const totalPrice = selectedService?.totalPrice || 0;
-  const downPaymentAmount = (totalPrice * selectedDownPaymentPercent) / 100;
+  const isMicroTransaction = totalPrice < 15.0;
+  const configuredDepositPercent =
+    selectedService?.downPaymentPercent || selectedService?.depositPercentage || 50;
+  const effectiveDepositPercent = isMicroTransaction ? 100 : configuredDepositPercent;
+  const downPaymentAmount = (totalPrice * effectiveDepositPercent) / 100;
   const remainingAtVenue = Math.max(0, totalPrice - downPaymentAmount);
 
   // Helper to identify peak hours
@@ -225,7 +147,8 @@ export const CheckoutPage: React.FC = () => {
         companyId: companyId!,
         serviceId: serviceId!,
         appointmentDate: appointmentDateTime.toISOString(),
-        downPaymentPercent: selectedDownPaymentPercent
+        downPaymentPercent: effectiveDepositPercent,
+        depositPercentage: effectiveDepositPercent
       };
 
       const appointment = await appointmentsService.createAppointment(payload);
@@ -458,17 +381,19 @@ export const CheckoutPage: React.FC = () => {
         )}
       </div>
 
-      {/* Step 3: Zero Trust Safety Gate Deposit Selector (Garantia de Horário) */}
+      {/* Step 3: Reserva de Horário Garantida (Resumo Transparente & Direto) */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-teal-400" />
             <span>3. Reserva de Horário Garantida</span>
           </h2>
-          <span className="text-[11px] text-slate-500">Piso mínimo de R$ 15,00</span>
+          <Badge variant="teal" size="sm">
+            {isMicroTransaction ? 'Sinal 100%' : `Sinal ${effectiveDepositPercent}%`}
+          </Badge>
         </div>
 
-        {totalPrice < 15.0 && (
+        {isMicroTransaction && (
           <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>
@@ -477,75 +402,50 @@ export const CheckoutPage: React.FC = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {depositOptions.map((opt) => {
-            const isSelected = selectedDownPaymentPercent === opt.percent;
-            return (
-              <button
-                key={opt.percent}
-                type="button"
-                onClick={() => setSelectedDownPaymentPercent(opt.percent)}
-                className={cn(
-                  'p-4 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between space-y-3 cursor-pointer select-none',
-                  isSelected
-                    ? 'bg-teal-500/10 border-teal-500 text-white shadow-lg shadow-teal-950/40 ring-1 ring-teal-500'
-                    : 'bg-[#0F172A] border-slate-800 text-slate-400 hover:border-slate-700 hover:bg-[#1E293B]'
-                )}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span className="text-xs font-bold text-slate-200">{opt.label}</span>
-                  {isSelected && <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />}
-                </div>
+        {/* Direct Transparent Summary Card */}
+        <Card className="p-5 bg-[#0F172A] border-slate-800 space-y-4 shadow-xl">
+          <div className="space-y-2.5 text-xs divide-y divide-slate-800/80">
+            {/* Valor do Serviço */}
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-slate-400 font-medium">Valor do Serviço</span>
+              <span className="font-bold text-white text-sm">{formatCurrency(totalPrice)}</span>
+            </div>
 
-                <div>
-                  <span className="text-lg font-black text-teal-400">
-                    {formatCurrency(opt.amount)}
-                  </span>
-                  <p className="text-[11px] text-slate-400 leading-snug mt-0.5">{opt.description}</p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+            {/* Sinal de Reserva (Pix) */}
+            <div className="flex items-center justify-between pt-2.5">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-teal-300">
+                  Sinal de Reserva (Pix)
+                </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-400 border border-teal-500/20 font-bold">
+                  {effectiveDepositPercent}%
+                </span>
+              </div>
+              <span className="font-black text-teal-400 text-base">
+                {formatCurrency(downPaymentAmount)}
+              </span>
+            </div>
 
-      {/* Financial Summary Box */}
-      <Card className="p-5 bg-[#0F172A] border-slate-800 space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
-          <span>Resumo do Agendamento</span>
-        </h3>
-
-        <div className="space-y-2 text-xs divide-y divide-slate-800/80">
-          <div className="flex items-center justify-between pt-1">
-            <span className="text-slate-400">Valor Total do Serviço</span>
-            <span className="font-semibold text-white">{formatCurrency(totalPrice)}</span>
+            {/* Saldo Restante no Estabelecimento */}
+            <div className="flex items-center justify-between pt-2.5">
+              <div className="space-y-0.5">
+                <span className="text-slate-400 font-medium block">Saldo Restante no Estabelecimento</span>
+                <span className="text-[10px] text-slate-500 block">Pago diretamente após o atendimento</span>
+              </div>
+              <span className="font-bold text-slate-200 text-sm">{formatCurrency(remainingAtVenue)}</span>
+            </div>
           </div>
 
-          <div className="flex items-center justify-between pt-2">
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-teal-300">
-                Taxa de Confirmação de Reserva (Pix)
-              </span>
-              <Badge variant="teal" size="sm">{selectedDownPaymentPercent}%</Badge>
-            </div>
-            <span className="font-black text-teal-400 text-sm">
-              {formatCurrency(downPaymentAmount)}
+          <div className="pt-2 text-xs text-slate-400 leading-relaxed bg-teal-500/5 p-3.5 rounded-xl border border-teal-500/10 flex items-start gap-2.5">
+            <ShieldCheck className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
+            <span>
+              <strong className="text-teal-300 font-semibold">Garantia de Horário:</strong> Sua taxa de confirmação garante cadeira reservada e atendimento pontual sem filas. Caso precise cancelar com mais de 24h de antecedência, o valor é estornado integralmente.
             </span>
           </div>
+        </Card>
+      </div>
 
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-slate-400">Restante a Pagar no Estabelecimento</span>
-            <span className="font-semibold text-slate-300">{formatCurrency(remainingAtVenue)}</span>
-          </div>
-        </div>
-
-        <div className="pt-2 text-[11px] text-slate-400 leading-relaxed bg-teal-500/5 p-3 rounded-xl border border-teal-500/10">
-          <strong className="text-teal-300 font-semibold">Garantia de Horário:</strong> Sua taxa de confirmação garante cadeira reservada e atendimento pontual sem filas. Caso precise cancelar com mais de 24h de antecedência, o valor é estornado integralmente.
-        </div>
-      </Card>
-
-      {/* CTA Button */}
+      {/* CTA Action Button */}
       <div className="space-y-2">
         <Button
           onClick={handleBookingSubmit}
@@ -555,7 +455,7 @@ export const CheckoutPage: React.FC = () => {
           rightIcon={<ArrowRight className="w-5 h-5" />}
         >
           {selectedSlot
-            ? `Garantir Cadeira às ${selectedSlot} (Pix)`
+            ? `Garantir Cadeira às ${selectedSlot} (${formatCurrency(downPaymentAmount)} via Pix)`
             : 'Selecione um Horário para Continuar'}
         </Button>
 

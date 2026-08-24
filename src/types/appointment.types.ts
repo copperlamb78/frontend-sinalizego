@@ -14,7 +14,8 @@ export interface CreateAppointmentDto {
   companyId: string;
   serviceId: string;
   appointmentDate: string; // ISO String (e.g. "2026-08-25T14:00:00.000Z")
-  downPaymentPercent: number; // 25, 50, or 100
+  downPaymentPercent: number; // 30, 50, or 100
+  depositPercentage?: number;
 }
 
 export interface Appointment {
@@ -52,6 +53,7 @@ export interface Appointment {
     durationMinutes: number;
     totalPrice: number;
     downPaymentPercent: number;
+    depositPercentage?: number;
   };
   client?: {
     id: string;
