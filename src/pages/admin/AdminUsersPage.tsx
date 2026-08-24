@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/common/Skeleton';
 import { toast } from 'sonner';
 import { Search, Users, Power, UserCheck } from 'lucide-react';
 import { Role } from '@/types/auth.types';
+import type { AdminUserItem } from '@/types/admin.types';
 
 export const AdminUsersPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -46,9 +47,15 @@ export const AdminUsersPage: React.FC = () => {
     }
   });
 
-  const filteredUsers = (users || []).filter((u) =>
-    u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const rawUsers: AdminUserItem[] = Array.isArray(users)
+    ? users
+    : Array.isArray((users as any)?.data)
+    ? (users as any).data
+    : [];
+
+  const filteredUsers = rawUsers.filter((u) =>
+    (u.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (u.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (u.phone && u.phone.includes(searchTerm))
   );
 

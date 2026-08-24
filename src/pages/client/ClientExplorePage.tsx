@@ -42,7 +42,7 @@ export const ClientExplorePage: React.FC = () => {
     totalVisits: number;
   }>();
 
-  if (appointments) {
+  if (appointments && Array.isArray(appointments)) {
     appointments.forEach((apt) => {
       if (apt.company) {
         const existing = visitedCompaniesMap.get(apt.company.id);

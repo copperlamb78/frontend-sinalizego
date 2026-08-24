@@ -48,7 +48,11 @@ export const AdminCompaniesPage: React.FC = () => {
     }
   });
 
-  const companies = data?.data || [];
+  const companies: AdminCompanyItem[] = Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data)
+    ? (data as any)
+    : [];
 
   const handleAuditClick = (comp: AdminCompanyItem) => {
     setSelectedCompany(comp);
