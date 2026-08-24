@@ -17,7 +17,8 @@ import {
   ExternalLink,
   Store,
   User as UserIcon,
-  Smartphone
+  Smartphone,
+  CalendarDays
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/common/Badge';
@@ -253,6 +254,15 @@ export const OwnerLayout: React.FC = () => {
               <Smartphone className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Instalar App</span>
             </button>
+
+            <Link
+              to="/meus-agendamentos"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-xs font-semibold text-teal-300 border border-teal-500/30 transition-colors"
+              title="Acessar meus agendamentos como cliente"
+            >
+              <CalendarDays className="w-3.5 h-3.5 text-teal-400" />
+              <span className="hidden sm:inline">Área do Cliente</span>
+            </Link>
 
             <Link
               to="/minha-conta"

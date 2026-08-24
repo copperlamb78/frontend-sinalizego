@@ -3,11 +3,13 @@ import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import { Logo } from '@/components/common/Logo';
 import { useAuth } from '@/contexts/auth.context';
 import { Badge } from '@/components/common/Badge';
+import { Button } from '@/components/common/Button';
 import {
   Building2,
   Users,
   Activity,
-  LogOut
+  LogOut,
+  Compass
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -59,7 +61,18 @@ export const AdminLayout: React.FC = () => {
           </nav>
 
           {/* User actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <Link to="/explorar">
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<Compass className="w-3.5 h-3.5 text-teal-400" />}
+                className="text-xs h-8 border-slate-700 hover:bg-slate-800 text-slate-300 cursor-pointer"
+              >
+                Visão de Cliente
+              </Button>
+            </Link>
+
             <div className="text-right hidden sm:block">
               <p className="text-xs font-bold text-white">{user?.name || 'Administrador'}</p>
               <p className="text-[11px] text-teal-400 font-mono">{user?.email}</p>
@@ -71,7 +84,7 @@ export const AdminLayout: React.FC = () => {
                 navigate('/login');
               }}
               title="Sair do Modo Admin"
-              className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <LogOut className="w-5 h-5" />
             </button>

@@ -1,22 +1,37 @@
 import React from 'react';
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import { Logo } from '@/components/common/Logo';
+import { Button } from '@/components/common/Button';
 import { useAuth } from '@/contexts/auth.context';
+import { Role } from '@/types/auth.types';
 import {
   CalendarDays,
   User as UserIcon,
   Compass,
   LogOut,
-  Smartphone
+  Smartphone,
+  Store,
+  ShieldAlert
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { openPwaInstallModal } from '@/components/common/PwaInstallPrompt';
+
+interface NavItem {
+  to: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  end: boolean;
+  isSpecial?: boolean;
+}
 
 export const ClientLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const navItems = [
+  const isOwner = user?.role === Role.COMPANY_OWNER || user?.role === Role.EMPLOYEE;
+  const isAdmin = user?.role === Role.SUPER_ADMIN || user?.role === Role.ADMIN;
+
+  const baseNavItems: NavItem[] = [
     {
       to: '/explorar',
       label: 'Explorar',
@@ -37,6 +52,32 @@ export const ClientLayout: React.FC = () => {
     }
   ];
 
+  const mobileNavItems: NavItem[] = [
+    ...baseNavItems,
+    ...(isOwner
+      ? [
+          {
+            to: '/painel',
+            label: 'Barbearia',
+            icon: Store,
+            end: false,
+            isSpecial: true
+          }
+        ]
+      : []),
+    ...(isAdmin
+      ? [
+          {
+            to: '/admin',
+            label: 'Admin',
+            icon: ShieldAlert,
+            end: false,
+            isSpecial: true
+          }
+        ]
+      : [])
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-[#0B1120] text-[#F8FAFC]">
       {/* Top Header */}
@@ -47,8 +88,8 @@ export const ClientLayout: React.FC = () => {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden sm:flex items-center gap-6">
-            {navItems.map((item) => (
+          <nav className="hidden sm:flex items-center gap-4">
+            {baseNavItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -68,8 +109,35 @@ export const ClientLayout: React.FC = () => {
             ))}
           </nav>
 
-          {/* User profile & Install & Logout */}
+          {/* User profile, Context Switcher, Install & Logout */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Context Switcher Buttons (Desktop) */}
+            {isOwner && (
+              <Link to="/painel" className="hidden sm:inline-block">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<Store className="w-3.5 h-3.5 text-teal-400" />}
+                  className="text-xs h-8 px-3 font-bold bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 shadow-sm"
+                >
+                  Minha Barbearia
+                </Button>
+              </Link>
+            )}
+
+            {isAdmin && (
+              <Link to="/admin" className="hidden sm:inline-block">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<ShieldAlert className="w-3.5 h-3.5 text-red-400" />}
+                  className="text-xs h-8 px-3 font-bold bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/30 shadow-sm"
+                >
+                  Painel Admin
+                </Button>
+              </Link>
+            )}
+
             <button
               onClick={openPwaInstallModal}
               title="Instalar Aplicativo no Celular / Desktop"
@@ -109,7 +177,7 @@ export const ClientLayout: React.FC = () => {
 
       {/* PWA Mobile Bottom Navigation Bar */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0F172A]/95 backdrop-blur-lg border-t border-slate-800 flex items-center justify-around px-2 py-2 safe-area-pb">
-        {navItems.map((item) => (
+        {mobileNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
@@ -118,7 +186,11 @@ export const ClientLayout: React.FC = () => {
               cn(
                 'flex flex-col items-center justify-center flex-1 py-1 text-[11px] font-medium rounded-xl transition-all duration-150',
                 isActive
-                  ? 'text-[#14B8A6] font-bold'
+                  ? item.isSpecial
+                    ? 'text-teal-300 font-bold'
+                    : 'text-[#14B8A6] font-bold'
+                  : item.isSpecial
+                  ? 'text-teal-400/80 hover:text-teal-300'
                   : 'text-slate-400 hover:text-slate-200'
               )
             }
@@ -128,7 +200,7 @@ export const ClientLayout: React.FC = () => {
                 <div
                   className={cn(
                     'p-1.5 rounded-lg transition-transform',
-                    isActive && 'bg-teal-500/10 scale-110'
+                    isActive && (item.isSpecial ? 'bg-teal-500/20 scale-110' : 'bg-teal-500/10 scale-110')
                   )}
                 >
                   <item.icon className="w-5 h-5" />
