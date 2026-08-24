@@ -5,15 +5,17 @@ import { Card, CardContent } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
+import { Modal } from '@/components/common/Modal';
 import { Skeleton } from '@/components/common/Skeleton';
 import { toast } from 'sonner';
-import { Search, Users, Power, UserCheck } from 'lucide-react';
+import { Search, Users, Power, UserCheck, ShieldAlert, AlertTriangle, User } from 'lucide-react';
 import { Role } from '@/types/auth.types';
 import type { AdminUserItem } from '@/types/admin.types';
 
 export const AdminUsersPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
+  const [userToBlock, setUserToBlock] = useState<AdminUserItem | null>(null);
 
   // 1. Fetch Users List
   const { data: users, isLoading } = useQuery({
@@ -28,6 +30,7 @@ export const AdminUsersPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users-list'] });
       queryClient.invalidateQueries({ queryKey: ['admin-dashboard-metrics'] });
       toast.success('Conta de usuário suspensa com sucesso.');
+      setUserToBlock(null);
     },
     onError: () => {
       toast.error('Erro ao suspender conta de usuário.');
@@ -69,6 +72,12 @@ export const AdminUsersPage: React.FC = () => {
         return <Badge variant="teal" size="sm">DONO</Badge>;
       default:
         return <Badge variant="neutral" size="sm">CLIENTE</Badge>;
+    }
+  };
+
+  const handleConfirmBlock = () => {
+    if (userToBlock) {
+      deactivateMutation.mutate(userToBlock.id);
     }
   };
 
@@ -149,9 +158,8 @@ export const AdminUsersPage: React.FC = () => {
                           <Button
                             variant="destructive"
                             size="sm"
-                            className="h-8 text-xs font-bold"
-                            isLoading={deactivateMutation.isPending && deactivateMutation.variables === u.id}
-                            onClick={() => deactivateMutation.mutate(u.id)}
+                            className="h-8 text-xs font-bold cursor-pointer"
+                            onClick={() => setUserToBlock(u)}
                             leftIcon={<Power className="w-3.5 h-3.5" />}
                           >
                             Bloquear
@@ -160,7 +168,7 @@ export const AdminUsersPage: React.FC = () => {
                           <Button
                             variant="secondary"
                             size="sm"
-                            className="h-8 text-xs font-bold text-teal-300"
+                            className="h-8 text-xs font-bold text-teal-300 cursor-pointer"
                             isLoading={activateMutation.isPending && activateMutation.variables === u.id}
                             onClick={() => activateMutation.mutate(u.id)}
                             leftIcon={<UserCheck className="w-3.5 h-3.5 text-teal-400" />}
@@ -185,6 +193,83 @@ export const AdminUsersPage: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* User Block Confirmation Modal */}
+      <Modal
+        isOpen={!!userToBlock}
+        onClose={() => !deactivateMutation.isPending && setUserToBlock(null)}
+        title={
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <span>Confirmar Bloqueio de Usuário</span>
+          </div>
+        }
+        description="Esta ação revoga imediatamente o acesso da conta à plataforma."
+        size="md"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={deactivateMutation.isPending}
+              onClick={() => setUserToBlock(null)}
+              className="cursor-pointer border-slate-700 hover:bg-slate-800"
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              isLoading={deactivateMutation.isPending}
+              onClick={handleConfirmBlock}
+              className="cursor-pointer font-bold"
+              leftIcon={<Power className="w-4 h-4" />}
+            >
+              Sim, Bloquear Usuário
+            </Button>
+          </>
+        }
+      >
+        {userToBlock && (
+          <div className="space-y-4 text-xs">
+            {/* User Details Card */}
+            <div className="p-4 rounded-2xl bg-[#0B1120] border border-slate-800 space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4 text-teal-400" />
+                  <span className="font-bold text-white text-sm">{userToBlock.name}</span>
+                </div>
+                {getRoleBadge(userToBlock.role)}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-slate-300">
+                <div>
+                  <span className="text-slate-500 block text-[10px] uppercase font-bold">E-mail de Login</span>
+                  <span className="font-mono text-[11px] text-white">{userToBlock.email}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px] uppercase font-bold">Telefone</span>
+                  <span className="text-[11px] text-slate-300">{userToBlock.phone || 'Não informado'}</span>
+                </div>
+                <div className="sm:col-span-2">
+                  <span className="text-slate-500 block text-[10px] uppercase font-bold">ID Único</span>
+                  <span className="font-mono text-[11px] text-teal-400">{userToBlock.id}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Warning Alert Banner */}
+            <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-2.5 text-red-300">
+              <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+              <p className="leading-relaxed text-[11px]">
+                Ao suspender esta conta, o usuário perderá o acesso imediato à plataforma e todas as suas sessões ativas serão invalidadas. Você poderá reativar o acesso a qualquer momento.
+              </p>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
