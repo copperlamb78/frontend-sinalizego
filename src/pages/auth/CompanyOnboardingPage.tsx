@@ -112,7 +112,7 @@ export const CompanyOnboardingPage: React.FC = () => {
   // Load draft from storage or pre-fill with logged-in user
   const getInitialValues = (): Partial<OnboardingFormData> => {
     try {
-      const saved = sessionStorage.getItem(DRAFT_STORAGE_KEY) || localStorage.getItem(DRAFT_STORAGE_KEY);
+      const saved = sessionStorage.getItem(DRAFT_STORAGE_KEY);
       if (saved) {
         return JSON.parse(saved);
       }
@@ -137,6 +137,7 @@ export const CompanyOnboardingPage: React.FC = () => {
     setValue,
     trigger,
     watch,
+    getValues,
     formState: { errors, isSubmitting }
   } = useForm<OnboardingFormData>({
     resolver: zodResolver(onboardingFullSchema),
@@ -146,18 +147,13 @@ export const CompanyOnboardingPage: React.FC = () => {
   const rawPhone = watch('phone') || '';
   const rawZipCode = watch('zipCode') || '';
 
-  // Watch form values and auto-save draft
-  const formValues = watch();
+  // If we are on step 2 but password is empty (e.g. after a page reload), force user back to step 1
+  const currentPassword = watch('password');
   useEffect(() => {
-    try {
-      if (formValues.name || formValues.businessName || formValues.email) {
-        sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formValues));
-        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formValues));
-      }
-    } catch {
-      // storage unavailable
+    if (currentStep === 2 && !currentPassword) {
+      setCurrentStep(1);
     }
-  }, [formValues]);
+  }, [currentStep, currentPassword]);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, '');
@@ -215,6 +211,14 @@ export const CompanyOnboardingPage: React.FC = () => {
     setServerError(null);
     const isValid = await trigger(['name', 'email', 'password', 'phone', 'providerType', 'businessName']);
     if (isValid) {
+      // Save draft upon successful step 1 completion instead of every keystroke
+      try {
+        const formValues = getValues();
+        const { password, ...safeFormValues } = formValues;
+        sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(safeFormValues));
+      } catch {
+        // storage unavailable
+      }
       setCurrentStep(2);
     }
   };
@@ -257,7 +261,7 @@ export const CompanyOnboardingPage: React.FC = () => {
 
       // Clear draft
       sessionStorage.removeItem(DRAFT_STORAGE_KEY);
-      localStorage.removeItem(DRAFT_STORAGE_KEY);
+      localStorage.removeItem(DRAFT_STORAGE_KEY); // Clean up legacy plaintext leak
 
       await refreshProfile();
       toast.success('Estabelecimento cadastrado com sucesso! Bem-vindo ao painel.');
