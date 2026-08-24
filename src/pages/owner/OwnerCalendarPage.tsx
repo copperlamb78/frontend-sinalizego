@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { appointmentsService } from '@/services/appointments.service';
+import { companyService } from '@/services/company.service';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
@@ -11,7 +12,8 @@ import {
   Scissors,
   Phone,
   CheckCircle2,
-  Check
+  Check,
+  Lock
 } from 'lucide-react';
 import { formatCurrency, cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -25,7 +27,21 @@ export const OwnerCalendarPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [completingId, setCompletingId] = useState<string | null>(null);
 
-  // 1. Fetch Company Appointments for selected date
+  // 1. Fetch Company Profile (for subaccount check)
+  const { data: company } = useQuery({
+    queryKey: ['owner-company-profile'],
+    queryFn: () => companyService.getCompanyByUserId(),
+    staleTime: 1000 * 60 * 5
+  });
+
+  const hasSubaccount = Boolean(
+    company?.walletId ||
+      company?.financialProfile?.walletId ||
+      company?.financialProfile?.status === 'APPROVED' ||
+      company?.financialProfile?.status === 'ACTIVE'
+  );
+
+  // 2. Fetch Company Appointments for selected date
   const { data: appointments, isLoading } = useQuery({
     queryKey: ['company-appointments', selectedDate],
     queryFn: () => appointmentsService.getCompanyAppointments({ date: selectedDate })
@@ -126,6 +142,19 @@ export const OwnerCalendarPage: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {/* Warning Gate: Subconta Pendente */}
+      {!hasSubaccount && (
+        <Card className="p-4 bg-gradient-to-r from-amber-500/10 via-[#1E293B] to-[#0F172A] border-amber-500/30 flex items-center justify-between gap-4 text-xs">
+          <div className="flex items-center gap-2.5">
+            <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+            <span className="text-slate-300">
+              Sua agenda online só receberá novos agendamentos após a <strong>ativação da sua subconta Asaas</strong> no menu Financeiro.
+            </span>
+          </div>
+          <Badge variant="warning" size="sm">Aguardando Ativação</Badge>
+        </Card>
+      )}
 
       {/* Days Navigation Strip */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-800">

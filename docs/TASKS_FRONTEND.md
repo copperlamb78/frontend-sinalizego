@@ -70,17 +70,18 @@ src/
 │   │   ├── Skeleton.tsx                # Placeholders animados de carregamento
 │   │   └── Toaster.tsx                 # Toaster Sonner dark mode
 │   └── dashboard/
+│       ├── FinancialProfileModal.tsx   # Modal de ativação e provisionamento de subconta Asaas
 │       └── WithdrawalModal.tsx         # Modal de solicitação de saque com dedução Asaas e histórico
 ├── config/
 │   ├── api.config.ts                   # Axios com Bearer token e auto-refresh 401
-│   └── query-client.ts                 # TanStack QueryClient e cache global
+│   └── query-client.ts                 # TanStack QueryClient configurado para barrar retries em 4xx
 ├── contexts/
 │   └── auth.context.tsx                # AuthProvider, useAuth() e sincronização de tokens
 ├── layouts/
 │   ├── AdminLayout.tsx                 # Layout executivo Super Admin
 │   ├── AuthLayout.tsx                  # Layout centralizado Dark Mode
 │   ├── ClientLayout.tsx                # Portal do cliente com BottomNav PWA
-│   ├── OwnerLayout.tsx                 # Portal do proprietário com Sidebar retrátil
+│   ├── OwnerLayout.tsx                 # Portal do proprietário com Sidebar retrátil e badge de subconta
 │   ├── PublicLayout.tsx                # Layout público institucional com footer limpo
 │   └── RootLayout.tsx                  # Provedores globais, Toaster e Outlet
 ├── lib/
@@ -109,8 +110,8 @@ src/
 │   ├── owner/
 │   │   ├── OwnerCalendarPage.tsx       # Grade operacional e conclusão atômica com liberação de saldo
 │   │   ├── OwnerDashboardPage.tsx      # Métricas financeiras, saldo disponível, custódia e fila de hoje
-│   │   ├── OwnerFinancialPage.tsx      # Subconta Asaas e extrato de repasses
-│   │   ├── OwnerServicesPage.tsx       # CRUD de serviços e grupos com piso de sinal
+│   │   ├── OwnerFinancialPage.tsx      # Subconta Asaas, extrato de repasses e ativação de carteira
+│   │   ├── OwnerServicesPage.tsx       # CRUD de serviços e grupos com gate de subconta
 │   │   ├── OwnerSettingsPage.tsx       # Dados cadastrais e upload de fotos
 │   │   └── OwnerWorkingHoursPage.tsx   # Grade semanal e exceções de feriados
 │   └── public/
@@ -125,6 +126,7 @@ src/
 │   ├── auth.service.ts                 # Autenticação JWT, renovação de token, perfil e gestão de conta
 │   ├── cep.service.ts                  # Consulta de CEP via BrasilAPI v2 com autopreenchimento
 │   ├── company.service.ts              # Vitrine, métricas do painel, saldo, saques e histórico
+│   ├── financial.service.ts            # Criação e consulta de Subconta Bancária Asaas (POST/GET /financial-profile)
 │   ├── services.service.ts             # CRUD de categorias (ServiceGroup) e serviços (CompanyService)
 │   ├── transactions.service.ts         # Geração de Pix e transações financeiras Asaas
 │   └── working-hours.service.ts        # Grade semanal e exceções de feriados
@@ -134,6 +136,7 @@ src/
 │   ├── appointment.types.ts            # DTOs de agendamento, status e available slots
 │   ├── auth.types.ts                   # Role enum, User, AuthTokens e DTOs
 │   ├── company.types.ts                # Storefront, WorkingHours, Balance, Withdrawals e Metrics
+│   ├── financial.types.ts              # DTOs e perfis financeiros de subconta Asaas
 │   └── transaction.types.ts            # PixTransactionResponse e payloads Pix
 ├── vite-env.d.ts                       # Tipagem de ambiente e PWA
 ├── index.css                           # Design System Dark Mode Tailwind v4

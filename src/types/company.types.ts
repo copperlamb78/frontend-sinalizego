@@ -1,3 +1,5 @@
+import type { FinancialProfile } from './financial.types';
+
 export interface WorkingHour {
   id?: string;
   dayOfWeek: number; // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
@@ -65,6 +67,8 @@ export interface CompanyStorefront {
   logoPhoto?: string | null;
   bannerPhoto?: string | null;
   timezone?: string;
+  walletId?: string | null;
+  financialProfile?: FinancialProfile | null;
   workingHours: WorkingHour[];
   serviceGroups: ServiceGroup[];
 }
@@ -94,6 +98,8 @@ export interface CompanyBalance {
   totalWithdrawn: number;
   nextFreeWithdrawalDate: string; // ISO String (ex: toda segunda 06:00)
   instantTransferFee: number; // R$ 5.00
+  minFreeWeeklyPayoutThreshold?: number;
+  eligibleForFreeWeeklyPayout?: boolean;
 }
 
 export interface CompanyWithdrawal {
@@ -110,6 +116,7 @@ export interface CompanyWithdrawal {
 export interface TodayAppointmentMetric {
   id: string;
   appointmentDate: string;
+  appointmentEndDate?: string;
   clientName: string;
   clientPhone: string;
   serviceName: string;
@@ -120,21 +127,38 @@ export interface TodayAppointmentMetric {
   status?: string;
 }
 
+export interface CompanyFinancialMetric {
+  totalRevenue: number;
+  totalDownPaymentCollected: number;
+  totalPlatformFees: number;
+  netIncome: number;
+  availableBalance: number;
+  escrowLockedBalance: number;
+  totalWithdrawn: number;
+}
+
 export interface CompanyDashboardMetrics {
-  revenue: {
-    totalRevenue: number;
-    totalDownPaymentCollected: number;
-    totalPlatformFees: number;
-    netIncome: number;
-    availableBalance: number;
-    escrowLockedBalance: number;
-    totalWithdrawn: number;
+  company?: {
+    id: string;
+    businessName: string;
+    slug: string;
   };
-  volume: {
+  period?: {
+    startDate: string;
+    endDate: string;
+  };
+  financial?: CompanyFinancialMetric;
+  revenue?: CompanyFinancialMetric;
+  volume?: {
     total: number;
     completed: number;
+    confirmed?: number;
     canceled: number;
-    occupancyRate: number;
+    pendingPayment?: number;
+    occupancyRate?: number;
+    completionRate?: number;
   };
-  todayAppointments: TodayAppointmentMetric[];
+  todayAppointments?: TodayAppointmentMetric[];
+  upcomingToday?: TodayAppointmentMetric[];
 }
+

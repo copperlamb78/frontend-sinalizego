@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Logo } from '@/components/common/Logo';
 import { useAuth } from '@/contexts/auth.context';
+import { companyService } from '@/services/company.service';
 import {
   LayoutDashboard,
   Calendar,
@@ -30,12 +32,38 @@ export const OwnerLayout: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
+  // Check subaccount state from cache
+  const { data: company } = useQuery({
+    queryKey: ['owner-company-profile'],
+    queryFn: () => companyService.getCompanyByUserId(),
+    staleTime: 1000 * 60 * 5
+  });
+
+  const hasSubaccount = Boolean(
+    company?.walletId ||
+      company?.financialProfile?.walletId ||
+      company?.financialProfile?.status === 'APPROVED' ||
+      company?.financialProfile?.status === 'ACTIVE'
+  );
+
   const navigation = [
     { name: 'Dashboard', href: '/painel', icon: LayoutDashboard, end: true },
     { name: 'Agenda Operacional', href: '/painel/agenda', icon: Calendar, end: false },
-    { name: 'Serviços & Cadeiras', href: '/painel/servicos', icon: Scissors, end: false },
+    {
+      name: 'Serviços & Cadeiras',
+      href: '/painel/servicos',
+      icon: Scissors,
+      end: false,
+      badge: !hasSubaccount ? 'Bloqueado' : undefined
+    },
     { name: 'Expediente', href: '/painel/expediente', icon: Clock, end: false },
-    { name: 'Financeiro Asaas', href: '/painel/financeiro', icon: Wallet, end: false },
+    {
+      name: 'Financeiro Asaas',
+      href: '/painel/financeiro',
+      icon: Wallet,
+      end: false,
+      badge: !hasSubaccount ? 'Ativar' : undefined
+    },
     { name: 'Configurações', href: '/painel/configuracoes', icon: Settings, end: false }
   ];
 
@@ -76,7 +104,7 @@ export const OwnerLayout: React.FC = () => {
               end={item.end}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group',
+                  'flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group',
                   isActive
                     ? 'bg-[#14B8A6] text-white font-semibold shadow-lg shadow-teal-950/40'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -84,8 +112,16 @@ export const OwnerLayout: React.FC = () => {
               }
               title={isSidebarCollapsed ? item.name : undefined}
             >
-              <item.icon className="w-5 h-5 shrink-0" />
-              {!isSidebarCollapsed && <span className="truncate">{item.name}</span>}
+              <div className="flex items-center gap-3 overflow-hidden min-w-0">
+                <item.icon className="w-5 h-5 shrink-0" />
+                {!isSidebarCollapsed && <span className="truncate">{item.name}</span>}
+              </div>
+
+              {!isSidebarCollapsed && item.badge && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+                  {item.badge}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -148,7 +184,7 @@ export const OwnerLayout: React.FC = () => {
       {isMobileDrawerOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="fixed inset-0 bg-black/75 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs"
             onClick={() => setIsMobileDrawerOpen(false)}
           />
 
@@ -172,15 +208,23 @@ export const OwnerLayout: React.FC = () => {
                   onClick={() => setIsMobileDrawerOpen(false)}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors',
+                      'flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors',
                       isActive
                         ? 'bg-[#14B8A6] text-white font-semibold'
                         : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                     )
                   }
                 >
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.name}</span>
+                  <div className="flex items-center gap-3">
+                    <item.icon className="w-5 h-5" />
+                    <span>{item.name}</span>
+                  </div>
+
+                  {item.badge && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      {item.badge}
+                    </span>
+                  )}
                 </NavLink>
               ))}
             </nav>

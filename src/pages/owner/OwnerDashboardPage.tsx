@@ -8,6 +8,7 @@ import { Card } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
 import { Skeleton } from '@/components/common/Skeleton';
 import { WithdrawalModal } from '@/components/dashboard/WithdrawalModal';
+import { FinancialProfileModal } from '@/components/dashboard/FinancialProfileModal';
 import {
   Wallet,
   Lock,
@@ -21,7 +22,8 @@ import {
   Sparkles,
   ExternalLink,
   ShieldCheck,
-  HelpCircle
+  HelpCircle,
+  ArrowRight
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -29,26 +31,40 @@ import { toast } from 'sonner';
 export const OwnerDashboardPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [isFinancialModalOpen, setIsFinancialModalOpen] = useState(false);
   const [completingId, setCompletingId] = useState<string | null>(null);
 
-  // 1. Fetch Dashboard Metrics
+  // 1. Fetch Company Profile (Source of truth for subaccount and slug)
+  const { data: company, isLoading: isLoadingCompany } = useQuery({
+    queryKey: ['owner-company-profile'],
+    queryFn: () => companyService.getCompanyByUserId(),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+  });
+
+  // 2. Fetch Balance and Escrow (safe query)
+  const { data: balance } = useQuery({
+    queryKey: ['company-balance'],
+    queryFn: () => companyService.getBalance(),
+    retry: false,
+    staleTime: 1000 * 30
+  });
+
+  // Check whether the company has an active Asaas subaccount
+  const hasSubaccount = Boolean(
+    balance?.walletId ||
+      company?.walletId ||
+      company?.financialProfile?.walletId ||
+      company?.financialProfile?.status === 'APPROVED' ||
+      company?.financialProfile?.status === 'ACTIVE'
+  );
+
+  // 3. Fetch Dashboard Metrics (only enabled and polling if company exists)
   const { data: metrics, isLoading: isLoadingMetrics } = useQuery({
     queryKey: ['company-metrics'],
     queryFn: () => companyService.getDashboardMetrics(),
-    refetchInterval: 15000 // Refetch every 15s
-  });
-
-  // 2. Fetch Balance and Escrow
-  const { data: balance, isLoading: isLoadingBalance } = useQuery({
-    queryKey: ['company-balance'],
-    queryFn: () => companyService.getBalance(),
-    refetchInterval: 15000
-  });
-
-  // 3. Fetch Company Profile (for slug and info)
-  const { data: company } = useQuery({
-    queryKey: ['owner-company-profile'],
-    queryFn: () => companyService.getCompanyByUserId()
+    retry: false,
+    staleTime: 1000 * 30,
+    refetchInterval: hasSubaccount ? 30000 : false // Poll every 30s only when subaccount is active
   });
 
   // 4. Complete Appointment Mutation
@@ -67,7 +83,7 @@ export const OwnerDashboardPage: React.FC = () => {
     onSettled: () => setCompletingId(null)
   });
 
-  if (isLoadingMetrics || isLoadingBalance) {
+  if (isLoadingCompany || (isLoadingMetrics && hasSubaccount)) {
     return (
       <div className="space-y-6 animate-pulse">
         <Skeleton className="h-28 w-full rounded-2xl" />
@@ -81,10 +97,16 @@ export const OwnerDashboardPage: React.FC = () => {
     );
   }
 
-  const available = balance?.availableBalance ?? metrics?.revenue.availableBalance ?? 0;
-  const escrow = balance?.escrowLockedBalance ?? metrics?.revenue.escrowLockedBalance ?? 0;
+  // Safe property extraction avoiding any undefined crashes
+  const financialData = metrics?.financial || metrics?.revenue;
+  const available = balance?.availableBalance ?? financialData?.availableBalance ?? 0;
+  const escrow = balance?.escrowLockedBalance ?? financialData?.escrowLockedBalance ?? 0;
+  const totalRevenue = financialData?.totalRevenue ?? 0;
+  const occupancyRate = metrics?.volume?.occupancyRate ?? metrics?.volume?.completionRate ?? 0;
+  const completedCount = metrics?.volume?.completed ?? 0;
   const nextFreeDate = balance?.nextFreeWithdrawalDate;
   const storefrontSlug = company?.slug || 'minha-empresa';
+  const todayAppointments = metrics?.todayAppointments || metrics?.upcomingToday || [];
 
   return (
     <div className="space-y-8">
@@ -95,8 +117,8 @@ export const OwnerDashboardPage: React.FC = () => {
             <h1 className="text-2xl font-black text-white">
               Painel de Gestão
             </h1>
-            <Badge variant="teal" size="sm">
-              Ao Vivo
+            <Badge variant={hasSubaccount ? 'teal' : 'warning'} size="sm">
+              {hasSubaccount ? 'Ao Vivo' : 'Configuração Pendente'}
             </Badge>
           </div>
           <p className="text-xs text-slate-400">
@@ -110,15 +132,60 @@ export const OwnerDashboardPage: React.FC = () => {
               Ver Minha Vitrine
             </Button>
           </Link>
-          <Button
-            size="sm"
-            onClick={() => setIsWithdrawModalOpen(true)}
-            leftIcon={<Wallet className="w-4 h-4" />}
-          >
-            Solicitar Saque
-          </Button>
+
+          {hasSubaccount ? (
+            <Button
+              size="sm"
+              onClick={() => setIsWithdrawModalOpen(true)}
+              leftIcon={<Wallet className="w-4 h-4" />}
+            >
+              Solicitar Saque
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              onClick={() => setIsFinancialModalOpen(true)}
+              leftIcon={<Sparkles className="w-4 h-4" />}
+              className="font-bold shadow-lg shadow-teal-500/20"
+            >
+              Ativar Subconta Asaas
+            </Button>
+          )}
         </div>
       </div>
+
+      {/* Warning Banner: Carteira Travada (Quando subconta não existe) */}
+      {!hasSubaccount && (
+        <Card className="p-6 bg-gradient-to-r from-amber-500/10 via-[#1E293B] to-amber-500/5 border-amber-500/30 space-y-4 shadow-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
+                <Lock className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-black text-white">
+                    Subconta Bancária Asaas Não Configurada (Carteira Travada)
+                  </h3>
+                  <Badge variant="warning" size="sm">CADASTRO PENDENTE</Badge>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed max-w-2xl">
+                  Para começar a receber o dinheiro dos cortes direto na sua conta, com Pix garantido e saques grátis toda semana, finalize seus dados bancários. O cadastro de novos serviços será liberado assim que sua conta for ativada
+                </p>
+              </div>
+            </div>
+
+            <Button
+              size="md"
+              onClick={() => setIsFinancialModalOpen(true)}
+              className="shrink-0 font-bold shadow-lg shadow-amber-500/10"
+              rightIcon={<ArrowRight className="w-4 h-4" />}
+            >
+              Completar Cadastro Financeiro
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {/* Financial & Escrow Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -129,13 +196,17 @@ export const OwnerDashboardPage: React.FC = () => {
               <Wallet className="w-4 h-4 text-teal-400" />
               Saldo Disponível
             </span>
-            <button
-              onClick={() => setIsWithdrawModalOpen(true)}
-              className="text-[11px] font-bold text-teal-400 hover:text-teal-300 flex items-center gap-0.5 cursor-pointer"
-            >
-              <span>Sacar</span>
-              <ArrowUpRight className="w-3 h-3" />
-            </button>
+            {hasSubaccount ? (
+              <button
+                onClick={() => setIsWithdrawModalOpen(true)}
+                className="text-[11px] font-bold text-teal-400 hover:text-teal-300 flex items-center gap-0.5 cursor-pointer"
+              >
+                <span>Sacar</span>
+                <ArrowUpRight className="w-3 h-3" />
+              </button>
+            ) : (
+              <Badge variant="warning" size="sm">Travado</Badge>
+            )}
           </div>
 
           <div>
@@ -143,7 +214,7 @@ export const OwnerDashboardPage: React.FC = () => {
               {formatCurrency(available)}
             </span>
             <p className="text-[11px] text-slate-400 pt-0.5">
-              Liberado para transferência Pix
+              {hasSubaccount ? 'Liberado para transferência Pix' : 'Complete o cadastro para movimentar'}
             </p>
           </div>
         </Card>
@@ -177,7 +248,7 @@ export const OwnerDashboardPage: React.FC = () => {
               <Sparkles className="w-4 h-4 text-teal-400" />
               Saque Semanal
             </span>
-            <Badge variant="teal" size="sm">Taxa R$ 0</Badge>
+            <Badge variant={hasSubaccount ? 'teal' : 'neutral'} size="sm">Taxa R$ 0</Badge>
           </div>
 
           <div>
@@ -198,16 +269,16 @@ export const OwnerDashboardPage: React.FC = () => {
               Receita do Mês
             </span>
             <span className="text-[11px] font-semibold text-emerald-400">
-              {metrics?.volume.occupancyRate || 92}% ocupação
+              {occupancyRate > 0 ? `${occupancyRate}% ocupação` : 'Ativação pendente'}
             </span>
           </div>
 
           <div>
             <span className="text-2xl sm:text-3xl font-black text-white">
-              {formatCurrency(metrics?.revenue.totalRevenue || 0)}
+              {formatCurrency(totalRevenue)}
             </span>
             <p className="text-[11px] text-slate-400 pt-0.5">
-              {metrics?.volume.completed || 0} cortes concluídos
+              {completedCount} cortes concluídos
             </p>
           </div>
         </Card>
@@ -233,9 +304,9 @@ export const OwnerDashboardPage: React.FC = () => {
           </Link>
         </div>
 
-        {metrics?.todayAppointments && metrics.todayAppointments.length > 0 ? (
+        {todayAppointments && todayAppointments.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {metrics.todayAppointments.map((app) => {
+            {todayAppointments.map((app) => {
               const time = new Date(app.appointmentDate).toLocaleTimeString('pt-BR', {
                 hour: '2-digit',
                 minute: '2-digit'
@@ -322,7 +393,9 @@ export const OwnerDashboardPage: React.FC = () => {
             <Calendar className="w-8 h-8 text-slate-600 mx-auto" />
             <h3 className="text-sm font-bold text-white">Sem agendamentos para hoje</h3>
             <p className="text-xs text-slate-400">
-              Compartilhe o link da sua vitrine pública para receber novos agendamentos online.
+              {hasSubaccount
+                ? 'Compartilhe o link da sua vitrine pública para receber novos agendamentos online.'
+                : 'Ative sua subconta Asaas para desbloquear a agenda e receber reservas online.'}
             </p>
           </div>
         )}
@@ -342,6 +415,14 @@ export const OwnerDashboardPage: React.FC = () => {
         onClose={() => setIsWithdrawModalOpen(false)}
         availableBalance={available}
         nextFreeDate={nextFreeDate}
+      />
+
+      {/* Subaccount Activation Modal */}
+      <FinancialProfileModal
+        isOpen={isFinancialModalOpen}
+        onClose={() => setIsFinancialModalOpen(false)}
+        defaultName={company?.businessName}
+        defaultPhone={company?.whatsapp}
       />
     </div>
   );

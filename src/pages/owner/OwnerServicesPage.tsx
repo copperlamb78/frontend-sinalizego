@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { servicesService } from '@/services/services.service';
+import { companyService } from '@/services/company.service';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { Badge } from '@/components/common/Badge';
 import { Modal } from '@/components/common/Modal';
 import { Skeleton } from '@/components/common/Skeleton';
+import { FinancialProfileModal } from '@/components/dashboard/FinancialProfileModal';
 import {
   Scissors,
   Plus,
@@ -17,7 +19,9 @@ import {
   FolderPlus,
   ShieldCheck,
   Users,
-  Info
+  Info,
+  Lock,
+  ArrowRight
 } from 'lucide-react';
 import { formatCurrency, cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -29,6 +33,7 @@ export const OwnerServicesPage: React.FC = () => {
   // Modals state
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+  const [isFinancialModalOpen, setIsFinancialModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<CompanyService | null>(null);
   const [editingGroup, setEditingGroup] = useState<ServiceGroup | null>(null);
   const [serviceToDelete, setServiceToDelete] = useState<CompanyService | null>(null);
@@ -45,15 +50,32 @@ export const OwnerServicesPage: React.FC = () => {
   const [groupName, setGroupName] = useState('');
   const [groupCapacity, setGroupCapacity] = useState<number>(1);
 
-  // 1. Fetch Service Groups
+  // 1. Fetch Company Profile (to verify subaccount)
+  const { data: company } = useQuery({
+    queryKey: ['owner-company-profile'],
+    queryFn: () => companyService.getCompanyByUserId(),
+    staleTime: 1000 * 60 * 5
+  });
+
+  const hasSubaccount = Boolean(
+    company?.walletId ||
+      company?.financialProfile?.walletId ||
+      company?.financialProfile?.status === 'APPROVED' ||
+      company?.financialProfile?.status === 'ACTIVE'
+  );
+
+  // 2. Fetch Service Groups
   const { data: groups, isLoading } = useQuery({
     queryKey: ['service-groups'],
     queryFn: () => servicesService.getServiceGroups()
   });
 
-  // 2. Service Mutations
+  // 3. Service Mutations
   const saveServiceMutation = useMutation({
     mutationFn: async () => {
+      if (!hasSubaccount) {
+        throw new Error('É necessário ativar a subconta Asaas antes de cadastrar serviços.');
+      }
       const price = parseFloat(svcPrice.replace(',', '.')) || 0;
       if (editingService) {
         return servicesService.updateService(editingService.id, {
@@ -80,7 +102,10 @@ export const OwnerServicesPage: React.FC = () => {
       setIsServiceModalOpen(false);
       resetServiceForm();
     },
-    onError: () => toast.error('Não foi possível salvar o serviço.')
+    onError: (err: any) => {
+      const msg = err.response?.data?.message || err.message || 'Não foi possível salvar o serviço.';
+      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
+    }
   });
 
   const deleteServiceMutation = useMutation({
@@ -93,7 +118,7 @@ export const OwnerServicesPage: React.FC = () => {
     onError: () => toast.error('Não foi possível excluir o serviço.')
   });
 
-  // 3. Group Mutations
+  // 4. Group Mutations
   const saveGroupMutation = useMutation({
     mutationFn: async () => {
       if (editingGroup) {
@@ -134,6 +159,23 @@ export const OwnerServicesPage: React.FC = () => {
     setSvcPrice('45.00');
     setSvcDownPaymentPercent(50);
     setSvcGroupId(groups?.[0]?.id || '');
+  };
+
+  const handleOpenCreateService = () => {
+    if (!hasSubaccount) {
+      toast.info('Ative sua subconta Asaas para desbloquear o cadastro de serviços com sinal online.');
+      setIsFinancialModalOpen(true);
+      return;
+    }
+    resetServiceForm();
+    setIsServiceModalOpen(true);
+  };
+
+  const handleOpenCreateGroup = () => {
+    setEditingGroup(null);
+    setGroupName('');
+    setGroupCapacity(1);
+    setIsGroupModalOpen(true);
   };
 
   const handleOpenEditService = (service: CompanyService, groupId: string) => {
@@ -177,10 +219,15 @@ export const OwnerServicesPage: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-2xl font-black text-white flex items-center gap-2">
-            <Scissors className="w-6 h-6 text-teal-400" />
-            <span>Serviços & Cadeiras de Atendimento</span>
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-black text-white flex items-center gap-2">
+              <Scissors className="w-6 h-6 text-teal-400" />
+              <span>Serviços & Cadeiras de Atendimento</span>
+            </h1>
+            <Badge variant={hasSubaccount ? 'teal' : 'warning'} size="sm">
+              {hasSubaccount ? 'Catálogo Liberado' : 'Subconta Pendente'}
+            </Badge>
+          </div>
           <p className="text-xs text-slate-400">
             Organize suas cadeiras/profissionais, catálogo de procedimentos, tempo de duração e regras de sinal.
           </p>
@@ -190,12 +237,7 @@ export const OwnerServicesPage: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              setEditingGroup(null);
-              setGroupName('');
-              setGroupCapacity(1);
-              setIsGroupModalOpen(true);
-            }}
+            onClick={handleOpenCreateGroup}
             leftIcon={<Users className="w-4 h-4 text-teal-400" />}
           >
             Nova Cadeira / Equipe
@@ -203,16 +245,42 @@ export const OwnerServicesPage: React.FC = () => {
 
           <Button
             size="sm"
-            onClick={() => {
-              resetServiceForm();
-              setIsServiceModalOpen(true);
-            }}
-            leftIcon={<Plus className="w-4 h-4" />}
+            onClick={handleOpenCreateService}
+            leftIcon={hasSubaccount ? <Plus className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+            className={!hasSubaccount ? 'opacity-80' : ''}
           >
             Novo Serviço
           </Button>
         </div>
       </div>
+
+      {/* Warning Gate: Subconta Pendente */}
+      {!hasSubaccount && (
+        <Card className="p-5 bg-gradient-to-r from-amber-500/10 via-[#1E293B] to-[#0F172A] border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
+              <Lock className="w-4 h-4" />
+            </div>
+            <div className="space-y-0.5 text-xs">
+              <h3 className="font-bold text-white">
+                Cadastro de Serviços Bloqueado — Subconta Asaas Pendente
+              </h3>
+              <p className="text-slate-300">
+                Para cadastrar serviços com sinal Pix online e definir taxas de garantia de horário, complete o cadastro da sua subconta Asaas.
+              </p>
+            </div>
+          </div>
+
+          <Button
+            size="sm"
+            onClick={() => setIsFinancialModalOpen(true)}
+            className="shrink-0 font-bold"
+            rightIcon={<ArrowRight className="w-4 h-4" />}
+          >
+            Ativar Subconta
+          </Button>
+        </Card>
+      )}
 
       {/* Educational Best Practices Callout */}
       <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-950/40 via-[#0F172A] to-teal-950/40 border border-teal-500/30 space-y-2 text-xs">
@@ -670,6 +738,14 @@ export const OwnerServicesPage: React.FC = () => {
           </div>
         </Modal>
       )}
+
+      {/* Modal de Ativação da Subconta */}
+      <FinancialProfileModal
+        isOpen={isFinancialModalOpen}
+        onClose={() => setIsFinancialModalOpen(false)}
+        defaultName={company?.businessName}
+        defaultPhone={company?.whatsapp}
+      />
     </div>
   );
 };
