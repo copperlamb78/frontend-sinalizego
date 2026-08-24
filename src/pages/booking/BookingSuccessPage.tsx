@@ -16,7 +16,8 @@ import {
   Scissors,
   ArrowRight,
   Phone,
-  Check
+  Check,
+  ShieldCheck
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { downloadIcsFile } from '@/lib/calendar';
@@ -59,9 +60,9 @@ export const BookingSuccessPage: React.FC = () => {
 
     downloadIcsFile({
       title: `${serviceName} - ${companyName}`,
-      description: `Agendamento confirmado no ${companyName}.\nServiço: ${serviceName}\nSinal Pago: ${formatCurrency(
+      description: `Agendamento confirmado no ${companyName}.\nServiço: ${serviceName}\nTaxa de Reserva: ${formatCurrency(
         appointment.downPaymentAmount
-      )}`,
+      )}\nAtendimento pontual com cadeira garantida.`,
       location: address || 'Endereço do Estabelecimento',
       startDate,
       durationMinutes: duration
@@ -119,12 +120,12 @@ export const BookingSuccessPage: React.FC = () => {
         </div>
 
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1 text-xs font-bold text-teal-400 bg-teal-500/10 px-3 py-1 rounded-full border border-teal-500/30">
-            <Check className="w-3.5 h-3.5" />
-            <span>Sinal Confirmado</span>
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-400 bg-teal-500/10 px-3 py-1 rounded-full border border-teal-500/30">
+            <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
+            <span>Horário Confirmado & Cadeira Garantida</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-[#F8FAFC]">
-            Reserva Confirmada com Sucesso!
+            Agendamento Confirmado com Sucesso!
           </h1>
           <p className="text-xs text-[#94A3B8]">
             Seu horário está garantido na agenda. Apresente este comprovante ao comparecer.
@@ -140,8 +141,9 @@ export const BookingSuccessPage: React.FC = () => {
         {/* Voucher Header */}
         <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-800/80">
           <div className="space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Voucher de Atendimento
+            <span className="text-[10px] font-bold uppercase tracking-wider text-teal-400 flex items-center gap-1">
+              <ShieldCheck className="w-3 h-3 text-teal-400" />
+              Comprovante de Reserva Garantida
             </span>
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Scissors className="w-4 h-4 text-teal-400" />
@@ -195,20 +197,20 @@ export const BookingSuccessPage: React.FC = () => {
         {/* Financial Summary Breakdown */}
         <div className="p-4 rounded-2xl bg-[#1E293B]/70 border border-slate-800 space-y-2 text-xs">
           <div className="flex items-center justify-between text-slate-400">
-            <span>Valor Total</span>
+            <span>Valor Total do Serviço</span>
             <span className="font-semibold text-white">{formatCurrency(totalPrice)}</span>
           </div>
 
           <div className="flex items-center justify-between text-teal-400 font-semibold">
             <span className="flex items-center gap-1.5">
               <Check className="w-3.5 h-3.5" />
-              <span>Sinal Pago via Pix</span>
+              <span>Taxa de Reserva Paga (Pix)</span>
             </span>
             <span className="font-bold">{formatCurrency(downPayment)}</span>
           </div>
 
           <div className="flex items-center justify-between pt-2 border-t border-slate-700/60 text-slate-300 font-bold">
-            <span>Saldo a Pagar no Balcão</span>
+            <span>Saldo a Pagar no Estabelecimento</span>
             <span className="text-white text-sm">{formatCurrency(remainingPrice)}</span>
           </div>
         </div>

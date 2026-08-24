@@ -11,11 +11,11 @@ import {
   Copy,
   Check,
   Clock,
-  ShieldCheck,
   ArrowLeft,
   Smartphone,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  ShieldCheck
 } from 'lucide-react';
 import { formatCurrency, cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -59,7 +59,7 @@ export const PixPaymentPage: React.FC = () => {
   // Watch appointment status and auto-redirect upon confirmation
   useEffect(() => {
     if (appointment?.status === 'CONFIRMED' || appointment?.status === 'COMPLETED') {
-      toast.success('Pagamento Pix confirmado com sucesso!');
+      toast.success('Pagamento confirmado com sucesso!');
       navigate(`/reserva/confirmada/${appointmentId}`, { replace: true });
     }
   }, [appointment?.status, appointmentId, navigate]);
@@ -153,22 +153,24 @@ export const PixPaymentPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Timer Banner */}
+      {/* Timer Banner (Urgency Trigger) */}
       <div
         className={cn(
           'p-4 rounded-2xl border flex items-center justify-between text-xs transition-colors',
           isExpired
             ? 'bg-red-500/10 border-red-500/40 text-red-300'
-            : 'bg-teal-500/10 border-teal-500/30 text-teal-300'
+            : 'bg-amber-500/10 border-amber-500/30 text-amber-200'
         )}
       >
         <div className="flex items-center gap-2">
-          <Clock className={cn('w-4 h-4', isExpired ? 'text-red-400' : 'text-teal-400')} />
+          <Clock className={cn('w-4 h-4', isExpired ? 'text-red-400' : 'text-amber-400')} />
           <span className="font-medium">
-            {isExpired ? 'Este QR Code Pix expirou' : 'Tempo restante para pagamento:'}
+            {isExpired
+              ? 'Este QR Code Pix expirou'
+              : 'Sua cadeira está pré-reservada. Tempo restante:'}
           </span>
         </div>
-        <span className="font-black text-sm tracking-wider font-mono">
+        <span className="font-black text-sm tracking-wider font-mono text-amber-300">
           {formatTimer(timeLeftSeconds)}
         </span>
       </div>
@@ -176,14 +178,15 @@ export const PixPaymentPage: React.FC = () => {
       {/* Main Payment Card */}
       <Card className="p-6 sm:p-8 bg-[#0F172A] border-slate-800 space-y-6 text-center shadow-2xl">
         <div className="space-y-1">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Sinal de Reserva
+          <span className="text-xs font-semibold uppercase tracking-wider text-teal-400 flex items-center justify-center gap-1">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            Taxa de Confirmação de Reserva
           </span>
-          <h1 className="text-3xl sm:text-4xl font-black text-teal-400">
+          <h1 className="text-3xl sm:text-4xl font-black text-[#F8FAFC]">
             {formatCurrency(pixData.totalValue)}
           </h1>
-          <p className="text-xs text-slate-400">
-            Pague pelo aplicativo do seu banco para confirmar seu horário instantaneamente
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            Pague pelo aplicativo do seu banco para confirmar seu horário e cadeira reservada na hora.
           </p>
         </div>
 
@@ -233,7 +236,7 @@ export const PixPaymentPage: React.FC = () => {
         {/* Polling Indicator */}
         <div className="pt-2 flex items-center justify-center gap-2 text-xs text-slate-400">
           <span className="w-2.5 h-2.5 rounded-full bg-teal-400 animate-ping" />
-          <span>Aguardando pagamento... A tela atualizará automaticamente.</span>
+          <span>Aguardando pagamento... Seu agendamento será validado na hora.</span>
         </div>
       </Card>
 
@@ -266,7 +269,7 @@ export const PixPaymentPage: React.FC = () => {
               3
             </span>
             <span>
-              Confirme as informações e conclua o Pix. Seu agendamento será validado na hora!
+              Conclua o Pix de {formatCurrency(pixData.totalValue)}. Seu agendamento e cadeira reservada serão confirmados imediatamente!
             </span>
           </div>
         </div>

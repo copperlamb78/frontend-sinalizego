@@ -224,7 +224,7 @@ export const ClientAppointmentsPage: React.FC = () => {
                     <div className="grid grid-cols-2 md:grid-cols-1 gap-3 md:gap-1 text-xs text-left md:text-right">
                       <div>
                         <span className="text-[10px] text-slate-500 block uppercase">
-                          Sinal Pago no Pix
+                          Taxa de Reserva (Pix)
                         </span>
                         <span className="font-bold text-teal-400">
                           {formatCurrency(apt.downPaymentAmount)}
@@ -234,7 +234,7 @@ export const ClientAppointmentsPage: React.FC = () => {
                       {apt.status === 'CONFIRMED' && (
                         <div>
                           <span className="text-[10px] text-amber-400 font-bold block uppercase">
-                            Pagar no Balcão
+                            Pagar no Estabelecimento
                           </span>
                           <span className="font-black text-amber-300 text-sm">
                             {formatCurrency(remaining)}

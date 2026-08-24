@@ -8,7 +8,8 @@ import {
   MapPin,
   CalendarPlus,
   Phone,
-  Scissors
+  Scissors,
+  ShieldCheck
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { downloadIcsFile } from '@/lib/calendar';
@@ -57,7 +58,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
   const handleDownloadCalendar = () => {
     downloadIcsFile({
       title: `${appointment.service?.name} - ${appointment.company?.businessName}`,
-      description: `Agendamento confirmado no SinalizeGO. Restante a pagar no balcão: ${formatCurrency(remaining)}.`,
+      description: `Agendamento confirmado no SinalizeGO. Atendimento pontual com cadeira garantida. Restante a pagar no local: ${formatCurrency(remaining)}.`,
       location: address,
       startDate: new Date(appointment.appointmentDate),
       durationMinutes: appointment.service?.durationMinutes || 30
@@ -69,7 +70,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Voucher Digital do Atendimento"
+      title="Voucher Digital de Atendimento"
       description="Apresente este comprovante ao chegar no estabelecimento"
       size="md"
     >
@@ -79,7 +80,8 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           {/* Header */}
           <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
             <div className="space-y-1">
-              <span className="text-[10px] font-bold text-teal-400 uppercase tracking-widest block">
+              <span className="text-[10px] font-bold text-teal-400 uppercase tracking-widest flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-teal-400" />
                 Comprovante de Reserva
               </span>
               <h2 className="text-base font-black text-white">
@@ -88,7 +90,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             </div>
 
             <Badge variant="teal" size="sm">
-              #{appointment.id.slice(-6).toUpperCase()}
+              Confirmado
             </Badge>
           </div>
 
@@ -120,7 +122,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-[#0B1120] border border-slate-800 text-xs">
             <div className="space-y-0.5">
               <span className="text-[10px] text-slate-500 font-semibold block uppercase">
-                Sinal Pago via Pix
+                Taxa de Reserva Paga (Pix)
               </span>
               <span className="font-bold text-teal-400">
                 {formatCurrency(appointment.downPaymentAmount)}
@@ -129,7 +131,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
 
             <div className="space-y-0.5 text-right">
               <span className="text-[10px] text-amber-400 font-bold block uppercase tracking-wider">
-                Pagar no Balcão
+                Pagar no Estabelecimento
               </span>
               <span className="font-black text-amber-300 text-sm">
                 {formatCurrency(remaining)}

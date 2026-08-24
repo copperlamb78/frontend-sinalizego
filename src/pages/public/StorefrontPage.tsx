@@ -18,7 +18,9 @@ import {
   Sparkles,
   Search,
   Store,
-  ShieldCheck
+  ShieldCheck,
+  Flame,
+  TrendingUp
 } from 'lucide-react';
 import { formatCurrency, cn } from '@/lib/utils';
 
@@ -248,14 +250,30 @@ export const StorefrontPage: React.FC = () => {
 
       {/* Services Catalogue */}
       <div className="space-y-6">
+        {/* Scarcity & High Demand Notice */}
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-xs text-amber-200">
+          <div className="flex items-center gap-2.5">
+            <span className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400">
+              <Flame className="w-4 h-4" />
+            </span>
+            <span className="font-semibold">
+              Alta procura para horários de pico e fim de semana. Reserve sua cadeira com antecedência para garantir vaga!
+            </span>
+          </div>
+          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20 shrink-0">
+            <TrendingUp className="w-3 h-3" />
+            Horários Disputados
+          </span>
+        </div>
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h2 className="text-xl sm:text-2xl font-bold text-[#F8FAFC] flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-teal-400" />
-              <span>Serviços Disponíveis para Reserva</span>
+              <span>Serviços Disponíveis para Agendamento</span>
             </h2>
             <p className="text-xs text-[#94A3B8]">
-              Selecione o serviço desejado para escolher data, horário e confirmar com sinal Pix
+              Selecione o serviço desejado para escolher data, horário e garantir sua cadeira sem espera
             </p>
           </div>
 
@@ -285,20 +303,33 @@ export const StorefrontPage: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {group.services?.map((service) => {
+                  {group.services?.map((service, sIndex) => {
                     const minSignal = Math.max(15, (service.totalPrice * service.downPaymentPercent) / 100);
+                    const isPopular = sIndex === 0;
                     return (
                       <Card
                         key={service.id}
                         hoverEffect
-                        className="flex flex-col justify-between p-5 bg-[#0F172A] border-slate-800/90"
+                        className="flex flex-col justify-between p-5 bg-[#0F172A] border-slate-800/90 relative overflow-hidden"
                       >
+                        {isPopular && (
+                          <div className="absolute top-0 right-0">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-teal-500/10 text-teal-300 border-l border-b border-teal-500/30 px-2.5 py-1 rounded-bl-xl">
+                              <Sparkles className="w-3 h-3 text-teal-400" />
+                              Mais Procurado
+                            </span>
+                          </div>
+                        )}
+
                         <div className="space-y-2">
-                          <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start justify-between gap-3 pr-24">
                             <h4 className="text-base font-bold text-[#F8FAFC]">
                               {service.name}
                             </h4>
-                            <span className="text-base font-black text-teal-400 shrink-0">
+                          </div>
+
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-lg font-black text-teal-400 shrink-0">
                               {formatCurrency(service.totalPrice)}
                             </span>
                           </div>
@@ -311,13 +342,14 @@ export const StorefrontPage: React.FC = () => {
                         </div>
 
                         <div className="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-3 text-xs text-slate-400">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs text-slate-400">
                             <span className="flex items-center gap-1 font-medium">
                               <Clock className="w-3.5 h-3.5 text-slate-500" />
                               {service.durationMinutes} min
                             </span>
-                            <span className="text-[11px] text-teal-400/90 font-medium">
-                              Sinal a partir de {formatCurrency(minSignal)}
+                            <span className="text-[11px] text-teal-400 font-semibold flex items-center gap-1">
+                              <ShieldCheck className="w-3 h-3 text-teal-400" />
+                              Reserva Garantida a partir de {formatCurrency(minSignal)}
                             </span>
                           </div>
 
@@ -348,7 +380,7 @@ export const StorefrontPage: React.FC = () => {
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-5 h-5 text-teal-400 shrink-0" />
           <span>
-            Agendamento seguro com sinal Pix Asaas. Cancelamento transparente com estorno se solicitado com mais de 24h de antecedência.
+            Atendimento pontual com Cadeira Garantida. Sem perda de tempo em filas. Estorno integral para cancelamentos com mais de 24h de antecedência.
           </span>
         </div>
       </div>

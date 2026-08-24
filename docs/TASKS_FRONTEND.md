@@ -178,6 +178,9 @@ src/
   - `POST /appointments`
   - `POST /transactions/pix/:appointmentId`
   - `GET /appointments/:id`
+- **Gatilhos Psicológicos de Conversão (Autoridade & Clareza)**:
+  - **Gatilho de Garantia de Horário & Cadeira Reservada**: Substituição de termos burocráticos ("Taxa do App/Conveniência") por "Reserva de Horário Garantida" e "Taxa de Confirmação de Reserva", ativando a percepção de pontualidade, cadeira garantida e compromisso sem sobrecarga de jargões.
+  - **Mecanismo de Escassez & Urgência Natural**: Badges de dias disputados (Sextas, Sábados e picos), indicadores contextuais nos slots mais concorridos ("Pico", "Último") e banner dinâmico de escassez quando restam poucas vagas no dia.
 
 ---
 
