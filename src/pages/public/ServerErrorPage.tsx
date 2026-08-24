@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
 import {
@@ -21,9 +20,15 @@ export const ServerErrorPage: React.FC<ServerErrorPageProps> = ({
   const handleReload = () => {
     if (resetErrorBoundary) {
       resetErrorBoundary();
-    } else {
-      window.location.reload();
     }
+    window.location.reload();
+  };
+
+  const handleGoHome = () => {
+    if (resetErrorBoundary) {
+      resetErrorBoundary();
+    }
+    window.location.href = '/';
   };
 
   return (
@@ -51,10 +56,11 @@ export const ServerErrorPage: React.FC<ServerErrorPageProps> = ({
           </p>
         </div>
 
-        {/* Error Detail (Dev Mode Only) */}
-        {error && process.env.NODE_ENV === 'development' && (
-          <div className="p-3 rounded-xl bg-[#0B1120] border border-slate-800 text-left overflow-x-auto text-[11px] font-mono text-red-400 max-h-32">
-            <p className="font-bold">{error.name}: {error.message}</p>
+        {/* Error Detail */}
+        {error && (
+          <div className="p-3.5 rounded-xl bg-[#0B1120] border border-red-500/30 text-left overflow-x-auto text-[11px] font-mono text-red-300 max-h-32 space-y-1">
+            <span className="text-[10px] text-red-400 font-bold uppercase tracking-wider block">Detalhes do Erro:</span>
+            <p className="font-bold text-red-200 break-all">{error.name}: {error.message}</p>
           </div>
         )}
 
@@ -77,15 +83,15 @@ export const ServerErrorPage: React.FC<ServerErrorPageProps> = ({
             Tentar Novamente
           </Button>
 
-          <Link to="/" className="w-full sm:w-auto">
-            <Button
-              size="sm"
-              className="w-full sm:w-auto text-xs h-10 font-bold shadow-md shadow-teal-500/20 cursor-pointer"
-              leftIcon={<Home className="w-4 h-4" />}
-            >
-              Voltar para o Início
-            </Button>
-          </Link>
+          <Button
+            type="button"
+            size="sm"
+            onClick={handleGoHome}
+            className="w-full sm:w-auto text-xs h-10 font-bold shadow-md shadow-teal-500/20 cursor-pointer"
+            leftIcon={<Home className="w-4 h-4" />}
+          >
+            Voltar para o Início
+          </Button>
         </div>
       </Card>
     </div>

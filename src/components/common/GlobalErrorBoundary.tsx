@@ -26,7 +26,6 @@ export class GlobalErrorBoundary extends Component<Props, State> {
 
   public resetErrorBoundary = () => {
     this.setState({ hasError: false, error: null });
-    window.location.reload();
   };
 
   public render() {

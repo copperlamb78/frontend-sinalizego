@@ -41,10 +41,36 @@ export const AdminDashboardPage: React.FC = () => {
     );
   }
 
+  const grossRevenue = metrics?.financial?.platformGrossRevenue ?? metrics?.platformGrossRevenue ?? 0;
+  const asaasCosts = metrics?.financial?.totalAsaasPixCosts ?? metrics?.totalAsaasPixCosts ?? 0;
+  const netProfit = metrics?.financial?.platformNetProfit ?? metrics?.platformNetProfit ?? 0;
+  const gmv = metrics?.financial?.gmv ?? metrics?.gmv ?? 0;
+
+  const totalCompanies = metrics?.growth?.companies?.total ?? metrics?.growth?.totalCompanies ?? 0;
+  const activeCompanies = metrics?.growth?.companies?.active ?? metrics?.growth?.activeCompanies ?? 0;
+  const inactiveCompanies = metrics?.growth?.companies?.inactive ?? metrics?.growth?.inactiveCompanies ?? 0;
+
+  const totalUsers = metrics?.growth?.users?.total ?? metrics?.growth?.totalUsers ?? 0;
+  const clientsCount = metrics?.growth?.users?.clients ?? metrics?.growth?.clients ?? 0;
+  const ownersCount = metrics?.growth?.users?.owners ?? metrics?.growth?.companyOwners ?? 0;
+
+  const completedAppointments =
+    metrics?.growth?.appointments?.completed ??
+    metrics?.growth?.appointmentsByStatus?.COMPLETED ??
+    0;
+  const confirmedAppointments =
+    metrics?.growth?.appointments?.confirmed ??
+    metrics?.growth?.appointmentsByStatus?.CONFIRMED ??
+    0;
+  const canceledAppointments =
+    metrics?.growth?.appointments?.canceled ??
+    metrics?.growth?.appointmentsByStatus?.CANCELED ??
+    0;
+
   const kpis = [
     {
       title: 'Receita Bruta da Plataforma',
-      value: formatCurrency(metrics?.platformGrossRevenue || 0),
+      value: formatCurrency(grossRevenue),
       detail: 'Comissões SaaS acumuladas',
       icon: DollarSign,
       color: 'text-emerald-400',
@@ -52,7 +78,7 @@ export const AdminDashboardPage: React.FC = () => {
     },
     {
       title: 'Custos Gateway Asaas Pix',
-      value: formatCurrency(metrics?.totalAsaasPixCosts || 0),
+      value: formatCurrency(asaasCosts),
       detail: 'Taxas de split e transferências',
       icon: Activity,
       color: 'text-amber-400',
@@ -60,7 +86,7 @@ export const AdminDashboardPage: React.FC = () => {
     },
     {
       title: 'Lucro Líquido Plataforma',
-      value: formatCurrency(metrics?.platformNetProfit || 0),
+      value: formatCurrency(netProfit),
       detail: 'Margem operacional retida',
       icon: TrendingUp,
       color: 'text-teal-400',
@@ -68,7 +94,7 @@ export const AdminDashboardPage: React.FC = () => {
     },
     {
       title: 'GMV Transacionado Total',
-      value: formatCurrency(metrics?.gmv || 0),
+      value: formatCurrency(gmv),
       detail: 'Volume bruto de reservas',
       icon: Building2,
       color: 'text-sky-400',
@@ -122,11 +148,11 @@ export const AdminDashboardPage: React.FC = () => {
             <Store className="w-5 h-5 text-teal-400" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-white">{metrics?.growth.totalCompanies || 0}</span>
-            <span className="text-xs text-teal-400 font-semibold">({metrics?.growth.activeCompanies || 0} ativos)</span>
+            <span className="text-3xl font-black text-white">{totalCompanies}</span>
+            <span className="text-xs text-teal-400 font-semibold">({activeCompanies} ativos)</span>
           </div>
           <p className="text-xs text-slate-500">
-            {metrics?.growth.inactiveCompanies || 0} estabelecimentos inativos ou em moderação
+            {inactiveCompanies} estabelecimentos inativos ou em moderação
           </p>
         </Card>
 
@@ -136,11 +162,11 @@ export const AdminDashboardPage: React.FC = () => {
             <Users className="w-5 h-5 text-sky-400" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-white">{metrics?.growth.totalUsers || 0}</span>
-            <span className="text-xs text-sky-400 font-semibold">({metrics?.growth.clients || 0} clientes)</span>
+            <span className="text-3xl font-black text-white">{totalUsers}</span>
+            <span className="text-xs text-sky-400 font-semibold">({clientsCount} clientes)</span>
           </div>
           <p className="text-xs text-slate-500">
-            {metrics?.growth.companyOwners || 0} proprietários de barbearias e salões
+            {ownersCount} proprietários de barbearias e salões
           </p>
         </Card>
 
@@ -151,12 +177,12 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-black text-white">
-              {metrics?.growth.appointmentsByStatus.COMPLETED || 0}
+              {completedAppointments}
             </span>
             <span className="text-xs text-emerald-400 font-semibold">concluídos</span>
           </div>
           <p className="text-xs text-slate-500">
-            {metrics?.growth.appointmentsByStatus.CONFIRMED || 0} agendados | {metrics?.growth.appointmentsByStatus.CANCELED || 0} cancelados
+            {confirmedAppointments} agendados | {canceledAppointments} cancelados
           </p>
         </Card>
       </div>
@@ -178,31 +204,37 @@ export const AdminDashboardPage: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-3">
             {metrics?.topTenants && metrics.topTenants.length > 0 ? (
-              metrics.topTenants.map((t, idx) => (
-                <div
-                  key={t.id}
-                  className="flex items-center justify-between p-3.5 rounded-xl bg-[#1E293B] border border-slate-800"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded-lg bg-slate-800 text-teal-400 font-bold text-xs flex items-center justify-center">
-                      #{idx + 1}
-                    </span>
-                    <div>
-                      <p className="text-sm font-bold text-white">{t.businessName}</p>
-                      <p className="text-xs text-slate-400">
-                        {t.completedAppointments} atendimentos • /{t.slug}
+              metrics.topTenants.map((t, idx) => {
+                const tenantId = t.id || t.companyId || `tenant-${idx}`;
+                const appointmentsCount = t.completedAppointments ?? t.appointmentsCount ?? 0;
+                const platformFees = t.platformFeesGenerated ?? t.platformFeeGenerated ?? 0;
+
+                return (
+                  <div
+                    key={tenantId}
+                    className="flex items-center justify-between p-3.5 rounded-xl bg-[#1E293B] border border-slate-800"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="w-6 h-6 rounded-lg bg-slate-800 text-teal-400 font-bold text-xs flex items-center justify-center">
+                        #{idx + 1}
+                      </span>
+                      <div>
+                        <p className="text-sm font-bold text-white">{t.businessName}</p>
+                        <p className="text-xs text-slate-400">
+                          {appointmentsCount} atendimentos • /{t.slug}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <p className="text-sm font-black text-teal-400">{formatCurrency(t.totalRevenue || 0)}</p>
+                      <p className="text-[10px] text-slate-400 font-mono">
+                        Taxas: {formatCurrency(platformFees)}
                       </p>
                     </div>
                   </div>
-
-                  <div className="text-right">
-                    <p className="text-sm font-black text-teal-400">{formatCurrency(t.totalRevenue)}</p>
-                    <p className="text-[10px] text-slate-400 font-mono">
-                      Taxas: {formatCurrency(t.platformFeesGenerated)}
-                    </p>
-                  </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <p className="text-xs text-slate-500 text-center py-4">Nenhum dado registrado.</p>
             )}

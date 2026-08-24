@@ -1,34 +1,60 @@
 import { Role } from './auth.types';
 
 export interface AdminTopTenant {
-  id: string;
+  id?: string;
+  companyId?: string;
   businessName: string;
   slug: string;
-  completedAppointments: number;
+  completedAppointments?: number;
+  appointmentsCount?: number;
   totalRevenue: number;
-  platformFeesGenerated: number;
+  platformFeesGenerated?: number;
+  platformFeeGenerated?: number;
 }
 
 export interface AdminDashboardMetrics {
-  platformGrossRevenue: number;
-  totalAsaasPixCosts: number;
-  platformNetProfit: number;
-  gmv: number;
-  growth: {
-    totalCompanies: number;
-    activeCompanies: number;
-    inactiveCompanies: number;
-    totalUsers: number;
-    clients: number;
-    companyOwners: number;
-    appointmentsByStatus: {
-      COMPLETED: number;
-      CONFIRMED: number;
-      CANCELED: number;
-      PENDING_PAYMENT: number;
+  platformGrossRevenue?: number;
+  totalAsaasPixCosts?: number;
+  platformNetProfit?: number;
+  gmv?: number;
+  financial?: {
+    platformGrossRevenue?: number;
+    totalAsaasPixCosts?: number;
+    platformNetProfit?: number;
+    gmv?: number;
+  };
+  growth?: {
+    totalCompanies?: number;
+    activeCompanies?: number;
+    inactiveCompanies?: number;
+    totalUsers?: number;
+    clients?: number;
+    companyOwners?: number;
+    users?: {
+      total?: number;
+      clients?: number;
+      owners?: number;
+    };
+    companies?: {
+      total?: number;
+      active?: number;
+      inactive?: number;
+    };
+    appointments?: {
+      total?: number;
+      completed?: number;
+      confirmed?: number;
+      canceled?: number;
+      pendingPayment?: number;
+    };
+    appointmentsByStatus?: {
+      COMPLETED?: number;
+      CONFIRMED?: number;
+      CANCELED?: number;
+      PENDING_PAYMENT?: number;
     };
   };
-  topTenants: AdminTopTenant[];
+  topTenants?: AdminTopTenant[];
 }
 
 export interface AdminCompanyItem {
