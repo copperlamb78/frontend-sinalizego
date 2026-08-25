@@ -28,8 +28,8 @@ export const ClientExplorePage: React.FC = () => {
     queryFn: () => appointmentsService.getUserAppointments()
   });
 
-  // 2. Extract unique visited establishments, memoized for performance
-  const visitedCompanies = React.useMemo(() => {
+  // 2. Extract unique visited establishments, memoized to only recalculate when appointments change
+  const uniqueCompanies = React.useMemo(() => {
     const visitedCompaniesMap = new Map<string, {
       id: string;
       businessName: string;
@@ -78,11 +78,19 @@ export const ClientExplorePage: React.FC = () => {
       });
     }
 
-    return Array.from(visitedCompaniesMap.values()).filter((c) =>
-      c.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.address.toLowerCase().includes(searchQuery.toLowerCase())
+    return Array.from(visitedCompaniesMap.values());
+  }, [appointments]);
+
+  // 3. Filter unique establishments based on search query
+  const visitedCompanies = React.useMemo(() => {
+    if (!searchQuery) return uniqueCompanies;
+
+    const query = searchQuery.toLowerCase();
+    return uniqueCompanies.filter((c) =>
+      c.businessName.toLowerCase().includes(query) ||
+      c.address.toLowerCase().includes(query)
     );
-  }, [appointments, searchQuery]);
+  }, [uniqueCompanies, searchQuery]);
 
   const handleSlugSubmit = (e: React.FormEvent) => {
     e.preventDefault();
