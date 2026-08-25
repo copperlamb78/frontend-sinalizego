@@ -154,6 +154,7 @@ export const ClientLayout: React.FC = () => {
             <button
               onClick={openPwaInstallModal}
               title="Instalar Aplicativo no Celular / Desktop"
+              aria-label="Instalar aplicativo"
               className="p-1.5 sm:p-2 rounded-xl text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap shrink-0"
             >
               <Smartphone className="w-4 h-4 shrink-0" />
@@ -187,6 +188,7 @@ export const ClientLayout: React.FC = () => {
                 navigate('/login');
               }}
               title="Encerrar Sessão"
+              aria-label="Encerrar sessão"
               className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer shrink-0"
             >
               <LogOut className="w-4 h-4" />

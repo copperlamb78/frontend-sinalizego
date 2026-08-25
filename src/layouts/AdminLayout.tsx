@@ -108,6 +108,7 @@ export const AdminLayout: React.FC = () => {
                 navigate('/login');
               }}
               title="Sair do Modo Admin"
+              aria-label="Sair do Modo Admin"
               className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer shrink-0"
             >
               <LogOut className="w-4 h-4" />
