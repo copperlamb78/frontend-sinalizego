@@ -226,7 +226,7 @@ export const BookingSuccessPage: React.FC = () => {
             Adicionar à Agenda
           </Button>
 
-          <a href={googleMapsUrl} target="_blank" rel="noreferrer" className="w-full">
+          <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer" className="w-full">
             <Button
               variant="outline"
               className="w-full justify-center"
@@ -241,8 +241,7 @@ export const BookingSuccessPage: React.FC = () => {
           <div className="pt-2 text-center">
             <a
               href={`https://wa.me/55${appointment.company.whatsapp.replace(/\D/g, '')}`}
-              target="_blank"
-              rel="noreferrer"
+              target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-teal-400 transition-colors"
             >
               <Phone className="w-3.5 h-3.5 text-emerald-400" />

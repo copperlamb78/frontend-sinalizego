@@ -180,8 +180,7 @@ export const StorefrontPage: React.FC = () => {
             {company.whatsapp && (
               <a
                 href={`https://wa.me/55${company.whatsapp.replace(/\D/g, '')}`}
-                target="_blank"
-                rel="noreferrer"
+                target="_blank" rel="noopener noreferrer"
                 className="flex-1 sm:flex-none"
               >
                 <Button variant="secondary" size="sm" className="w-full" leftIcon={<Phone className="w-3.5 h-3.5 text-emerald-400" />}>
@@ -192,8 +191,7 @@ export const StorefrontPage: React.FC = () => {
 
             <a
               href={googleMapsUrl}
-              target="_blank"
-              rel="noreferrer"
+              target="_blank" rel="noopener noreferrer"
               className="flex-1 sm:flex-none"
             >
               <Button variant="outline" size="sm" className="w-full" rightIcon={<ExternalLink className="w-3 h-3" />}>

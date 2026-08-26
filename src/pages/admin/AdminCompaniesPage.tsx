@@ -133,8 +133,7 @@ export const AdminCompaniesPage: React.FC = () => {
                       </div>
                       <a
                         href={`/empresa/${c.slug}`}
-                        target="_blank"
-                        rel="noreferrer"
+                        target="_blank" rel="noopener noreferrer"
                         className="text-xs font-mono text-teal-400 hover:underline inline-flex items-center gap-1 mt-0.5"
                       >
                         <span>/{c.slug}</span>

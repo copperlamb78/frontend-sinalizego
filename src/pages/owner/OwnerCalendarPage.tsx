@@ -236,8 +236,7 @@ export const OwnerCalendarPage: React.FC = () => {
                     {app.client?.phone && (
                       <a
                         href={`https://wa.me/55${app.client.phone.replace(/\D/g, '')}`}
-                        target="_blank"
-                        rel="noreferrer"
+                        target="_blank" rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline pt-0.5"
                       >
                         <Phone className="w-3 h-3" />

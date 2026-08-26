@@ -282,7 +282,7 @@ export const OwnerLayout: React.FC = () => {
           <div className="flex items-center gap-3">
             <Link
               to="/empresa/vintage-club"
-              target="_blank"
+              target="_blank" rel="noopener noreferrer"
               className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#1E293B] hover:bg-slate-700 text-xs font-medium text-slate-300 border border-slate-700 transition-colors"
             >
               <Store className="w-3.5 h-3.5 text-teal-400" />

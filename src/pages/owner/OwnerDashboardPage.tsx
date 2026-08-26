@@ -127,7 +127,7 @@ export const OwnerDashboardPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <Link to={`/empresa/${storefrontSlug}`} target="_blank">
+          <Link to={`/empresa/${storefrontSlug}`} target="_blank" rel="noopener noreferrer">
             <Button variant="outline" size="sm" rightIcon={<ExternalLink className="w-3.5 h-3.5" />}>
               Ver Minha Vitrine
             </Button>
@@ -342,8 +342,7 @@ export const OwnerDashboardPage: React.FC = () => {
                     {app.clientPhone && (
                       <a
                         href={`https://wa.me/55${app.clientPhone.replace(/\D/g, '')}`}
-                        target="_blank"
-                        rel="noreferrer"
+                        target="_blank" rel="noopener noreferrer"
                         className="p-2 rounded-xl bg-[#1E293B] hover:bg-[#1E293B]/80 text-emerald-400 border border-slate-700/80 transition-colors"
                         title="Enviar mensagem no WhatsApp"
                       >

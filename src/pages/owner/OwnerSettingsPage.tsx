@@ -311,7 +311,7 @@ export const OwnerSettingsPage: React.FC = () => {
             >
               {copiedLink ? 'Copiado!' : 'Copiar Link'}
             </Button>
-            <a href={storefrontUrl} target="_blank" rel="noreferrer">
+            <a href={storefrontUrl} target="_blank" rel="noopener noreferrer">
               <Button type="button" size="sm" rightIcon={<ExternalLink className="w-3.5 h-3.5" />}>
                 Abrir
               </Button>
