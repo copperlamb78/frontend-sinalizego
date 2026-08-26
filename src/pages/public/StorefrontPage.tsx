@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { companyService } from '@/services/company.service';
@@ -50,6 +50,18 @@ export const StorefrontPage: React.FC = () => {
     staleTime: 1000 * 60 * 5 // 5 minutes cache
   });
 
+  // Filter services by search term
+  const filteredGroups = useMemo(() => {
+    return company?.serviceGroups?.map((group) => ({
+      ...group,
+      services: group.services?.filter(
+        (s) =>
+          s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (s.description && s.description.toLowerCase().includes(searchTerm.toLowerCase()))
+      )
+    })).filter((group) => group.services && group.services.length > 0);
+  }, [company?.serviceGroups, searchTerm]);
+
   if (isLoading) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 animate-pulse">
@@ -100,16 +112,6 @@ export const StorefrontPage: React.FC = () => {
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${company.businessName}, ${fullAddress}`
   )}`;
-
-  // Filter services by search term
-  const filteredGroups = company.serviceGroups?.map((group) => ({
-    ...group,
-    services: group.services?.filter(
-      (s) =>
-        s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (s.description && s.description.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-  })).filter((group) => group.services && group.services.length > 0);
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-8">
