@@ -144,8 +144,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
           <a
             href={mapsUrl}
-            target="_blank"
-            rel="noreferrer"
+            target="_blank" rel="noopener noreferrer"
             className="w-full"
           >
             <Button
@@ -172,8 +171,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
         {appointment.company?.whatsapp && (
           <a
             href={`https://wa.me/55${appointment.company.whatsapp.replace(/\D/g, '')}`}
-            target="_blank"
-            rel="noreferrer"
+            target="_blank" rel="noopener noreferrer"
             className="block pt-1"
           >
             <Button

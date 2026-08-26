@@ -183,11 +183,11 @@ export const RegisterPage: React.FC = () => {
             />
             <span>
               Li e concordo com os{' '}
-              <a href="/#termos" target="_blank" className="text-[#14B8A6] font-semibold hover:underline">
+              <a href="/#termos" target="_blank" rel="noopener noreferrer" className="text-[#14B8A6] font-semibold hover:underline">
                 Termos de Uso
               </a>{' '}
               e a{' '}
-              <a href="/#privacidade" target="_blank" className="text-[#14B8A6] font-semibold hover:underline">
+              <a href="/#privacidade" target="_blank" rel="noopener noreferrer" className="text-[#14B8A6] font-semibold hover:underline">
                 Política de Privacidade
               </a>
               .
