@@ -86,6 +86,8 @@ export const OwnerLayout: React.FC = () => {
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
             className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
             title={isSidebarCollapsed ? 'Expandir Menu' : 'Recolher Menu'}
+            aria-expanded={!isSidebarCollapsed}
+            aria-label={isSidebarCollapsed ? 'Expandir Menu' : 'Recolher Menu'}
           >
             {isSidebarCollapsed ? (
               <ChevronRight className="w-4 h-4" />
@@ -194,6 +196,7 @@ export const OwnerLayout: React.FC = () => {
               <button
                 onClick={() => setIsMobileDrawerOpen(false)}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
+                aria-label="Fechar Menu"
               >
                 <X className="w-5 h-5" />
               </button>
