@@ -303,6 +303,7 @@ export const OwnerWorkingHoursPage: React.FC = () => {
                             }}
                             className="ml-1 text-[11px] text-slate-500 hover:text-red-400"
                             title="Remover almoço"
+                            aria-label="Remover almoço"
                           >
                             ×
                           </button>
@@ -384,6 +385,7 @@ export const OwnerWorkingHoursPage: React.FC = () => {
                     onClick={() => deleteExceptionMutation.mutate(exc.id)}
                     className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-slate-800 transition-colors cursor-pointer"
                     title="Excluir Feriado"
+                    aria-label="Excluir Feriado"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

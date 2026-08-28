@@ -116,6 +116,7 @@ export const PwaInstallPrompt: React.FC = () => {
               onClick={handleDismiss}
               className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
               title="Fechar"
+              aria-label="Fechar"
             >
               <X className="w-4 h-4" />
             </button>
