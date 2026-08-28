@@ -4,3 +4,6 @@
 ## 2023-10-27 - Memoizing Expensive Computations before Early Returns
 **Learning:** Found another instance in `StorefrontPage` where nested `map` and `filter` operations were being run on every render. To wrap this in `useMemo`, it had to be moved *before* the early return (`if (isLoading) return ...`). This required adding optional chaining (`company?.serviceGroups`) to avoid runtime crashes when `company` is undefined during loading.
 **Action:** Always verify that state and props used inside a newly hoisted `useMemo` handle undefined/null states gracefully (using optional chaining) when moving computations above early returns.
+## 2024-05-19 - [Cache Intl.NumberFormat instance]
+**Learning:** Instantiating `Intl.NumberFormat` repeatedly in a helper function (`formatCurrency` in `src/lib/utils.ts`) is very expensive and can cause performance issues when rendering large lists of financial data.
+**Action:** Always cache instances of `Intl.NumberFormat` or similar formatting objects when possible instead of recreating them on every call.
