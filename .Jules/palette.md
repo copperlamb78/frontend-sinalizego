@@ -11,3 +11,7 @@
 ## 2024-02-23 - Missing aria-labels in icon-only layout navigation buttons
 **Learning:** Discovered icon-only buttons (like the mobile menu close and desktop sidebar toggle) in `src/layouts/OwnerLayout.tsx` that were missing `aria-label`s, which is critical for screen reader users to understand navigation structure.
 **Action:** Always verify `aria-label` and `aria-expanded` attributes are present for sidebar layout toggle buttons and mobile menu close buttons.
+
+## 2024-03-01 - Missing aria-label for password visibility toggles
+**Learning:** The eye/eye-off toggle button used in password fields across auth pages (e.g., ResetPasswordPage) was missing an `aria-label`, leaving screen reader users without context.
+**Action:** Ensure all icon-only buttons used for input adornments (like rightIcon in Input) have a descriptive `aria-label` based on their dynamic state.

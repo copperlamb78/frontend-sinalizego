@@ -110,6 +110,7 @@ export const ResetPasswordPage: React.FC = () => {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="hover:text-white transition-colors cursor-pointer"
+              aria-label={showPassword ? 'Ocultar senha' : 'Exibir senha'}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
