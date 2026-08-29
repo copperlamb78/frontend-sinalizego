@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { appointmentsService } from '@/services/appointments.service';
@@ -32,19 +32,28 @@ export const ClientAppointmentsPage: React.FC = () => {
     queryFn: () => appointmentsService.getUserAppointments()
   });
 
-  const filteredAppointments = (appointments || []).filter((apt) => {
-    if (activeTab === 'UPCOMING') {
-      return apt.status === 'CONFIRMED' || apt.status === 'PENDING_PAYMENT';
-    }
-    return apt.status === 'COMPLETED' || apt.status === 'CANCELED';
-  });
+  const { upcomingItems, historyItems, upcomingCount, historyCount } = useMemo(() => {
+    const list = appointments || [];
+    const upcomingItems: Appointment[] = [];
+    const historyItems: Appointment[] = [];
 
-  const upcomingCount = (appointments || []).filter(
-    (a) => a.status === 'CONFIRMED' || a.status === 'PENDING_PAYMENT'
-  ).length;
-  const historyCount = (appointments || []).filter(
-    (a) => a.status === 'COMPLETED' || a.status === 'CANCELED'
-  ).length;
+    for (const apt of list) {
+      if (apt.status === 'CONFIRMED' || apt.status === 'PENDING_PAYMENT') {
+        upcomingItems.push(apt);
+      } else if (apt.status === 'COMPLETED' || apt.status === 'CANCELED') {
+        historyItems.push(apt);
+      }
+    }
+
+    return {
+      upcomingItems,
+      historyItems,
+      upcomingCount: upcomingItems.length,
+      historyCount: historyItems.length,
+    };
+  }, [appointments]);
+
+  const filteredAppointments = activeTab === 'UPCOMING' ? upcomingItems : historyItems;
 
   if (isLoading) {
     return (
