@@ -15,3 +15,6 @@
 ## 2024-05-15 - Icon-only functional buttons missing aria-labels
 **Learning:** Found multiple icon-only action buttons across various components (`OwnerWorkingHoursPage`, `OwnerServicesPage`, `PwaInstallPrompt`) that lacked `aria-label`s, only relying on `title` attributes. `title` tooltips alone are insufficient for robust screen reader accessibility.
 **Action:** Ensure all interactive elements, especially icon-only buttons, consistently implement `aria-label`s to clearly communicate their function to assistive technologies.
+## 2024-03-01 - Missing aria-label for password visibility toggles
+**Learning:** The eye/eye-off toggle button used in password fields across auth pages (e.g., ResetPasswordPage) was missing an `aria-label`, leaving screen reader users without context.
+**Action:** Ensure all icon-only buttons used for input adornments (like rightIcon in Input) have a descriptive `aria-label` based on their dynamic state.
