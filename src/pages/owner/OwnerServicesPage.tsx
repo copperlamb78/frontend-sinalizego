@@ -366,6 +366,7 @@ export const OwnerServicesPage: React.FC = () => {
                     onClick={() => handleOpenEditGroup(group)}
                     className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
                     title="Editar Cadeira / Equipe"
+                    aria-label="Editar Cadeira / Equipe"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
@@ -377,6 +378,7 @@ export const OwnerServicesPage: React.FC = () => {
                     }}
                     className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors cursor-pointer"
                     title="Excluir Cadeira / Equipe"
+                    aria-label="Excluir Cadeira / Equipe"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
