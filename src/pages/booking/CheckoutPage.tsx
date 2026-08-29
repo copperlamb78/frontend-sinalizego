@@ -181,7 +181,8 @@ export const CheckoutPage: React.FC = () => {
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#14B8A6] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1120] rounded-lg"
+          aria-label="Voltar para a vitrine"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Voltar para Vitrine</span>
@@ -248,13 +249,15 @@ export const CheckoutPage: React.FC = () => {
                   setSelectedSlot(null);
                 }}
                 className={cn(
-                  'flex flex-col items-center justify-center min-w-[68px] h-[82px] rounded-2xl border transition-all duration-200 cursor-pointer select-none relative',
+                  'flex flex-col items-center justify-center min-w-[68px] h-[82px] rounded-2xl border transition-all duration-200 cursor-pointer select-none relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#14B8A6] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1120]',
                   isSelected
                     ? 'bg-[#14B8A6] border-[#14B8A6] text-white shadow-lg shadow-teal-500/25 scale-105'
                     : day.isClosed
                     ? 'bg-slate-900/40 border-slate-800/50 text-slate-600 cursor-not-allowed opacity-50'
                     : 'bg-[#0F172A] border-slate-800 text-slate-300 hover:border-teal-500/50 hover:bg-[#1E293B]'
                 )}
+                aria-label={`Selecionar dia ${day.dayNum}, ${day.dayLabel}${day.isClosed ? ' (Fechado)' : ''}${day.isPeakDay ? ' (Disputado)' : ''}`}
+                aria-pressed={isSelected}
               >
                 {day.isPeakDay && !day.isClosed && (
                   <span
@@ -338,11 +341,13 @@ export const CheckoutPage: React.FC = () => {
                   key={slot}
                   onClick={() => setSelectedSlot(slot)}
                   className={cn(
-                    'h-14 rounded-xl font-bold text-xs border transition-all duration-200 flex flex-col items-center justify-center cursor-pointer select-none relative',
+                    'h-14 rounded-xl font-bold text-xs border transition-all duration-200 flex flex-col items-center justify-center cursor-pointer select-none relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#14B8A6] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1120]',
                     isSelected
                       ? 'bg-[#14B8A6] border-[#14B8A6] text-white shadow-md shadow-teal-500/20 scale-105'
                       : 'bg-[#0F172A] border-slate-800 text-slate-300 hover:border-teal-500/50 hover:bg-[#1E293B]'
                   )}
+                  aria-label={`Selecionar horário ${slot}${isLast ? ' (Último)' : ''}${peak ? ' (Horário de pico)' : ''}`}
+                  aria-pressed={isSelected}
                 >
                   <span className="text-sm font-extrabold">{slot}</span>
                   {isLast ? (
