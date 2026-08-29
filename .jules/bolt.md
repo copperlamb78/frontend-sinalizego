@@ -4,6 +4,9 @@
 ## 2023-10-27 - Memoizing Expensive Computations before Early Returns
 **Learning:** Found another instance in `StorefrontPage` where nested `map` and `filter` operations were being run on every render. To wrap this in `useMemo`, it had to be moved *before* the early return (`if (isLoading) return ...`). This required adding optional chaining (`company?.serviceGroups`) to avoid runtime crashes when `company` is undefined during loading.
 **Action:** Always verify that state and props used inside a newly hoisted `useMemo` handle undefined/null states gracefully (using optional chaining) when moving computations above early returns.
+## 2024-05-19 - [Cache Intl.NumberFormat instance]
+**Learning:** Instantiating `Intl.NumberFormat` repeatedly in a helper function (`formatCurrency` in `src/lib/utils.ts`) is very expensive and can cause performance issues when rendering large lists of financial data.
+**Action:** Always cache instances of `Intl.NumberFormat` or similar formatting objects when possible instead of recreating them on every call.
 ## 2024-08-27 - Memoization Strategy for List Rendering
 **Learning:** Found a case in `ClientAppointmentsPage` where multiple filters on the same array were executed during every render to populate different lists and counters. While combining the iterations into a single O(N) pass inside `useMemo` is a good optimization, it's crucial to ensure that UI state variables (like `activeTab`) used purely for conditional rendering of derived state are excluded from the memoization's dependency array. Otherwise, the expensive calculation re-runs unnecessarily when merely switching views.
 **Action:** Always decouple heavy data processing (like mapping/filtering arrays) from UI view state selection. Compute and memoize the full derived state independently, and then select the required piece (e.g., using a ternary based on `activeTab`) outside of the `useMemo` block. This reduces tab switching from O(N) to O(1).
