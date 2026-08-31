@@ -118,7 +118,7 @@ export const OwnerServicesPage: React.FC = () => {
       resetServiceForm();
     },
     onError: (err: any) => {
-      const msg = err.response?.data?.message || err.message || 'Não foi possível salvar o serviço.';
+      const msg = err.response?.data?.message || 'Não foi possível salvar o serviço.';
       toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
     }
   });
