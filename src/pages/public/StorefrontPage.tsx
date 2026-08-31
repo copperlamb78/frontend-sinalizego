@@ -51,13 +51,20 @@ export const StorefrontPage: React.FC = () => {
   });
 
   // Filter services by search term
+  // ⚡ Bolt: Added early return to prevent unnecessary deep copies when search is empty,
+  // and cached searchTerm.toLowerCase() outside the nested loops to reduce string operations.
   const filteredGroups = useMemo(() => {
-    return company?.serviceGroups?.map((group) => ({
+    if (!company?.serviceGroups) return [];
+    if (!searchTerm) return company.serviceGroups;
+
+    const query = searchTerm.toLowerCase();
+
+    return company.serviceGroups.map((group) => ({
       ...group,
       services: group.services?.filter(
         (s) =>
-          s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (s.description && s.description.toLowerCase().includes(searchTerm.toLowerCase()))
+          s.name.toLowerCase().includes(query) ||
+          (s.description && s.description.toLowerCase().includes(query))
       )
     })).filter((group) => group.services && group.services.length > 0);
   }, [company?.serviceGroups, searchTerm]);
