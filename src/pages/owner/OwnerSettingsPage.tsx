@@ -101,7 +101,7 @@ export const OwnerSettingsPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['company-by-slug'] });
     },
     onError: (err: any) => {
-      const msg = err.response?.data?.message || err.message || 'Não foi possível salvar as configurações.';
+      const msg = err.response?.data?.message || 'Não foi possível salvar as configurações.';
       toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
     }
   });
