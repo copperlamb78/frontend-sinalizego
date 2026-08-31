@@ -18,3 +18,7 @@
 ## 2024-03-01 - Missing aria-label for password visibility toggles
 **Learning:** The eye/eye-off toggle button used in password fields across auth pages (e.g., ResetPasswordPage) was missing an `aria-label`, leaving screen reader users without context.
 **Action:** Ensure all icon-only buttons used for input adornments (like rightIcon in Input) have a descriptive `aria-label` based on their dynamic state.
+
+## 2026-08-29 - Missing focus outlines and aria-pressed on custom selection states
+**Learning:** Custom interactive elements (like the date and time selection buttons in `CheckoutPage.tsx`) were built using standard `<button>` tags but lacked `focus-visible` styling and `aria-pressed` states, making them difficult for keyboard users to navigate and for screen readers to convey the current selection.
+**Action:** When styling custom selection grids or lists, always include explicit `focus-visible` utility classes for clear keyboard focus indicators, and pair them with `aria-pressed` or `aria-selected` depending on the context.
