@@ -84,12 +84,19 @@ export const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
     >
       <div className="space-y-6">
         {/* Navigation Tabs */}
-        <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[#0B1120] border border-slate-800">
+        <div
+          role="tablist"
+          className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[#0B1120] border border-slate-800"
+        >
           <button
             type="button"
+            role="tab"
+            id="tab-request"
+            aria-selected={activeTab === 'request'}
+            aria-controls="panel-request"
             onClick={() => setActiveTab('request')}
             className={cn(
-              'py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer select-none',
+              'py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-teal-500 focus:outline-none',
               activeTab === 'request'
                 ? 'bg-teal-500 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
@@ -101,9 +108,13 @@ export const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
 
           <button
             type="button"
+            role="tab"
+            id="tab-history"
+            aria-selected={activeTab === 'history'}
+            aria-controls="panel-history"
             onClick={() => setActiveTab('history')}
             className={cn(
-              'py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer select-none',
+              'py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-teal-500 focus:outline-none',
               activeTab === 'history'
                 ? 'bg-teal-500 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
@@ -116,7 +127,12 @@ export const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
 
         {/* Tab 1: Request Withdrawal */}
         {activeTab === 'request' && (
-          <div className="space-y-5">
+          <div
+            id="panel-request"
+            role="tabpanel"
+            aria-labelledby="tab-request"
+            className="space-y-5"
+          >
             {/* Free Weekly Withdrawal Banner */}
             <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-950/40 via-[#0F172A] to-teal-950/40 border border-teal-500/30">
               <div className="space-y-1 text-xs">
@@ -150,14 +166,15 @@ export const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-slate-300">
+                  <label htmlFor="amountInput" className="block text-xs font-semibold text-slate-300">
                     Valor do Saque Avulso (R$)
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">
+                    <span aria-hidden="true" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">
                       R$
                     </span>
                     <input
+                      id="amountInput"
                       type="number"
                       step="0.01"
                       min="6"
@@ -170,7 +187,7 @@ export const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
                     <button
                       type="button"
                       onClick={handleWithdrawAll}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1.5 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-[11px] font-bold transition-colors cursor-pointer"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1.5 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-[11px] font-bold transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-500 focus:outline-none"
                     >
                       Sacar Tudo
                     </button>
@@ -218,7 +235,12 @@ export const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
 
         {/* Tab 2: Withdrawals History */}
         {activeTab === 'history' && (
-          <div className="space-y-3">
+          <div
+            id="panel-history"
+            role="tabpanel"
+            aria-labelledby="tab-history"
+            className="space-y-3"
+          >
             {isLoadingHistory ? (
               <div className="p-8 text-center text-xs text-slate-500 animate-pulse">
                 Carregando histórico de saques...
