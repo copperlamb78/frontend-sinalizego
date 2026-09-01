@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '@/services/admin.service';
 import { Card, CardContent } from '@/components/common/Card';
@@ -56,11 +56,18 @@ export const AdminUsersPage: React.FC = () => {
     ? (users as any).data
     : [];
 
-  const filteredUsers = rawUsers.filter((u) =>
-    (u.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (u.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (u.phone && u.phone.includes(searchTerm))
-  );
+  // ⚡ Bolt: Added useMemo with early return and cached searchTerm.toLowerCase()
+  // to avoid O(N) array filtering and redundant string lowercasing on every render.
+  const filteredUsers = useMemo(() => {
+    if (!searchTerm) return rawUsers;
+
+    const lowerQuery = searchTerm.toLowerCase();
+    return rawUsers.filter((u) =>
+      (u.name || '').toLowerCase().includes(lowerQuery) ||
+      (u.email || '').toLowerCase().includes(lowerQuery) ||
+      (u.phone && u.phone.includes(searchTerm))
+    );
+  }, [rawUsers, searchTerm]);
 
   const getRoleBadge = (role: Role) => {
     switch (role) {
