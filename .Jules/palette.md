@@ -22,3 +22,7 @@
 ## 2026-08-29 - Missing focus outlines and aria-pressed on custom selection states
 **Learning:** Custom interactive elements (like the date and time selection buttons in `CheckoutPage.tsx`) were built using standard `<button>` tags but lacked `focus-visible` styling and `aria-pressed` states, making them difficult for keyboard users to navigate and for screen readers to convey the current selection.
 **Action:** When styling custom selection grids or lists, always include explicit `focus-visible` utility classes for clear keyboard focus indicators, and pair them with `aria-pressed` or `aria-selected` depending on the context.
+
+## 2026-08-30 - Tab Component Accessibility
+**Learning:** Custom tab interfaces often lack proper ARIA roles and keyboard interactions. In `WithdrawalModal.tsx`, tabs were implemented with basic `<div>` and `<button>` elements, which screen readers couldn't interpret as a tabbed interface.
+**Action:** Always implement the `[role="tablist"]`, `[role="tab"]` (with `aria-selected` and `aria-controls`), and `[role="tabpanel"]` (with `aria-labelledby`) pattern for custom tab components. Ensure `focus-visible` states are present for keyboard navigation clarity.
