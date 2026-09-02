@@ -206,9 +206,12 @@ export const OwnerWorkingHoursPage: React.FC = () => {
                 <div className="flex items-center gap-3 w-48 shrink-0">
                   <button
                     type="button"
+                    role="switch"
+                    aria-checked={isOpen}
+                    aria-label={`Alternar funcionamento para ${dayName}`}
                     onClick={() => handleToggleDay(item.dayOfWeek)}
                     className={cn(
-                      'w-11 h-6 rounded-full transition-colors relative cursor-pointer',
+                      'w-11 h-6 rounded-full transition-colors relative cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-500 focus:outline-none',
                       isOpen ? 'bg-teal-500' : 'bg-slate-800'
                     )}
                   >

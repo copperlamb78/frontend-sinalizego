@@ -26,3 +26,7 @@
 ## 2026-08-30 - Tab Component Accessibility
 **Learning:** Custom tab interfaces often lack proper ARIA roles and keyboard interactions. In `WithdrawalModal.tsx`, tabs were implemented with basic `<div>` and `<button>` elements, which screen readers couldn't interpret as a tabbed interface.
 **Action:** Always implement the `[role="tablist"]`, `[role="tab"]` (with `aria-selected` and `aria-controls`), and `[role="tabpanel"]` (with `aria-labelledby`) pattern for custom tab components. Ensure `focus-visible` states are present for keyboard navigation clarity.
+
+## 2026-09-02 - Accessible Custom Toggle Buttons
+**Learning:** Found custom toggle buttons implemented with generic `<button>` tags (like in `OwnerWorkingHoursPage`) that lacked the `role="switch"` attribute, an `aria-checked` state, and `focus-visible` styling, rendering them inaccessible to screen readers and difficult to navigate via keyboard.
+**Action:** Always implement the `role="switch"` pattern with the corresponding `aria-checked` state for custom toggle elements, and ensure explicit `focus-visible` utility classes (e.g., `focus-visible:ring-2 focus-visible:ring-teal-500 focus:outline-none`) are present for clear keyboard focus indicators.
