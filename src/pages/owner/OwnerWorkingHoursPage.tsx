@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { workingHoursService } from '@/services/working-hours.service';
 import { Card } from '@/components/common/Card';
@@ -58,6 +58,15 @@ export const OwnerWorkingHoursPage: React.FC = () => {
     queryKey: ['owner-working-exceptions'],
     queryFn: () => workingHoursService.getExceptions()
   });
+
+  // ⚡ Bolt: Pre-compute TIME_OPTIONS elements to prevent 980 iterations per render
+  const timeOptionElements = useMemo(() => {
+    return TIME_OPTIONS.map((t) => (
+      <option key={t} value={t} className="bg-slate-900 text-white">
+        {t}
+      </option>
+    ));
+  }, []);
 
   // Populate local schedule state
   useEffect(() => {
@@ -241,11 +250,7 @@ export const OwnerWorkingHoursPage: React.FC = () => {
                         }
                         className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
                       >
-                        {TIME_OPTIONS.map((t) => (
-                          <option key={t} value={t} className="bg-slate-900 text-white">
-                            {t}
-                          </option>
-                        ))}
+                        {timeOptionElements}
                       </select>
                       <span className="text-slate-500 font-bold">às</span>
                       <select
@@ -255,11 +260,7 @@ export const OwnerWorkingHoursPage: React.FC = () => {
                         }
                         className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
                       >
-                        {TIME_OPTIONS.map((t) => (
-                          <option key={t} value={t} className="bg-slate-900 text-white">
-                            {t}
-                          </option>
-                        ))}
+                        {timeOptionElements}
                       </select>
                     </div>
 
@@ -275,11 +276,7 @@ export const OwnerWorkingHoursPage: React.FC = () => {
                             }
                             className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
                           >
-                            {TIME_OPTIONS.map((t) => (
-                              <option key={t} value={t} className="bg-slate-900 text-white">
-                                {t}
-                              </option>
-                            ))}
+                            {timeOptionElements}
                           </select>
                           <span className="text-slate-500 font-bold">às</span>
                           <select
@@ -289,11 +286,7 @@ export const OwnerWorkingHoursPage: React.FC = () => {
                             }
                             className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
                           >
-                            {TIME_OPTIONS.map((t) => (
-                              <option key={t} value={t} className="bg-slate-900 text-white">
-                                {t}
-                              </option>
-                            ))}
+                            {timeOptionElements}
                           </select>
                           <button
                             type="button"
