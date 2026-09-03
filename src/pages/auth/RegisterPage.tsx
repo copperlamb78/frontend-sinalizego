@@ -14,7 +14,11 @@ import { toast } from 'sonner';
 const registerSchema = z.object({
   name: z.string().min(3, 'Informe seu nome completo'),
   email: z.string().email('Insira um e-mail válido'),
-  password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
+  password: z
+    .string()
+    .min(6, 'A senha deve ter pelo menos 6 caracteres')
+    .regex(/[A-Z]/, 'A senha deve conter pelo menos uma letra maiúscula')
+    .regex(/[0-9]/, 'A senha deve conter pelo menos um número'),
   phone: z
     .string()
     .min(10, 'Insira um telefone válido com DDD (ex: 11999999999)')
