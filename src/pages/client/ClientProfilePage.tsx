@@ -41,7 +41,11 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 const passwordSchema = z
   .object({
     currentPassword: z.string().min(6, 'A senha atual deve ter pelo menos 6 caracteres'),
-    newPassword: z.string().min(6, 'A nova senha deve ter pelo menos 6 caracteres'),
+    newPassword: z
+      .string()
+      .min(6, 'A nova senha deve ter pelo menos 6 caracteres')
+      .regex(/[A-Z]/, 'A senha deve conter pelo menos uma letra maiúscula')
+      .regex(/[0-9]/, 'A senha deve conter pelo menos um número'),
     confirmPassword: z.string().min(6, 'A confirmação de senha deve ter pelo menos 6 caracteres')
   })
   .refine((data) => data.newPassword === data.confirmPassword, {

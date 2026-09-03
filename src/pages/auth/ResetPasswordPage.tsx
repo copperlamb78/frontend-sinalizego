@@ -11,7 +11,11 @@ import { toast } from 'sonner';
 
 const resetSchema = z
   .object({
-    newPassword: z.string().min(6, 'A nova senha deve ter pelo menos 6 caracteres'),
+    newPassword: z
+      .string()
+      .min(6, 'A nova senha deve ter pelo menos 6 caracteres')
+      .regex(/[A-Z]/, 'A senha deve conter pelo menos uma letra maiúscula')
+      .regex(/[0-9]/, 'A senha deve conter pelo menos um número'),
     confirmPassword: z.string().min(6, 'Confirme sua nova senha')
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
