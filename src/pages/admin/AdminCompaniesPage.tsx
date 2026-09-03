@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '@/services/admin.service';
 import { Card, CardContent } from '@/components/common/Card';
@@ -21,16 +21,28 @@ import type { AdminCompanyItem } from '@/types/admin.types';
 export const AdminCompaniesPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
   const [selectedCompany, setSelectedCompany] = useState<AdminCompanyItem | null>(null);
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
 
+  // ⚡ Bolt: Debounce the search input to reduce the number of API calls made to the backend
+  // when the user types quickly. Instead of fetching on every keystroke, we wait 500ms
+  // after the last keystroke before triggering the API request.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   // 1. Fetch Companies
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-companies', searchTerm, statusFilter],
+    queryKey: ['admin-companies', debouncedSearchTerm, statusFilter],
     queryFn: () =>
       adminService.getCompanies({
-        search: searchTerm || undefined,
+        search: debouncedSearchTerm || undefined,
         status: statusFilter
       })
   });
