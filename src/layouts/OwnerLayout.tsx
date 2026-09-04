@@ -159,6 +159,7 @@ export const OwnerLayout: React.FC = () => {
               to="/minha-conta"
               className="flex items-center justify-center p-2.5 rounded-xl bg-[#0B1120] hover:bg-[#1E293B] text-teal-400 border border-slate-800 transition-colors"
               title="Meu Perfil Pessoal (Minha Conta)"
+              aria-label="Meu Perfil Pessoal"
             >
               <UserIcon className="w-4 h-4" />
             </Link>
@@ -171,6 +172,7 @@ export const OwnerLayout: React.FC = () => {
               navigate('/login');
             }}
             title="Encerrar Sessão"
+            aria-label="Encerrar Sessão"
             className={cn(
               'w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-red-400 hover:bg-slate-800/60 transition-colors cursor-pointer',
               isSidebarCollapsed ? 'justify-center' : 'justify-between'
@@ -287,6 +289,7 @@ export const OwnerLayout: React.FC = () => {
               to="/empresa/vintage-club"
               target="_blank" rel="noopener noreferrer"
               className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#1E293B] hover:bg-slate-700 text-xs font-medium text-slate-300 border border-slate-700 transition-colors"
+              aria-label="Ver Vitrine Pública"
             >
               <Store className="w-3.5 h-3.5 text-teal-400" />
               <span>Ver Vitrine Pública</span>
@@ -297,6 +300,7 @@ export const OwnerLayout: React.FC = () => {
               onClick={openPwaInstallModal}
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-xs font-semibold text-teal-400 border border-teal-500/30 transition-colors cursor-pointer"
               title="Instalar o SinalizeGO no Celular ou Desktop"
+              aria-label="Instalar App"
             >
               <Smartphone className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Instalar App</span>
@@ -306,6 +310,7 @@ export const OwnerLayout: React.FC = () => {
               to="/meus-agendamentos"
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-xs font-semibold text-teal-300 border border-teal-500/30 transition-colors"
               title="Acessar meus agendamentos como cliente"
+              aria-label="Área do Cliente"
             >
               <CalendarDays className="w-3.5 h-3.5 text-teal-400" />
               <span className="hidden sm:inline">Área do Cliente</span>
@@ -315,6 +320,7 @@ export const OwnerLayout: React.FC = () => {
               to="/minha-conta"
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#1E293B] hover:bg-slate-700 text-xs font-medium text-slate-300 border border-slate-700 transition-colors"
               title="Meu perfil pessoal de cliente / usuário"
+              aria-label="Minha Conta"
             >
               <UserIcon className="w-3.5 h-3.5 text-teal-400" />
               <span className="hidden sm:inline">Minha Conta</span>

@@ -26,3 +26,7 @@
 ## 2026-08-30 - Tab Component Accessibility
 **Learning:** Custom tab interfaces often lack proper ARIA roles and keyboard interactions. In `WithdrawalModal.tsx`, tabs were implemented with basic `<div>` and `<button>` elements, which screen readers couldn't interpret as a tabbed interface.
 **Action:** Always implement the `[role="tablist"]`, `[role="tab"]` (with `aria-selected` and `aria-controls`), and `[role="tabpanel"]` (with `aria-labelledby`) pattern for custom tab components. Ensure `focus-visible` states are present for keyboard navigation clarity.
+
+## 2024-10-27 - Icon-only buttons lacking aria-labels in responsive views
+**Learning:** Interactive elements like the links and buttons in the top header of layout components (e.g., `OwnerLayout.tsx`) are often designed to hide text on mobile screens (e.g., using `<span className="hidden sm:inline">`). Without `aria-label`s on the parent element, these become icon-only on mobile and lose all context for screen reader users.
+**Action:** When auditing or building responsive layouts, always check elements whose text is conditionally hidden by viewport width. Apply a static `aria-label` to the parent button/link element to ensure consistent accessibility across all screen sizes.
