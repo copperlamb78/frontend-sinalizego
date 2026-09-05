@@ -17,3 +17,6 @@
 ## 2025-02-23 - Memoizing Admin Users Filter
 **Learning:** In the `AdminUsersPage` component, a search filter over an array of users was recalculating `searchTerm.toLowerCase()` for every user on every render, resulting in an O(N) string processing bottleneck, particularly noticeable with larger user datasets.
 **Action:** Always extract static transformations (like string lowercasing) out of loops. When filtering lists based on state that updates frequently (like search inputs), always wrap the operation in a `useMemo` block, and ensure to include an early return (e.g. `if (!searchTerm) return originalList;`) to bypass iterations when no filtering is needed.
+## 2026-09-05 - [Debounce Input in Queries]
+**Learning:** Found a case in AdminCompaniesPage where an input field was immediately passing its state to a query key, causing a new API request on every keystroke.
+**Action:** Use a debounce hook (like useDebounce) on search inputs to limit API requests.

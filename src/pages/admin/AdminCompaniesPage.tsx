@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '@/services/admin.service';
+import { useDebounce } from '@/hooks/useDebounce';
 import { Card, CardContent } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
 import { Button } from '@/components/common/Button';
@@ -21,16 +22,18 @@ import type { AdminCompanyItem } from '@/types/admin.types';
 export const AdminCompaniesPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
+  // ⚡ Bolt: Debounce search term to prevent rapid API calls on every keystroke
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
   const [selectedCompany, setSelectedCompany] = useState<AdminCompanyItem | null>(null);
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
 
   // 1. Fetch Companies
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-companies', searchTerm, statusFilter],
+    queryKey: ['admin-companies', debouncedSearchTerm, statusFilter],
     queryFn: () =>
       adminService.getCompanies({
-        search: searchTerm || undefined,
+        search: debouncedSearchTerm || undefined,
         status: statusFilter
       })
   });
