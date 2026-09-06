@@ -151,7 +151,15 @@ export const router = createBrowserRouter([
             element: withSuspense(ForgotPasswordPage)
           },
           {
+            path: 'forgot-password',
+            element: withSuspense(ForgotPasswordPage)
+          },
+          {
             path: 'redefinir-senha',
+            element: withSuspense(ResetPasswordPage)
+          },
+          {
+            path: 'reset-password',
             element: withSuspense(ResetPasswordPage)
           },
           {
