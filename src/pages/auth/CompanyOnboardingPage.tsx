@@ -25,7 +25,8 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  Users
+  Users,
+  Sparkles
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, extractErrorMessage } from '@/lib/utils';
@@ -49,7 +50,7 @@ const step1Schema = z.object({
     .max(50, 'Máximo de 50 cadeiras simultâneas')
 });
 
-// Step 2: Address Details + Terms
+// Step 2: Address Details + Terms + Optional Referral
 const step2Schema = z.object({
   zipCode: z.string().optional(),
   state: z.string().min(2, 'Selecione o estado (UF)'),
@@ -57,6 +58,7 @@ const step2Schema = z.object({
   district: z.string().min(2, 'Informe o bairro'),
   street: z.string().min(3, 'Informe a rua / avenida'),
   number: z.string().min(1, 'Informe o número ou "S/N"'),
+  referralCode: z.string().optional(),
   terms: z.literal(true, {
     errorMap: () => ({ message: 'Você precisa aceitar os Termos de Uso para continuar' })
   })
@@ -161,6 +163,14 @@ export const CompanyOnboardingPage: React.FC = () => {
     }
   }, [currentStep, currentPassword]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const refParam = params.get('ref') || params.get('referral');
+    if (refParam) {
+      setValue('referralCode', refParam.toUpperCase());
+    }
+  }, [setValue]);
+
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, '');
     let formatted = raw;
@@ -253,7 +263,8 @@ export const CompanyOnboardingPage: React.FC = () => {
         district: data.district.trim(),
         street: data.street.trim(),
         number: data.number.trim(),
-        zipCode: data.zipCode?.replace(/\D/g, '') || '00000000'
+        zipCode: data.zipCode?.replace(/\D/g, '') || '00000000',
+        referralCode: data.referralCode?.trim() || undefined
       };
 
       const response = await api.post('/company/create', payload);
@@ -515,6 +526,20 @@ export const CompanyOnboardingPage: React.FC = () => {
                   {...register('number')}
                 />
               </div>
+            </div>
+
+            {/* Referral Code (Optional) */}
+            <div className="space-y-1 pt-1 border-t border-slate-800">
+              <Input
+                label="Código de Indicação / Parceria (Opcional)"
+                placeholder="Ex: REF12345"
+                leftIcon={<Sparkles className="w-4 h-4 text-teal-400" />}
+                error={errors.referralCode?.message}
+                {...register('referralCode')}
+              />
+              <span className="text-[10px] text-slate-400 block">
+                Foi indicado por outra barbearia parceira? Insira o código para garantir benefícios na taxa de serviço.
+              </span>
             </div>
 
             {/* Terms and Privacy Policy */}
