@@ -22,10 +22,11 @@ export const ClientExplorePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [slugSearch, setSlugSearch] = useState('');
 
-  // 1. Fetch User Appointments
+  // 1. Fetch User Appointments (shared cache with Meus Agendamentos)
   const { data: appointments, isLoading } = useQuery({
-    queryKey: ['user-appointments-explore'],
-    queryFn: () => appointmentsService.getUserAppointments()
+    queryKey: ['user-appointments'],
+    queryFn: () => appointmentsService.getUserAppointments(),
+    staleTime: 1000 * 60 * 3 // 3 minutes
   });
 
   // 2. Extract unique visited establishments, memoized to only recalculate when appointments change
