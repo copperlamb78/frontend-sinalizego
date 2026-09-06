@@ -47,7 +47,8 @@ export const OwnerCalendarPage: React.FC = () => {
   // 2. Fetch Company Appointments for selected date
   const { data: appointments, isLoading } = useQuery({
     queryKey: ['company-appointments', selectedDate],
-    queryFn: () => appointmentsService.getCompanyAppointments({ date: selectedDate })
+    queryFn: () => appointmentsService.getCompanyAppointments({ date: selectedDate }),
+    staleTime: 1000 * 60 // 1 minute snappy date switching
   });
 
   // 3. Complete Mutation
@@ -71,7 +72,7 @@ export const OwnerCalendarPage: React.FC = () => {
   const noShowMutation = useMutation({
     mutationFn: (appointmentId: string) => appointmentsService.registerNoShow(appointmentId),
     onSuccess: () => {
-      toast.success('Falta (No-Show) registrada com sucesso! Sinal liberado para o seu saldo.');
+      toast.success('Não comparecimento registrado com sucesso! O valor da reserva foi liberado para o seu saldo.');
       queryClient.invalidateQueries({ queryKey: ['company-appointments'] });
       queryClient.invalidateQueries({ queryKey: ['company-metrics'] });
       queryClient.invalidateQueries({ queryKey: ['company-balance'] });
@@ -118,7 +119,7 @@ export const OwnerCalendarPage: React.FC = () => {
       case 'COMPLETED':
         return <Badge variant="success" size="sm">Concluído</Badge>;
       case 'NO_SHOW':
-        return <Badge variant="warning" size="sm">Falta (No-Show)</Badge>;
+        return <Badge variant="warning" size="sm">Não Comparecimento</Badge>;
       case 'PENDING_PAYMENT':
         return <Badge variant="warning" size="sm">Aguardando Pix</Badge>;
       case 'CANCELED':
@@ -148,7 +149,7 @@ export const OwnerCalendarPage: React.FC = () => {
             { key: 'ALL', label: 'Todos' },
             { key: 'CONFIRMED', label: 'Confirmados' },
             { key: 'COMPLETED', label: 'Concluídos' },
-            { key: 'NO_SHOW', label: 'Faltas (No-Show)' },
+            { key: 'NO_SHOW', label: 'Não Comparecimento' },
             { key: 'CANCELED', label: 'Cancelados' }
           ].map((f) => (
             <button
@@ -317,7 +318,7 @@ export const OwnerCalendarPage: React.FC = () => {
                           title={
                             !canComplete
                               ? `Disponível a partir das ${time}`
-                              : 'Concluir atendimento e liberar custódia'
+                              : 'Concluir atendimento e liberar valor'
                           }
                         >
                           {canComplete ? 'Concluir' : `Aguardando ${time}`}
@@ -374,7 +375,7 @@ export const OwnerCalendarPage: React.FC = () => {
       <Modal
         isOpen={!!noShowTarget}
         onClose={() => setNoShowTarget(null)}
-        title="Confirmar Falta do Cliente (No-Show)"
+        title="Confirmar Ausência do Cliente"
         description="Esta ação libera o sinal de reserva diretamente para a sua conta."
         size="sm"
       >
