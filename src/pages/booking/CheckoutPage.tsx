@@ -44,6 +44,7 @@ export const CheckoutPage: React.FC = () => {
       return response.data;
     },
     enabled: !!companyId,
+    staleTime: 1000 * 60 * 5, // 5 minutes cache
     retry: 1
   });
 
@@ -115,6 +116,21 @@ export const CheckoutPage: React.FC = () => {
   const effectiveDepositPercent = isMicroTransaction ? 100 : configuredDepositPercent;
   const downPaymentAmount = (totalPrice * effectiveDepositPercent) / 100;
   const remainingAtVenue = Math.max(0, totalPrice - downPaymentAmount);
+
+  // Platform convenience fee (calculated on deposit, minimum R$ 2,00)
+  const platformFeeAmount = useMemo(() => {
+    if (downPaymentAmount <= 0) return 0;
+    const priceCents = Math.round(downPaymentAmount * 100);
+    const tier1Cents = Math.min(priceCents, 25000);
+    const tier2Cents = priceCents > 25000 ? priceCents - 25000 : 0;
+    const feeFractions = tier1Cents * 10 + tier2Cents * 5;
+    const minFractions = 20000; // R$ 2.00 floor
+    const totalFractions = Math.max(feeFractions, minFractions);
+    const roundedCents = Math.ceil(totalFractions / 2500) * 25;
+    return Number((roundedCents / 100).toFixed(2));
+  }, [downPaymentAmount]);
+
+  const totalPixNow = downPaymentAmount + platformFeeAmount;
 
   // Helper to identify peak hours
   const isPeakHour = (slot: string) => {
@@ -416,18 +432,40 @@ export const CheckoutPage: React.FC = () => {
               <span className="font-bold text-white text-sm">{formatCurrency(totalPrice)}</span>
             </div>
 
-            {/* Sinal de Reserva (Pix) */}
+            {/* Sinal de Reserva */}
             <div className="flex items-center justify-between pt-2.5">
               <div className="flex items-center gap-2">
-                <span className="font-bold text-teal-300">
-                  Sinal de Reserva (Pix)
+                <span className="font-semibold text-slate-300">
+                  Sinal de Reserva
                 </span>
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-400 border border-teal-500/20 font-bold">
                   {effectiveDepositPercent}%
                 </span>
               </div>
-              <span className="font-black text-teal-400 text-base">
+              <span className="font-bold text-slate-200 text-sm">
                 {formatCurrency(downPaymentAmount)}
+              </span>
+            </div>
+
+            {/* Taxa de Conveniência (Serviço) */}
+            <div className="flex items-center justify-between pt-2.5">
+              <div className="space-y-0.5">
+                <span className="text-slate-400 font-medium block">Taxa de Conveniência (Serviço)</span>
+                <span className="text-[10px] text-slate-500 block">Garantia e segurança da transação Pix</span>
+              </div>
+              <span className="font-semibold text-teal-400 text-xs">
+                + {formatCurrency(platformFeeAmount)}
+              </span>
+            </div>
+
+            {/* Total a Pagar via Pix Agora */}
+            <div className="flex items-center justify-between pt-2.5 bg-teal-500/10 p-3 rounded-xl border border-teal-500/20">
+              <div className="space-y-0.5">
+                <span className="font-bold text-teal-300 block text-xs">Total a pagar via Pix agora</span>
+                <span className="text-[10px] text-teal-400/80 block">Garante sua cadeira e atendimento pontual</span>
+              </div>
+              <span className="font-black text-teal-400 text-lg">
+                {formatCurrency(totalPixNow)}
               </span>
             </div>
 
@@ -444,7 +482,7 @@ export const CheckoutPage: React.FC = () => {
           <div className="pt-2 text-xs text-slate-400 leading-relaxed bg-teal-500/5 p-3.5 rounded-xl border border-teal-500/10 flex items-start gap-2.5">
             <ShieldCheck className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
             <span>
-              <strong className="text-teal-300 font-semibold">Garantia de Horário:</strong> Sua taxa de confirmação garante cadeira reservada e atendimento pontual sem filas. Caso precise cancelar com mais de 24h de antecedência, o valor é estornado integralmente.
+              <strong className="text-teal-300 font-semibold">Garantia de Horário:</strong> Sua reserva garante atendimento pontual sem filas. Caso precise cancelar com mais de 24h de antecedência, o valor do sinal é estornado integralmente para sua conta Pix.
             </span>
           </div>
         </Card>
@@ -460,7 +498,7 @@ export const CheckoutPage: React.FC = () => {
           rightIcon={<ArrowRight className="w-5 h-5" />}
         >
           {selectedSlot
-            ? `Garantir Cadeira às ${selectedSlot} (${formatCurrency(downPaymentAmount)} via Pix)`
+            ? `Garantir Cadeira às ${selectedSlot} (${formatCurrency(totalPixNow)} via Pix)`
             : 'Selecione um Horário para Continuar'}
         </Button>
 
