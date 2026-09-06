@@ -41,15 +41,21 @@ export const PixPaymentPage: React.FC = () => {
     retry: 1
   });
 
-  // 2. Reactive Polling for Payment Confirmation (refetch every 3s)
+  // 2. Reactive Polling for Payment Confirmation (shared cache with BookingSuccessPage)
   const { data: appointment } = useQuery({
-    queryKey: ['appointment-polling', appointmentId],
+    queryKey: ['appointment', appointmentId],
     queryFn: () => appointmentsService.getAppointmentById(appointmentId!),
     enabled: !!appointmentId,
     refetchInterval: (query) => {
       const currentStatus = query.state.data?.status;
-      // Stop polling once confirmed or completed
-      if (currentStatus === 'CONFIRMED' || currentStatus === 'COMPLETED') {
+      // Stop polling once confirmed, completed, canceled, or if timer expired
+      if (
+        currentStatus === 'CONFIRMED' ||
+        currentStatus === 'COMPLETED' ||
+        currentStatus === 'CANCELED' ||
+        currentStatus === 'NO_SHOW' ||
+        timeLeftSeconds <= 0
+      ) {
         return false;
       }
       return 3000; // 3 seconds polling
@@ -149,7 +155,7 @@ export const PixPaymentPage: React.FC = () => {
 
         <div className="flex items-center gap-1.5 text-xs text-teal-400 font-semibold bg-teal-500/10 px-3 py-1 rounded-full border border-teal-500/20">
           <ShieldCheck className="w-3.5 h-3.5" />
-          <span>Ambiente Seguro Asaas</span>
+          <span>Ambiente 100% Protegido</span>
         </div>
       </div>
 
