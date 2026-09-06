@@ -1,60 +1,72 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { financialService } from '@/services/financial.service';
-import { companyService } from '@/services/company.service';
 import { cepService } from '@/services/cep.service';
 import { useAuth } from '@/contexts/auth.context';
 import { Modal } from '@/components/common/Modal';
-import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
+import { Button } from '@/components/common/Button';
 import { DatePicker } from '@/components/common/DatePicker';
 import {
   ShieldCheck,
   Building2,
   ArrowRight,
-  UserCheck
+  UserCheck,
+  QrCode
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { extractErrorMessage } from '@/lib/utils';
+import type { CompanyStorefront } from '@/types/company.types';
 
-const financialProfileSchema = z.object({
-  name: z.string().min(3, 'Nome completo do titular é obrigatório'),
-  email: z.string().email('E-mail válido é obrigatório'),
-  cpfCnpj: z
-    .string()
-    .min(11, 'CPF ou CNPJ deve ter no mínimo 11 dígitos')
-    .max(18, 'CPF/CNPJ inválido'),
-  birthDate: z
-    .string()
-    .min(10, 'Data de nascimento é obrigatória')
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato deve ser AAAA-MM-DD')
-    .refine((dateStr) => {
-      const birth = new Date(dateStr);
-      if (isNaN(birth.getTime())) return false;
-      const today = new Date();
-      let age = today.getFullYear() - birth.getFullYear();
-      const m = today.getMonth() - birth.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-        age--;
-      }
-      return age >= 18 && birth <= today;
-    }, 'O titular deve ter no mínimo 18 anos'),
-  mobilePhone: z.string().min(10, 'Celular com DDD é obrigatório'),
-  incomeValue: z.coerce.number().min(100, 'Renda mensal mínima é de R$ 100,00'),
-  postalCode: z.string().min(8, 'CEP é obrigatório'),
-  address: z.string().min(2, 'Logradouro / Rua é obrigatório'),
-  addressNumber: z.string().min(1, 'Número é obrigatório'),
-  province: z.string().min(2, 'Bairro é obrigatório')
-});
+const financialProfileSchema = z
+  .object({
+    name: z.string().min(3, 'Nome completo do titular é obrigatório'),
+    email: z.string().email('E-mail válido é obrigatório'),
+    cpfCnpj: z
+      .string()
+      .min(11, 'CPF ou CNPJ inválido')
+      .regex(/^[0-9.\-\/]+$/, 'Formato de CPF ou CNPJ inválido'),
+    birthDate: z.string().optional().nullable(),
+    companyType: z.enum(['MEI', 'INDIVIDUAL', 'LIMITED', 'ASSOCIATION']).optional().nullable(),
+    mobilePhone: z.string().min(10, 'Celular com DDD é obrigatório'),
+    incomeValue: z.coerce.number().min(100, 'Renda mensal mínima é de R$ 100,00'),
+    postalCode: z.string().min(8, 'CEP é obrigatório'),
+    address: z.string().min(2, 'Logradouro / Rua é obrigatório'),
+    addressNumber: z.string().min(1, 'Número é obrigatório'),
+    province: z.string().min(2, 'Bairro é obrigatório'),
+    pixAddressKeyType: z.enum(['CPF', 'CNPJ', 'EMAIL', 'PHONE', 'RANDOM'], {
+      required_error: 'Selecione o tipo da chave Pix'
+    }),
+    pixAddressKey: z.string().min(1, 'Informe sua chave Pix de recebimento')
+  })
+  .superRefine((data, ctx) => {
+    const cleanDoc = data.cpfCnpj.replace(/\D/g, '');
+    const isCnpj = cleanDoc.length > 11;
+    if (isCnpj && !data.companyType) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Selecione o tipo societário da empresa (CNPJ)',
+        path: ['companyType']
+      });
+    }
+    if (!isCnpj && (!data.birthDate || data.birthDate.trim() === '')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Data de nascimento é obrigatória para Pessoa Física (CPF)',
+        path: ['birthDate']
+      });
+    }
+  });
 
 type FinancialProfileFormData = z.infer<typeof financialProfileSchema>;
 
 interface FinancialProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
+  company?: CompanyStorefront | null;
   defaultName?: string;
   defaultEmail?: string;
   defaultPhone?: string;
@@ -63,6 +75,7 @@ interface FinancialProfileModalProps {
 export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
   isOpen,
   onClose,
+  company,
   defaultName = '',
   defaultEmail = '',
   defaultPhone = ''
@@ -70,14 +83,6 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [isSearchingCep, setIsSearchingCep] = useState(false);
-
-  // Fetch company data to extract registered address and contact
-  const { data: company } = useQuery({
-    queryKey: ['owner-company-profile'],
-    queryFn: () => companyService.getCompanyByUserId(),
-    staleTime: 1000 * 60 * 5,
-    enabled: isOpen
-  });
 
   const {
     register,
@@ -90,42 +95,40 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
   } = useForm<FinancialProfileFormData>({
     resolver: zodResolver(financialProfileSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      mobilePhone: '',
-      cpfCnpj: '',
+      name: defaultName || user?.name || '',
+      email: defaultEmail || user?.email || '',
+      mobilePhone: defaultPhone || user?.phone || '',
       incomeValue: 3500,
-      birthDate: '',
-      postalCode: '',
-      address: '',
-      addressNumber: '',
-      province: ''
+      pixAddressKeyType: 'CPF',
+      pixAddressKey: ''
     }
   });
 
-  // Pre-fill form automatically from User and Company profiles when opened
+  const rawCpfCnpj = watch('cpfCnpj') || '';
+  const cleanDoc = rawCpfCnpj.replace(/\D/g, '');
+  const isCnpj = cleanDoc.length > 11;
+  const selectedPixType = watch('pixAddressKeyType');
+
+  // Pre-fill initial company address data
   useEffect(() => {
     if (isOpen) {
-      const initialName = defaultName || user?.name || company?.businessName || '';
-      const initialEmail = defaultEmail || user?.email || '';
-      const initialPhone = defaultPhone || user?.phone || company?.whatsapp || '';
-      const initialCpfCnpj = user?.cpfCnpj || '';
-      const initialZip = company?.zipCode || '';
       const initialStreet = company?.street || '';
       const initialNumber = company?.number || '';
       const initialDistrict = company?.district || '';
+      const initialZip = company?.zipCode || '';
 
       reset({
-        name: initialName,
-        email: initialEmail,
-        mobilePhone: initialPhone,
-        cpfCnpj: initialCpfCnpj,
+        name: defaultName || user?.name || '',
+        email: defaultEmail || user?.email || '',
+        cpfCnpj: user?.cpfCnpj || '',
+        mobilePhone: defaultPhone || user?.phone || '',
         incomeValue: 3500,
-        birthDate: '',
         postalCode: initialZip,
         address: initialStreet,
         addressNumber: initialNumber,
-        province: initialDistrict
+        province: initialDistrict,
+        pixAddressKeyType: 'CPF',
+        pixAddressKey: ''
       });
     }
   }, [isOpen, user, company, defaultName, defaultEmail, defaultPhone, reset]);
@@ -154,7 +157,7 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
   const createMutation = useMutation({
     mutationFn: (data: FinancialProfileFormData) => financialService.createFinancialProfile(data),
     onSuccess: () => {
-      toast.success('Subconta Asaas ativada com sucesso! Carteira liberada.');
+      toast.success('Conta de recebimentos Pix ativada com sucesso! Carteira liberada.');
       queryClient.invalidateQueries({ queryKey: ['owner-company-profile'] });
       queryClient.invalidateQueries({ queryKey: ['company-balance'] });
       queryClient.invalidateQueries({ queryKey: ['company-metrics'] });
@@ -165,7 +168,7 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
     onError: (err: any) => {
       const message = extractErrorMessage(
         err,
-        'Não foi possível criar a subconta Asaas. Verifique os dados e tente novamente.'
+        'Não foi possível ativar a conta de recebimentos. Verifique os dados e tente novamente.'
       );
       toast.error(message);
     }
@@ -184,8 +187,8 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Ativação da Subconta Bancária Asaas"
-      description="Cadastre os dados do titular para receber os pagamentos Pix diretamente na sua conta"
+      title="Ativação da Conta de Recebimentos Pix"
+      description="Cadastre os dados do titular para receber os repasses dos agendamentos diretamente na sua conta bancária"
       size="lg"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -193,10 +196,10 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
         <div className="p-4 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-xs text-teal-200 space-y-2">
           <div className="flex items-center gap-2 font-bold text-teal-300">
             <ShieldCheck className="w-4 h-4 text-teal-400" />
-            <span>Processamento Seguro e Homologado pelo Banco Central (Asaas)</span>
+            <span>Processamento Seguro e Homologado pelo Banco Central</span>
           </div>
           <p className="text-[11px] text-slate-300 leading-relaxed">
-            Ao ativar sua subconta, você passa a receber os sinais dos agendamentos via Pix com split automático, custódia protegida e saques semanais automáticos gratuitos toda segunda-feira.
+            Ao ativar sua conta de recebimentos, você passa a receber os sinais dos agendamentos via Pix com divisão automática de pagamentos, garantia protegida e saques semanais gratuitos toda segunda-feira.
           </p>
         </div>
 
@@ -211,8 +214,8 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
             {/* Titular Name */}
             <div className="sm:col-span-2 space-y-1">
               <Input
-                label="Nome Completo do Titular"
-                placeholder="Ex: Carlos Roberto da Silva"
+                label="Nome Completo do Titular ou Razão Social"
+                placeholder="Ex: Carlos Roberto da Silva ou Barbearia Silva LTDA"
                 error={errors.name?.message}
                 {...register('name')}
               />
@@ -233,29 +236,50 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
             <div className="space-y-1">
               <Input
                 label="CPF ou CNPJ do Titular"
-                placeholder="000.000.000-00"
+                placeholder="000.000.000-00 ou 00.000.000/0001-00"
                 error={errors.cpfCnpj?.message}
                 {...register('cpfCnpj')}
               />
             </div>
 
-            {/* Birth Date (Custom Shadcn DatePicker) */}
-            <div className="space-y-1">
-              <Controller
-                name="birthDate"
-                control={control}
-                render={({ field }) => (
-                  <DatePicker
-                    label="Data de Nascimento"
-                    placeholder="Selecione a data de nascimento"
-                    value={field.value}
-                    onChange={field.onChange}
-                    error={errors.birthDate?.message}
-                    maxDate={new Date().toISOString().split('T')[0]}
-                  />
+            {/* Conditional: Company Type (CNPJ) vs Birth Date (CPF) */}
+            {isCnpj ? (
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-300">
+                  Tipo Societário da Empresa (CNPJ)
+                </label>
+                <select
+                  className="w-full h-11 px-3.5 rounded-xl bg-[#1E293B] border border-slate-700 text-white text-xs font-medium focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                  {...register('companyType')}
+                >
+                  <option value="">Selecione o tipo de empresa</option>
+                  <option value="MEI">MEI - Microempreendedor Individual</option>
+                  <option value="INDIVIDUAL">EI - Empresário Individual</option>
+                  <option value="LIMITED">LTDA - Sociedade Limitada</option>
+                  <option value="ASSOCIATION">Associação / Sociedade Simples</option>
+                </select>
+                {errors.companyType && (
+                  <p className="text-xs text-red-400 font-medium">{errors.companyType.message}</p>
                 )}
-              />
-            </div>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <Controller
+                  name="birthDate"
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      label="Data de Nascimento"
+                      placeholder="Selecione a data de nascimento"
+                      value={field.value || undefined}
+                      onChange={field.onChange}
+                      error={errors.birthDate?.message}
+                      maxDate={new Date().toISOString().split('T')[0]}
+                    />
+                  )}
+                />
+              </div>
+            )}
 
             {/* Mobile Phone */}
             <div className="space-y-1">
@@ -268,14 +292,65 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
             </div>
 
             {/* Income Value */}
-            <div className="sm:col-span-2 space-y-1">
+            <div className="space-y-1">
               <Input
-                label="Renda Mensal Estimada (R$)"
+                label="Renda / Faturamento Mensal Estimado (R$)"
                 type="number"
                 step="100"
                 placeholder="3500"
                 error={errors.incomeValue?.message}
                 {...register('incomeValue')}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Section: Pix Key for Payouts */}
+        <div className="space-y-3 pt-2 border-t border-slate-800">
+          <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <QrCode className="w-3.5 h-3.5 text-teal-400" />
+            <span>Chave Pix para Recebimento dos Repasses</span>
+          </h4>
+          <p className="text-xs text-slate-400">
+            Informe a chave Pix onde você deseja receber as transferências automáticas e saques do seu saldo.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-slate-300">
+                Tipo da Chave Pix
+              </label>
+              <select
+                className="w-full h-11 px-3.5 rounded-xl bg-[#1E293B] border border-slate-700 text-white text-xs font-medium focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                {...register('pixAddressKeyType')}
+              >
+                <option value="CPF">CPF</option>
+                <option value="CNPJ">CNPJ</option>
+                <option value="PHONE">Celular</option>
+                <option value="EMAIL">E-mail</option>
+                <option value="RANDOM">Chave Aleatória (EVP)</option>
+              </select>
+              {errors.pixAddressKeyType && (
+                <p className="text-xs text-red-400 font-medium">{errors.pixAddressKeyType.message}</p>
+              )}
+            </div>
+
+            <div className="sm:col-span-2 space-y-1">
+              <Input
+                label="Chave Pix"
+                placeholder={
+                  selectedPixType === 'CPF'
+                    ? '000.000.000-00'
+                    : selectedPixType === 'CNPJ'
+                    ? '00.000.000/0001-00'
+                    : selectedPixType === 'PHONE'
+                    ? '(11) 99999-9999'
+                    : selectedPixType === 'EMAIL'
+                    ? 'seuemail@pix.com'
+                    : 'Chave aleatória do banco'
+                }
+                error={errors.pixAddressKey?.message}
+                {...register('pixAddressKey')}
               />
             </div>
           </div>
@@ -350,11 +425,11 @@ export const FinancialProfileModal: React.FC<FinancialProfileModalProps> = ({
           <Button
             type="submit"
             size="md"
-            className="font-bold px-6 shadow-lg shadow-teal-500/20"
+            className="font-bold px-6 shadow-lg shadow-teal-500/20 cursor-pointer"
             isLoading={createMutation.isPending}
             rightIcon={<ArrowRight className="w-4 h-4" />}
           >
-            Ativar Subconta Asaas
+            Ativar Conta de Recebimentos
           </Button>
         </div>
       </form>
