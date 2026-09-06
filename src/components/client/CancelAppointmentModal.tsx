@@ -36,8 +36,7 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
     },
     onSuccess: () => {
       toast.success('Agendamento cancelado com sucesso.');
-      queryClient.invalidateQueries({ queryKey: ['user-appointments-list'] });
-      queryClient.invalidateQueries({ queryKey: ['user-appointments-explore'] });
+      queryClient.invalidateQueries({ queryKey: ['user-appointments'] });
       onSuccess?.();
       onClose();
     },
@@ -57,9 +56,8 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
   const isMoreThan24Hours = diffHours >= 24;
 
   const downPayment = appointment.downPaymentAmount || 0;
-  const isOver15Floor = downPayment > 15.0;
-  const retainedAmount = isMoreThan24Hours ? 0 : Math.min(downPayment, 15.0);
-  const refundAmount = isMoreThan24Hours ? downPayment : Math.max(0, downPayment - 15.0);
+  const retainedAmount = isMoreThan24Hours ? 0 : downPayment;
+  const refundAmount = isMoreThan24Hours ? downPayment : 0;
 
   const formattedDate = new Date(appointment.appointmentDate).toLocaleDateString('pt-BR', {
     day: '2-digit',
@@ -136,7 +134,7 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
             </div>
 
             <p className="text-slate-300 leading-relaxed text-[11px]">
-              Conforme a política de agendamento e os <strong>Arts. 417 a 420 do Código Civil</strong>, o sinal mínimo de R$ 15,00 é retido para cobrir os custos operacionais e a reserva da cadeira do profissional.
+              Conforme os <strong>Artigos 417 a 420 do Código Civil</strong> (Arras Confirmatórias) e a política de reservas, para cancelamentos realizados com menos de 24 horas de antecedência, <strong>100% do sinal é retido</strong> para cobrir a vacância da cadeira reservada do profissional.
             </p>
 
             {/* Financial Balance Breakdown */}
@@ -146,26 +144,20 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
                 <span className="font-semibold text-white">{formatCurrency(downPayment)}</span>
               </div>
               <div className="flex items-center justify-between text-amber-400 font-medium">
-                <span>Retenção Operacional da Vaga:</span>
+                <span>Retenção por Vacância de Cadeira:</span>
                 <span>- {formatCurrency(retainedAmount)}</span>
               </div>
               <div className="flex items-center justify-between pt-1 border-t border-slate-800 font-bold text-white">
-                <span>Devolução no seu Pix:</span>
-                <span className={refundAmount > 0 ? 'text-emerald-400' : 'text-slate-400'}>
-                  {formatCurrency(refundAmount)}
+                <span>Devolução via Pix:</span>
+                <span className="text-slate-400 font-semibold">
+                  {formatCurrency(refundAmount)} (Sem estorno)
                 </span>
               </div>
             </div>
 
-            {isOver15Floor ? (
-              <p className="text-[11px] text-teal-300">
-                O valor excedente de <strong>{formatCurrency(refundAmount)}</strong> será devolvido automaticamente via Pix.
-              </p>
-            ) : (
-              <p className="text-[11px] text-slate-400">
-                O horário será liberado na agenda do estabelecimento sem estorno do sinal mínimo.
-              </p>
-            )}
+            <p className="text-[11px] text-slate-400">
+              O horário será liberado na agenda do estabelecimento. Não haverá estorno financeiro devido à proximidade do atendimento.
+            </p>
           </div>
         )}
 
