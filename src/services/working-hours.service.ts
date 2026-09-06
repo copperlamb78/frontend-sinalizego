@@ -21,11 +21,20 @@ export const workingHoursService = {
   },
 
   /**
-   * Updates weekly operating hours in batch
+   * Updates weekly operating hours in batch (matching NestJS UpdateWorkingHoursDto)
    * PUT /api/v1/working-hours
    */
   updateWorkingHours: async (workingHours: WorkingHour[]): Promise<WorkingHour[]> => {
-    const response = await api.put<WorkingHour[]>('/working-hours', { workingHours });
+    const hours = workingHours.map((item) => ({
+      dayOfWeek: item.dayOfWeek,
+      isClosed: Boolean(item.isClosed),
+      startTime: item.isClosed ? '00:00' : (item.startTime || '09:00'),
+      endTime: item.isClosed ? '00:00' : (item.endTime || '19:00'),
+      lunchStartTime: item.isClosed ? null : (item.lunchStartTime || null),
+      lunchEndTime: item.isClosed ? null : (item.lunchEndTime || null)
+    }));
+
+    const response = await api.put<WorkingHour[]>('/working-hours', { hours });
     return response.data;
   },
 
