@@ -94,7 +94,7 @@ export const OwnerFinancialPage: React.FC = () => {
             </Badge>
           </div>
           <p className="text-xs text-slate-400">
-            Acompanhe o saldo liberado, valores em custódia de agendamentos e solicite saques antecipados.
+            Acompanhe o saldo liberado, valores em garantia de agendamentos e solicite saques antecipados.
           </p>
         </div>
 
@@ -135,7 +135,7 @@ export const OwnerFinancialPage: React.FC = () => {
                     <Badge variant="warning" size="sm">PENDENTE</Badge>
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed max-w-2xl">
-                    Para receber os sinais Pix dos seus clientes com split automático e realizar transferências bancárias, você precisa ativar a sua subconta Asaas. O processo leva menos de 2 minutos e não possui taxa de adesão.
+                    Para receber os sinais Pix dos seus clientes com divisão automática e realizar transferências bancárias, você precisa ativar a sua conta de recebimentos Pix. O processo leva menos de 2 minutos e não possui taxa de adesão.
                   </p>
                 </div>
               </div>
@@ -155,7 +155,7 @@ export const OwnerFinancialPage: React.FC = () => {
               <div className="p-3.5 rounded-xl bg-[#0B1120] border border-slate-800 space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-teal-400">
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Split Pix Automático</span>
+                  <span>Divisão Automática de Pagamentos</span>
                 </div>
                 <p className="text-[11px] text-slate-400">
                   O valor do sinal vai direto para sua subconta bancária protegida.
@@ -208,7 +208,7 @@ export const OwnerFinancialPage: React.FC = () => {
               </div>
             </Card>
 
-            {/* Card 2: Saldo em Custódia (Escrow) */}
+            {/* Card 2: Saldo em Garantia (Escrow) */}
             <Card className="p-5 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] border-slate-800 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
@@ -396,7 +396,7 @@ export const OwnerFinancialPage: React.FC = () => {
       <div className="p-4 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center gap-3 text-xs text-slate-400">
         <ShieldCheck className="w-5 h-5 text-teal-400 shrink-0" />
         <span>
-          Os sinais retidos em custódia estão em conformidade com os artigos 417 a 420 do Código Civil (Arras Confirmatórias) e são liberados automaticamente para saque após o atendimento.
+          Os valores de garantia recebidos estão em conformidade com os artigos 417 a 420 do Código Civil (Arras Confirmatórias) e são liberados automaticamente para saque após o atendimento.
         </span>
       </div>
 
