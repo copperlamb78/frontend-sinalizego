@@ -69,7 +69,8 @@ export const OwnerServicesPage: React.FC = () => {
   // 2. Fetch Service Groups
   const { data: groups, isLoading } = useQuery({
     queryKey: ['service-groups'],
-    queryFn: () => servicesService.getServiceGroups()
+    queryFn: () => servicesService.getServiceGroups(),
+    staleTime: 1000 * 60 * 5 // 5 minutes
   });
 
   // 3. Service Mutations
@@ -328,7 +329,7 @@ export const OwnerServicesPage: React.FC = () => {
       <div className="p-4 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center gap-3 text-xs text-slate-300">
         <ShieldCheck className="w-5 h-5 text-teal-400 shrink-0" />
         <span>
-          <strong>Regra de Proteção Financeira:</strong> Serviços com preço total inferior a R$ 15,00 têm cobrança de sinal integral (100%) no checkout para cumprir o piso de microtransações do gateway.
+          <strong>Regra de Proteção Financeira:</strong> Serviços com preço total inferior a R$ 15,00 têm cobrança de sinal integral (100%) no checkout para cumprir o piso de segurança em serviços de menor valor.
         </span>
       </div>
 
