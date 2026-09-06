@@ -1,14 +1,20 @@
+export type PixKeyType = 'CPF' | 'CNPJ' | 'EMAIL' | 'PHONE' | 'RANDOM';
+export type CompanyType = 'MEI' | 'INDIVIDUAL' | 'LIMITED' | 'ASSOCIATION';
+
 export interface CreateFinancialProfileDto {
   name: string;
   email: string;
   cpfCnpj: string;
-  birthDate: string; // YYYY-MM-DD
+  birthDate?: string | null; // YYYY-MM-DD (somente PF)
+  companyType?: CompanyType | string | null; // MEI, INDIVIDUAL, LIMITED, ASSOCIATION (PJ)
   mobilePhone: string;
   incomeValue: number;
-  address: string;
-  addressNumber: string;
-  province: string;
-  postalCode: string;
+  address?: string;
+  addressNumber?: string;
+  province?: string;
+  postalCode?: string;
+  pixAddressKey: string;
+  pixAddressKeyType: PixKeyType;
 }
 
 export interface FinancialProfile {
@@ -21,6 +27,8 @@ export interface FinancialProfile {
   email?: string;
   cpfCnpj?: string;
   mobilePhone?: string;
+  pixAddressKey?: string;
+  pixAddressKeyType?: string;
   createdAt?: string;
   updatedAt?: string;
 }
