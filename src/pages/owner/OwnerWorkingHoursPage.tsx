@@ -13,7 +13,10 @@ import {
   Save,
   Plus,
   Trash2,
-  Calendar
+  Calendar,
+  RotateCcw,
+  Sparkles,
+  AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -37,86 +40,123 @@ const TIME_OPTIONS = [
   '22:00', '22:30', '23:00'
 ];
 
+export const DEFAULT_WEEKLY_SCHEDULE: WorkingHour[] = [
+  { dayOfWeek: 1, isClosed: false, startTime: '09:00', endTime: '19:00', lunchStartTime: '12:00', lunchEndTime: '13:00' },
+  { dayOfWeek: 2, isClosed: false, startTime: '09:00', endTime: '19:00', lunchStartTime: '12:00', lunchEndTime: '13:00' },
+  { dayOfWeek: 3, isClosed: false, startTime: '09:00', endTime: '19:00', lunchStartTime: '12:00', lunchEndTime: '13:00' },
+  { dayOfWeek: 4, isClosed: false, startTime: '09:00', endTime: '19:00', lunchStartTime: '12:00', lunchEndTime: '13:00' },
+  { dayOfWeek: 5, isClosed: false, startTime: '09:00', endTime: '19:00', lunchStartTime: '12:00', lunchEndTime: '13:00' },
+  { dayOfWeek: 6, isClosed: false, startTime: '09:00', endTime: '18:00', lunchStartTime: '12:00', lunchEndTime: '13:00' },
+  { dayOfWeek: 0, isClosed: true, startTime: '09:00', endTime: '18:00', lunchStartTime: null, lunchEndTime: null }
+];
+
 export const OwnerWorkingHoursPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [schedule, setSchedule] = useState<WorkingHour[]>([]);
   const [isExceptionModalOpen, setIsExceptionModalOpen] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Exception form state
   const [excDate, setExcDate] = useState('');
   const [excDescription, setExcDescription] = useState('');
-  const excIsClosed = true;
 
   // 1. Fetch Working Hours
   const { data: workingHoursData, isLoading: isLoadingHours } = useQuery({
     queryKey: ['owner-working-hours'],
-    queryFn: () => workingHoursService.getWorkingHours()
+    queryFn: () => workingHoursService.getWorkingHours(),
+    staleTime: 1000 * 60 * 5 // 5 minutes
   });
 
   // 2. Fetch Exceptions
   const { data: exceptions, isLoading: isLoadingExceptions } = useQuery({
     queryKey: ['owner-working-exceptions'],
-    queryFn: () => workingHoursService.getExceptions()
+    queryFn: () => workingHoursService.getExceptions(),
+    staleTime: 1000 * 60 * 5 // 5 minutes
   });
 
-  // Populate local schedule state
+  // Populate local schedule state and ensure all 7 days exist
   useEffect(() => {
     if (workingHoursData && workingHoursData.length > 0) {
-      // Sort Monday (1) to Sunday (0)
-      const sorted = [...workingHoursData].sort((a, b) => {
+      // Map existing days and merge with missing days from default schedule
+      const map = new Map<number, WorkingHour>();
+      DEFAULT_WEEKLY_SCHEDULE.forEach((d) => map.set(d.dayOfWeek, { ...d }));
+      workingHoursData.forEach((d) => map.set(d.dayOfWeek, { ...d }));
+
+      const sorted = Array.from(map.values()).sort((a, b) => {
         const orderA = a.dayOfWeek === 0 ? 7 : a.dayOfWeek;
         const orderB = b.dayOfWeek === 0 ? 7 : b.dayOfWeek;
         return orderA - orderB;
       });
       setSchedule(sorted);
+      setHasUnsavedChanges(false);
+    } else if (workingHoursData && workingHoursData.length === 0) {
+      // If backend has no working hours configured yet, pre-populate all 7 days
+      setSchedule(DEFAULT_WEEKLY_SCHEDULE);
+      setHasUnsavedChanges(true);
     }
   }, [workingHoursData]);
 
   // 3. Save Schedule Mutation
   const saveScheduleMutation = useMutation({
-    mutationFn: (hours: WorkingHour[]) => workingHoursService.updateWorkingHours(hours),
-    onSuccess: () => {
-      toast.success('Grade semanal de funcionamento salva com sucesso!');
-      queryClient.invalidateQueries({ queryKey: ['owner-working-hours'] });
-      queryClient.invalidateQueries({ queryKey: ['company-by-slug'] });
+    mutationFn: async () => {
+      return workingHoursService.updateWorkingHours(schedule);
     },
-    onError: () => toast.error('Não foi possível salvar a grade de horários.')
+    onSuccess: () => {
+      toast.success('Grade semanal de horários atualizada com sucesso!');
+      setHasUnsavedChanges(false);
+      queryClient.invalidateQueries({ queryKey: ['owner-working-hours'] });
+      queryClient.invalidateQueries({ queryKey: ['available-slots'] });
+      queryClient.invalidateQueries({ queryKey: ['company-checkout'] });
+    },
+    onError: (err: any) => {
+      const msg = err.response?.data?.message || 'Não foi possível salvar a grade semanal.';
+      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
+    }
   });
 
-  // 4. Exception Mutations
+  // 4. Create Exception Mutation
   const createExceptionMutation = useMutation({
     mutationFn: () =>
       workingHoursService.createException({
         date: excDate,
-        description: excDescription,
-        isClosed: excIsClosed
+        isClosed: true,
+        description: excDescription
       }),
     onSuccess: () => {
-      toast.success('Feriado/exceção adicionado com sucesso!');
+      toast.success('Folga especial / feriado cadastrado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['owner-working-exceptions'] });
+      queryClient.invalidateQueries({ queryKey: ['available-slots'] });
       setIsExceptionModalOpen(false);
       setExcDate('');
       setExcDescription('');
     },
-    onError: () => toast.error('Não foi possível adicionar o feriado.')
+    onError: (err: any) => {
+      const msg = err.response?.data?.message || 'Não foi possível cadastrar a folga.';
+      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
+    }
   });
 
+  // 5. Delete Exception Mutation
   const deleteExceptionMutation = useMutation({
     mutationFn: (id: string) => workingHoursService.deleteException(id),
     onSuccess: () => {
-      toast.success('Feriado/exceção removido.');
+      toast.success('Feriado / folga removida.');
       queryClient.invalidateQueries({ queryKey: ['owner-working-exceptions'] });
-    }
+      queryClient.invalidateQueries({ queryKey: ['available-slots'] });
+    },
+    onError: () => toast.error('Não foi possível remover a folga.')
   });
 
   const handleToggleDay = (dayOfWeek: number) => {
     setSchedule((prev) =>
-      prev.map((item) =>
-        item.dayOfWeek === dayOfWeek
-          ? { ...item, isClosed: !item.isClosed }
-          : item
-      )
+      prev.map((item) => {
+        if (item.dayOfWeek === dayOfWeek) {
+          return { ...item, isClosed: !item.isClosed };
+        }
+        return item;
+      })
     );
+    setHasUnsavedChanges(true);
   };
 
   const handleTimeChange = (
@@ -125,216 +165,286 @@ export const OwnerWorkingHoursPage: React.FC = () => {
     value: string | null
   ) => {
     setSchedule((prev) =>
-      prev.map((item) =>
-        item.dayOfWeek === dayOfWeek ? { ...item, [field]: value } : item
-      )
+      prev.map((item) => {
+        if (item.dayOfWeek === dayOfWeek) {
+          return { ...item, [field]: value };
+        }
+        return item;
+      })
     );
+    setHasUnsavedChanges(true);
+  };
+
+  const handleResetToDefaultSchedule = () => {
+    setSchedule(DEFAULT_WEEKLY_SCHEDULE);
+    setHasUnsavedChanges(true);
+    toast.info('Horário comercial padrão aplicado! Clique em "Salvar Grade de Horários" para confirmar.');
   };
 
   if (isLoadingHours || isLoadingExceptions) {
     return (
-      <div className="space-y-6 max-w-5xl animate-pulse">
-        <Skeleton className="h-20 w-full rounded-2xl" />
+      <div className="space-y-6">
+        <Skeleton className="h-28 w-full rounded-2xl" />
         <Skeleton className="h-96 w-full rounded-2xl" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 max-w-5xl">
+    <div className="space-y-8">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-black text-white flex items-center gap-2">
-            <Clock className="w-6 h-6 text-teal-400" />
-            <span>Expediente & Horários de Funcionamento</span>
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight">
+            Expediente & Horários de Funcionamento
           </h1>
-          <p className="text-xs text-slate-400">
-            Defina os dias de atendimento, horário de abertura/fechamento e pausas para almoço.
+          <p className="text-xs text-slate-400 mt-1">
+            Configure os horários de abertura, fechamento e pausas de almoço em que seu estabelecimento atende.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+        <div className="flex items-center gap-2">
           <Button
+            type="button"
             variant="outline"
             size="sm"
-            onClick={() => setIsExceptionModalOpen(true)}
-            leftIcon={<CalendarOff className="w-4 h-4 text-amber-400" />}
+            onClick={handleResetToDefaultSchedule}
+            className="cursor-pointer"
+            leftIcon={<RotateCcw className="w-3.5 h-3.5 text-teal-400" />}
           >
-            Adicionar Feriado / Folga
+            Padrão Comercial
           </Button>
 
           <Button
+            type="button"
             size="sm"
             isLoading={saveScheduleMutation.isPending}
-            onClick={() => saveScheduleMutation.mutate(schedule)}
-            className="shadow-lg shadow-teal-500/20"
-            leftIcon={<Save className="w-4 h-4 text-white" />}
+            onClick={() => saveScheduleMutation.mutate()}
+            className={cn(
+              'font-bold cursor-pointer transition-all',
+              hasUnsavedChanges ? 'shadow-lg shadow-teal-500/25 ring-2 ring-teal-400/50' : ''
+            )}
+            leftIcon={<Save className="w-4 h-4" />}
           >
-            Salvar Grade
+            Salvar Grade de Horários
           </Button>
         </div>
       </div>
 
-      {/* Weekly Schedule Table Card */}
-      <Card className="p-6 bg-[#0F172A] border-slate-800 space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h2 className="text-sm font-bold text-white flex items-center gap-2">
-            <Clock className="w-4 h-4 text-teal-400" />
-            <span>Grade Semanal Padrão</span>
-          </h2>
-          <span className="text-xs text-slate-500">Horário de Brasília</span>
+      {hasUnsavedChanges && (
+        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+            <span>Você possui alterações na grade semanal não salvas. Clique em <strong>Salvar Grade de Horários</strong> para aplicar.</span>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="primary"
+            className="h-8 text-xs font-bold shrink-0"
+            isLoading={saveScheduleMutation.isPending}
+            onClick={() => saveScheduleMutation.mutate()}
+          >
+            Salvar Agora
+          </Button>
+        </div>
+      )}
+
+      {/* Weekly Schedule Card */}
+      <Card className="p-6 bg-[#0F172A] border-slate-800 space-y-6 shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div className="space-y-0.5">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <Clock className="w-4 h-4 text-teal-400" />
+              <span>Grade Semanal Padrão (Segunda a Domingo)</span>
+            </h2>
+            <p className="text-xs text-slate-400">
+              Ative os dias em que há expediente e defina os intervalos de atendimento dos profissionais.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleResetToDefaultSchedule}
+              className="text-xs text-slate-300"
+              leftIcon={<Sparkles className="w-3.5 h-3.5 text-teal-400" />}
+            >
+              Aplicar Seg a Sáb (09h às 19h)
+            </Button>
+          </div>
         </div>
 
-        <div className="space-y-3">
-          {schedule.map((item) => {
-            const dayName = DAY_NAMES[item.dayOfWeek] || `Dia ${item.dayOfWeek}`;
-            const isOpen = !item.isClosed;
-            const hasLunch = !!item.lunchStartTime && !!item.lunchEndTime;
+        {/* Days List */}
+        {schedule.length > 0 ? (
+          <div className="divide-y divide-slate-800">
+            {schedule.map((item) => {
+              const hasLunch = Boolean(item.lunchStartTime && item.lunchEndTime);
 
-            return (
-              <div
-                key={item.dayOfWeek}
-                className={cn(
-                  'p-4 rounded-2xl border transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4',
-                  isOpen
-                    ? 'bg-[#0B1120] border-slate-800'
-                    : 'bg-slate-900/30 border-slate-800/40 opacity-70'
-                )}
-              >
-                {/* Left: Day & Toggle */}
-                <div className="flex items-center gap-3 w-48 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => handleToggleDay(item.dayOfWeek)}
-                    className={cn(
-                      'w-11 h-6 rounded-full transition-colors relative cursor-pointer',
-                      isOpen ? 'bg-teal-500' : 'bg-slate-800'
-                    )}
-                  >
-                    <span
+              return (
+                <div
+                  key={item.dayOfWeek}
+                  className={cn(
+                    'py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors',
+                    item.isClosed ? 'opacity-50' : 'opacity-100'
+                  )}
+                >
+                  {/* Day Info & Open/Close Toggle */}
+                  <div className="flex items-center gap-4 min-w-[200px]">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleDay(item.dayOfWeek)}
                       className={cn(
-                        'w-4 h-4 rounded-full bg-white absolute top-1 transition-transform',
-                        isOpen ? 'left-6' : 'left-1'
+                        'w-12 h-6 rounded-full transition-colors relative cursor-pointer focus:outline-none select-none',
+                        !item.isClosed ? 'bg-teal-500' : 'bg-slate-700'
                       )}
-                    />
-                  </button>
+                      title={!item.isClosed ? 'Dia Aberto' : 'Dia Fechado'}
+                    >
+                      <span
+                        className={cn(
+                          'w-4 h-4 rounded-full bg-white block absolute top-1 transition-transform',
+                          !item.isClosed ? 'left-7' : 'left-1'
+                        )}
+                      />
+                    </button>
 
-                  <div>
-                    <span className="text-sm font-bold text-white block">{dayName}</span>
-                    <Badge variant={isOpen ? 'teal' : 'destructive'} size="sm">
-                      {isOpen ? 'Aberto' : 'Fechado'}
-                    </Badge>
-                  </div>
-                </div>
-
-                {/* Right: Time Selectors */}
-                {isOpen ? (
-                  <div className="flex flex-wrap items-center gap-3 text-xs">
-                    {/* Working Hours */}
-                    <div className="flex items-center gap-1.5 bg-[#1E293B] px-3 py-1.5 rounded-xl border border-slate-700">
-                      <span className="text-slate-400 font-semibold">Expediente:</span>
-                      <select
-                        value={item.startTime || '09:00'}
-                        onChange={(e) =>
-                          handleTimeChange(item.dayOfWeek, 'startTime', e.target.value)
-                        }
-                        className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
-                      >
-                        {TIME_OPTIONS.map((t) => (
-                          <option key={t} value={t} className="bg-slate-900 text-white">
-                            {t}
-                          </option>
-                        ))}
-                      </select>
-                      <span className="text-slate-500 font-bold">às</span>
-                      <select
-                        value={item.endTime || '19:00'}
-                        onChange={(e) =>
-                          handleTimeChange(item.dayOfWeek, 'endTime', e.target.value)
-                        }
-                        className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
-                      >
-                        {TIME_OPTIONS.map((t) => (
-                          <option key={t} value={t} className="bg-slate-900 text-white">
-                            {t}
-                          </option>
-                        ))}
-                      </select>
+                    <div>
+                      <span className="text-sm font-bold text-white block">
+                        {DAY_NAMES[item.dayOfWeek]}
+                      </span>
+                      <span className="text-[11px] text-slate-400">
+                        {!item.isClosed ? 'Expediente Aberto' : 'Fechado'}
+                      </span>
                     </div>
+                  </div>
 
-                    {/* Lunch Break Option */}
-                    <div className="flex items-center gap-1.5 bg-[#1E293B] px-3 py-1.5 rounded-xl border border-slate-700">
-                      <span className="text-slate-400 font-semibold">Almoço:</span>
-                      {hasLunch ? (
-                        <>
-                          <select
-                            value={item.lunchStartTime || '12:00'}
-                            onChange={(e) =>
-                              handleTimeChange(item.dayOfWeek, 'lunchStartTime', e.target.value)
-                            }
-                            className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
-                          >
-                            {TIME_OPTIONS.map((t) => (
-                              <option key={t} value={t} className="bg-slate-900 text-white">
-                                {t}
-                              </option>
-                            ))}
-                          </select>
-                          <span className="text-slate-500 font-bold">às</span>
-                          <select
-                            value={item.lunchEndTime || '13:00'}
-                            onChange={(e) =>
-                              handleTimeChange(item.dayOfWeek, 'lunchEndTime', e.target.value)
-                            }
-                            className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
-                          >
-                            {TIME_OPTIONS.map((t) => (
-                              <option key={t} value={t} className="bg-slate-900 text-white">
-                                {t}
-                              </option>
-                            ))}
-                          </select>
+                  {/* Time Pickers & Lunch */}
+                  {!item.isClosed ? (
+                    <div className="flex flex-wrap items-center gap-3 text-xs">
+                      {/* Work Hours */}
+                      <div className="flex items-center gap-1.5 bg-[#1E293B] px-3 py-1.5 rounded-xl border border-slate-700">
+                        <select
+                          value={item.startTime || '09:00'}
+                          onChange={(e) =>
+                            handleTimeChange(item.dayOfWeek, 'startTime', e.target.value)
+                          }
+                          className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
+                        >
+                          {TIME_OPTIONS.map((t) => (
+                            <option key={t} value={t} className="bg-slate-900 text-white">
+                              {t}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="text-slate-500 font-bold">às</span>
+                        <select
+                          value={item.endTime || '19:00'}
+                          onChange={(e) =>
+                            handleTimeChange(item.dayOfWeek, 'endTime', e.target.value)
+                          }
+                          className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
+                        >
+                          {TIME_OPTIONS.map((t) => (
+                            <option key={t} value={t} className="bg-slate-900 text-white">
+                              {t}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Lunch Break Option */}
+                      <div className="flex items-center gap-1.5 bg-[#1E293B] px-3 py-1.5 rounded-xl border border-slate-700">
+                        <span className="text-slate-400 font-semibold">Almoço:</span>
+                        {hasLunch ? (
+                          <>
+                            <select
+                              value={item.lunchStartTime || '12:00'}
+                              onChange={(e) =>
+                                handleTimeChange(item.dayOfWeek, 'lunchStartTime', e.target.value)
+                              }
+                              className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
+                            >
+                              {TIME_OPTIONS.map((t) => (
+                                <option key={t} value={t} className="bg-slate-900 text-white">
+                                  {t}
+                                </option>
+                              ))}
+                            </select>
+                            <span className="text-slate-500 font-bold">às</span>
+                            <select
+                              value={item.lunchEndTime || '13:00'}
+                              onChange={(e) =>
+                                handleTimeChange(item.dayOfWeek, 'lunchEndTime', e.target.value)
+                              }
+                              className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
+                            >
+                              {TIME_OPTIONS.map((t) => (
+                                <option key={t} value={t} className="bg-slate-900 text-white">
+                                  {t}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleTimeChange(item.dayOfWeek, 'lunchStartTime', null);
+                                handleTimeChange(item.dayOfWeek, 'lunchEndTime', null);
+                              }}
+                              className="ml-1 text-[11px] text-slate-500 hover:text-red-400 cursor-pointer font-bold px-1"
+                              title="Remover pausa de almoço"
+                            >
+                              ×
+                            </button>
+                          </>
+                        ) : (
                           <button
                             type="button"
                             onClick={() => {
-                              handleTimeChange(item.dayOfWeek, 'lunchStartTime', null);
-                              handleTimeChange(item.dayOfWeek, 'lunchEndTime', null);
+                              handleTimeChange(item.dayOfWeek, 'lunchStartTime', '12:00');
+                              handleTimeChange(item.dayOfWeek, 'lunchEndTime', '13:00');
                             }}
-                            className="ml-1 text-[11px] text-slate-500 hover:text-red-400"
-                            title="Remover almoço"
-                            aria-label="Remover almoço"
+                            className="text-[11px] text-teal-400 font-semibold hover:underline cursor-pointer"
                           >
-                            ×
+                            + Adicionar Pausa
                           </button>
-                        </>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            handleTimeChange(item.dayOfWeek, 'lunchStartTime', '12:00');
-                            handleTimeChange(item.dayOfWeek, 'lunchEndTime', '13:00');
-                          }}
-                          className="text-[11px] text-teal-400 font-semibold hover:underline cursor-pointer"
-                        >
-                          + Adicionar Pausa
-                        </button>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <span className="text-xs text-slate-500 font-medium">
-                    Agenda fechada para agendamentos neste dia.
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                  ) : (
+                    <span className="text-xs text-slate-500 font-medium">
+                      Agenda fechada para agendamentos neste dia.
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="p-8 text-center bg-[#0B1120] border border-slate-800 rounded-2xl space-y-3">
+            <Clock className="w-8 h-8 text-teal-400 mx-auto" />
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-white">Nenhum dia configurado</h3>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                Inicialize a grade semanal padrão com horários de atendimento de Segunda a Sábado.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={handleResetToDefaultSchedule}
+              leftIcon={<Plus className="w-4 h-4" />}
+            >
+              Inicializar Grade Semanal (Seg a Sáb)
+            </Button>
+          </div>
+        )}
       </Card>
 
       {/* Holidays & Special Exceptions Card */}
-      <Card className="p-6 bg-[#0F172A] border-slate-800 space-y-4">
+      <Card className="p-6 bg-[#0F172A] border-slate-800 space-y-4 shadow-xl">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <div className="space-y-0.5">
             <h2 className="text-sm font-bold text-white flex items-center gap-2">
