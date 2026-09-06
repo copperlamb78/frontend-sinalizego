@@ -35,7 +35,7 @@ export const BookingSuccessPage: React.FC = () => {
   }, []);
 
   const { data: appointment, isLoading } = useQuery({
-    queryKey: ['appointment-success', appointmentId],
+    queryKey: ['appointment', appointmentId],
     queryFn: () => appointmentsService.getAppointmentById(appointmentId!),
     enabled: !!appointmentId,
     staleTime: 1000 * 60 * 5 // 5 minutes
