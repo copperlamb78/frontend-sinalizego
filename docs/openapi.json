@@ -1,0 +1,5300 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health Check & Disponibilidade"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "description": "Retorna o estado de disponibilidade, uptime e timestamp da aplicação (Público, sem autenticação).",
+        "operationId": "AppController_getHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "API online e operacional.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "status": "ok",
+                    "uptime": 123.45,
+                    "timestamp": "2026-08-23T22:00:00.000Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Health Check da API",
+        "tags": [
+          "Health Check & Disponibilidade"
+        ]
+      }
+    },
+    "/api/v1/users/create": {
+      "post": {
+        "operationId": "UsersController_createUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Criar usuário",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Usuário criado com sucesso",
+                    "user": {
+                      "id": "clsw0s98x000013z81z8z8z8z",
+                      "name": "João Silva",
+                      "email": "joao.silva@example.com",
+                      "phone": "5561999999999",
+                      "role": "USER",
+                      "createdAt": "2026-07-18T10:33:00.000Z",
+                      "isActive": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro ao criar usuário"
+          },
+          "409": {
+            "description": "E-mail já está em uso"
+          },
+          "429": {
+            "description": "Muitas contas criadas em curto intervalo. Tente novamente mais tarde."
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "summary": "Cria um novo usuário na plataforma",
+        "tags": [
+          "Usuários"
+        ]
+      }
+    },
+    "/api/v1/users/list": {
+      "get": {
+        "operationId": "UsersController_getAllUsers",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Número da página (inicia em 1)",
+            "schema": {
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limite de registros por página (máximo 100)",
+            "schema": {
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "description": "Número da página (inicia em 1)",
+            "required": false,
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "description": "Limite de registros por página (máximo 100)",
+            "required": false,
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de usuários retornada com sucesso (senhas e tokens omitidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "clsw0s98x000013z81z8z8z8z",
+                      "name": "João Silva",
+                      "email": "joao.silva@example.com",
+                      "phone": "5561999999999",
+                      "role": "USER",
+                      "createdAt": "2026-07-18T10:33:00.000Z",
+                      "isActive": true
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lista todos os usuários do sistema (Apenas administradores)",
+        "tags": [
+          "Usuários"
+        ]
+      }
+    },
+    "/api/v1/users/update": {
+      "patch": {
+        "operationId": "UsersController_updateUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Atualizar usuário",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuário atualizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "João Silva Atualizado",
+                    "email": "joao.silva@example.com",
+                    "phone": "5561999999999",
+                    "role": "USER",
+                    "createdAt": "2026-07-18T10:33:00.000Z",
+                    "isActive": true
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Usuário não encontrado."
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Atualiza os dados cadastrais (nome, telefone) do usuário logado",
+        "tags": [
+          "Usuários"
+        ]
+      }
+    },
+    "/api/v1/users/change-password": {
+      "patch": {
+        "operationId": "UsersController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Senha atual e nova senha",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Senha alterada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Senha alterada com sucesso."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "401": {
+            "description": "Senha atual incorreta"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Altera a senha do usuário logado mediante confirmação da senha atual",
+        "tags": [
+          "Usuários"
+        ]
+      }
+    },
+    "/api/v1/users/update-cpf": {
+      "patch": {
+        "description": "Atualiza o CPF/CNPJ do usuário autenticado no banco de dados e cria automaticamente o Customer ID na API do Asaas para pagamentos via Pix.",
+        "operationId": "UsersController_updateCpfCnpj",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "CPF (11 dígitos) ou CNPJ (14 dígitos) do usuário",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCpfCnpjDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "CPF/CNPJ atualizado e cliente financeiro gerado no Asaas com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "CPF atualizado e cliente financeiro gerado com sucesso!",
+                    "user": {
+                      "id": "clsw0s98x000013z81z8z8z8z",
+                      "cpfCnpj": "12345678909",
+                      "asaasCustomerId": "cus_000006093120"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados de entrada inválidos ou erro na API do Asaas"
+          },
+          "401": {
+            "description": "Não autorizado (token JWT inválido ou ausente)"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Atualiza o CPF/CNPJ do usuário logado e gera a conta de cliente no Asaas",
+        "tags": [
+          "Usuários"
+        ]
+      }
+    },
+    "/api/v1/users/me": {
+      "delete": {
+        "operationId": "UsersController_deactivateMyAccount",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Conta do usuário desativada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "João Silva",
+                    "email": "joao.silva@example.com",
+                    "phone": "5561999999999",
+                    "role": "USER",
+                    "createdAt": "2026-07-18T10:33:00.000Z",
+                    "isActive": false,
+                    "disabledAt": "2026-07-18T10:33:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Usuário não encontrado."
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Desativa a própria conta do usuário logado (Soft Delete)",
+        "tags": [
+          "Usuários"
+        ]
+      }
+    },
+    "/api/v1/users/{userId}": {
+      "delete": {
+        "operationId": "UsersController_deactivateUserByAdmin",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário desativado com sucesso pelo administrador",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "João Silva",
+                    "email": "joao.silva@example.com",
+                    "phone": "5561999999999",
+                    "role": "USER",
+                    "createdAt": "2026-07-18T10:33:00.000Z",
+                    "isActive": false,
+                    "disabledAt": "2026-07-18T10:33:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado"
+          },
+          "404": {
+            "description": "Usuário não encontrado."
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Desativa o cadastro de um usuário específico (Apenas Administradores)",
+        "tags": [
+          "Usuários"
+        ]
+      }
+    },
+    "/api/v1/users/{userId}/activate": {
+      "patch": {
+        "operationId": "UsersController_activateUserByAdmin",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário reativado com sucesso pelo administrador",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "João Silva",
+                    "email": "joao.silva@example.com",
+                    "phone": "5561999999999",
+                    "role": "USER",
+                    "createdAt": "2026-07-18T10:33:00.000Z",
+                    "isActive": true,
+                    "disabledAt": null
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado"
+          },
+          "404": {
+            "description": "Usuário não encontrado."
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reativa o cadastro de um usuário específico (Apenas Administradores)",
+        "tags": [
+          "Usuários"
+        ]
+      }
+    },
+    "/api/v1/asaas/accounts": {
+      "get": {
+        "operationId": "AsaasController_listAccounts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Lista de subcontas retornada com sucesso"
+          },
+          "400": {
+            "description": "Erro de validação ou erro retornado pelo Asaas"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lista todas as subcontas cadastradas no Asaas",
+        "tags": [
+          "Asaas"
+        ]
+      }
+    },
+    "/api/v1/asaas/{id}": {
+      "get": {
+        "operationId": "AsaasController_getAccountById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID da subconta no Asaas",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subconta retornada com sucesso"
+          },
+          "400": {
+            "description": "Erro de validação ou erro retornado pelo Asaas"
+          },
+          "404": {
+            "description": "Subconta não encontrada"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Retorna uma subconta específica pelo ID no Asaas",
+        "tags": [
+          "Asaas"
+        ]
+      }
+    },
+    "/api/v1/asaas/balance/{walletId}": {
+      "get": {
+        "operationId": "AsaasController_getSubaccountBalance",
+        "parameters": [
+          {
+            "name": "walletId",
+            "required": true,
+            "in": "path",
+            "description": "ID da carteira (walletId) no Asaas",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saldo da subconta retornado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "balance": 1234.56
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro de validação ou erro retornado pelo Asaas"
+          },
+          "404": {
+            "description": "Subconta não encontrada"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Busca o saldo de uma subconta Asaas pelo ID",
+        "tags": [
+          "Asaas"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Credenciais de login do usuário",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Login realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "user": {
+                      "id": "clsw0s2b0003138mg1wmg1wmg1",
+                      "name": "João Silva",
+                      "email": "joao.silva@example.com",
+                      "role": "USER"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Senha inválida"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          },
+          "429": {
+            "description": "Muitas tentativas. Tente novamente mais tarde."
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "summary": "Realiza a autenticação do usuário",
+        "tags": [
+          "Autenticação"
+        ]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refreshTokens",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Tokens de acesso e refresh atualizados com sucesso"
+          },
+          "403": {
+            "description": "Acesso Negado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Renova os tokens de acesso e refresh",
+        "tags": [
+          "Autenticação"
+        ]
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Informações do usuário autenticado"
+          },
+          "403": {
+            "description": "Acesso Negado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtém o perfil do usuário logado",
+        "tags": [
+          "Autenticação"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Logout realizado com sucesso"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Encerra a sessão do usuário",
+        "tags": [
+          "Autenticação"
+        ]
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "operationId": "AuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resposta genérica de segurança (instruções enviadas se e-mail existir)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Se o e-mail informado estiver cadastrado, as instruções para redefinição de senha foram enviadas."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "E-mail inválido"
+          },
+          "429": {
+            "description": "Muitas tentativas. Tente novamente mais tarde."
+          }
+        },
+        "summary": "Solicita a recuperação de senha enviando link por e-mail",
+        "tags": [
+          "Autenticação"
+        ]
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Senha redefinida com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Senha redefinida com sucesso."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Token inválido ou malformado"
+          },
+          "401": {
+            "description": "Token expirado ou inválido"
+          },
+          "429": {
+            "description": "Muitas tentativas. Tente novamente mais tarde."
+          }
+        },
+        "summary": "Redefine a senha utilizando o token stateless recebido por e-mail",
+        "tags": [
+          "Autenticação"
+        ]
+      }
+    },
+    "/api/v1/company/create": {
+      "post": {
+        "operationId": "CompanyController_createCompany",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Criar empresa",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCompanyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Empresa criada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Empresa criada com sucesso",
+                    "user": {
+                      "id": "clsw0s98x000013z81z8z8z8z",
+                      "name": "Carlos Alberto",
+                      "email": "carlos@barbershop.com",
+                      "phone": "75999999999",
+                      "role": "COMPANY_OWNER",
+                      "createdAt": "2026-07-18T10:33:00.000Z",
+                      "isActive": true,
+                      "companies": [
+                        {
+                          "id": "clsw0s98x000013z81z8z8z8z",
+                          "businessName": "Barber's Shop",
+                          "slug": "barbers-shop",
+                          "providerType": "Barbearia",
+                          "district": "SIM",
+                          "street": "Artemia Pires Freitas",
+                          "city": "Feira de Santana",
+                          "state": "Bahia",
+                          "zipCode": "44085370",
+                          "number": "123",
+                          "whatsapp": "75999999999",
+                          "createdAt": "2026-07-18T10:33:00.000Z",
+                          "isActive": true,
+                          "userId": "clsw0s98x000013z81z8z8z8z"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro ao criar empresa"
+          },
+          "409": {
+            "description": "E-mail já está em uso"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/get-by-user-id": {
+      "get": {
+        "operationId": "CompanyController_getCompanyByUserId",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Empresa encontrada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "businessName": "Barber's Shop",
+                    "slug": "barbers-shop",
+                    "providerType": "Barbearia",
+                    "district": "SIM",
+                    "street": "Artemia Pires Freitas",
+                    "city": "Feira de Santana",
+                    "state": "Bahia",
+                    "zipCode": "44085370",
+                    "number": "123",
+                    "whatsapp": "75999999999",
+                    "createdAt": "2026-07-18T10:33:00.000Z",
+                    "isActive": true,
+                    "userId": "clsw0s98x000013z81z8z8z8z"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhuma empresa encontrada para este usuário."
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/list": {
+      "get": {
+        "operationId": "CompanyController_getAllCompaniesByUserId",
+        "parameters": [
+          {
+            "name": "businessName",
+            "required": false,
+            "in": "query",
+            "description": "Nome do negócio",
+            "schema": {
+              "example": "Barbearia do Zé",
+              "type": "string"
+            }
+          },
+          {
+            "name": "providerType",
+            "required": false,
+            "in": "query",
+            "description": "Tipo de empresa / segmento",
+            "schema": {
+              "example": "Barbearia",
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "description": "Ordem de ordenação",
+            "schema": {
+              "example": "desc",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de empresas retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "clsw0s98x000013z81z8z8z8z",
+                      "businessName": "Barber's Shop",
+                      "slug": "barbers-shop",
+                      "providerType": "Barbearia",
+                      "district": "SIM",
+                      "street": "Artemia Pires Freitas",
+                      "city": "Feira de Santana",
+                      "state": "Bahia",
+                      "zipCode": "44085370",
+                      "number": "123",
+                      "whatsapp": "75999999999",
+                      "createdAt": "2026-07-18T10:33:00.000Z",
+                      "isActive": true,
+                      "userId": "clsw0s98x000013z81z8z8z8z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado."
+          },
+          "404": {
+            "description": "Nenhuma empresa encontrada para este usuário."
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/get-all": {
+      "get": {
+        "operationId": "CompanyController_getAllCompanies",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Lista de empresas retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "clsw0s98x000013z81z8z8z8z",
+                      "businessName": "Barber's Shop",
+                      "slug": "barbers-shop",
+                      "providerType": "Barbearia",
+                      "district": "SIM",
+                      "street": "Artemia Pires Freitas",
+                      "city": "Feira de Santana",
+                      "state": "Bahia",
+                      "zipCode": "44085370",
+                      "number": "123",
+                      "whatsapp": "75999999999",
+                      "createdAt": "2026-07-18T10:33:00.000Z",
+                      "isActive": true,
+                      "userId": "clsw0s98x000013z81z8z8z8z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/dashboard/metrics": {
+      "get": {
+        "operationId": "CompanyController_getDashboardMetrics",
+        "parameters": [
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Data inicial do período (formato YYYY-MM-DD)",
+            "schema": {
+              "example": "2026-08-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Data final do período (formato YYYY-MM-DD)",
+            "schema": {
+              "example": "2026-08-31",
+              "type": "string"
+            }
+          },
+          {
+            "name": "companyId",
+            "required": false,
+            "in": "query",
+            "description": "ID da empresa (opcional para administradores, ignorado para donos que visualizam sua própria empresa)",
+            "schema": {
+              "example": "clsw0s98x000013z81z8z8z8z",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Métricas e relatórios operacionais/financeiros do estabelecimento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "company": {
+                      "id": "clsw0s98x000013z81z8z8z8z",
+                      "businessName": "Barber's Shop",
+                      "slug": "barbers-shop"
+                    },
+                    "period": {
+                      "startDate": "2026-08-01T00:00:00.000Z",
+                      "endDate": "2026-08-23T23:59:59.999Z"
+                    },
+                    "financial": {
+                      "totalRevenue": 1250,
+                      "totalDownPaymentCollected": 625,
+                      "totalPlatformFees": 75,
+                      "netIncome": 1175
+                    },
+                    "volume": {
+                      "total": 25,
+                      "completed": 18,
+                      "confirmed": 4,
+                      "canceled": 2,
+                      "pendingPayment": 1,
+                      "completionRate": 75
+                    },
+                    "topServices": [
+                      {
+                        "serviceId": "srv-1",
+                        "serviceName": "Corte Degradê",
+                        "appointmentsCount": 15,
+                        "totalRevenue": 525
+                      }
+                    ],
+                    "upcomingToday": [
+                      {
+                        "id": "appt-1",
+                        "appointmentDate": "2026-08-23T14:30:00.000Z",
+                        "appointmentEndDate": "2026-08-23T15:00:00.000Z",
+                        "clientName": "Carlos Silva",
+                        "clientPhone": "75999999999",
+                        "serviceName": "Corte Degradê",
+                        "durationMinutes": 30,
+                        "downPaymentAmount": 17.5,
+                        "servicePrice": 35
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parâmetros de data inválidos."
+          },
+          "401": {
+            "description": "Não autorizado."
+          },
+          "404": {
+            "description": "Estabelecimento não encontrado para este usuário."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/balance": {
+      "get": {
+        "operationId": "CompanyController_getBalance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Saldos do estabelecimento retornados com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "companyId": "clsw0s98x000013z81z8z8z8z",
+                    "businessName": "Barber's Shop",
+                    "walletId": "wal_1234567890",
+                    "availableBalance": 245,
+                    "escrowLockedBalance": 120,
+                    "completedNetRevenue": 745,
+                    "totalWithdrawn": 500,
+                    "nextFreeWithdrawalDate": "2026-08-31T06:00:00.000Z",
+                    "instantTransferFee": 5,
+                    "minFreeWeeklyPayoutThreshold": 100,
+                    "eligibleForFreeWeeklyPayout": true
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado."
+          },
+          "404": {
+            "description": "Estabelecimento não encontrado para este usuário."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Consulta o saldo disponível para saque, retido em custódia (Escrow Hold) e data do próximo saque gratuito",
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/withdraw": {
+      "post": {
+        "operationId": "CompanyController_requestWithdrawal",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Saque avulso solicitado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Saque avulso solicitado com sucesso.",
+                    "withdrawal": {
+                      "id": "uuid-transaction",
+                      "requestedAmount": 100,
+                      "transferFee": 5,
+                      "netAmountTransferred": 95,
+                      "status": "CONFIRMED",
+                      "transferredAt": "2026-08-23T15:30:00.000Z",
+                      "remainingAvailableBalance": 145,
+                      "escrowLockedBalance": 120
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Saldo insuficiente, valor menor que a tarifa ou erro no gateway."
+          },
+          "401": {
+            "description": "Não autorizado."
+          },
+          "409": {
+            "description": "Já existe uma solicitação de saque em processamento."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Solicita saque avulso sob demanda fora do ciclo semanal gratuito (aplica taxa de transferência Asaas de R$ 5,00)",
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/withdrawals": {
+      "get": {
+        "operationId": "CompanyController_getWithdrawals",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Histórico de saques retornado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "uuid-transaction",
+                      "requestedAmount": 100,
+                      "transferFee": 5,
+                      "netAmountTransferred": 95,
+                      "status": "CONFIRMED",
+                      "isFreeWeekly": false,
+                      "asaasTransferId": "tra_123456",
+                      "transferredAt": "2026-08-23T15:30:00.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Consulta o histórico completo de saques e transferências da empresa (auditoria de payouts)",
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/slug/{slug}": {
+      "get": {
+        "operationId": "CompanyController_findBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil público do estabelecimento retornado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "businessName": "Barber's Shop",
+                    "slug": "barbers-shop",
+                    "providerType": "Barbearia",
+                    "whatsapp": "75999999999",
+                    "chairsCount": 2,
+                    "district": "SIM",
+                    "street": "Artemia Pires Freitas",
+                    "city": "Feira de Santana",
+                    "state": "Bahia",
+                    "zipCode": "44085370",
+                    "number": "123",
+                    "logoPhoto": "https://cloudinary.../logo.png",
+                    "bannerPhoto": "https://cloudinary.../banner.png",
+                    "timezone": "America/Sao_Paulo",
+                    "createdAt": "2026-07-18T10:33:00.000Z",
+                    "workingHours": [
+                      {
+                        "id": "wh-1",
+                        "dayOfWeek": 1,
+                        "startTime": "09:00",
+                        "endTime": "18:00",
+                        "lunchStartTime": "12:00",
+                        "lunchEndTime": "13:00",
+                        "isClosed": false
+                      }
+                    ],
+                    "serviceGroups": [
+                      {
+                        "id": "sg-1",
+                        "name": "Cabelo e Barba",
+                        "capacity": 2,
+                        "services": [
+                          {
+                            "id": "srv-1",
+                            "name": "Corte Degradê",
+                            "description": "Corte moderno na tesoura e máquina",
+                            "durationMinutes": 30,
+                            "totalPrice": "35.00",
+                            "downPaymentPercent": 25
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Estabelecimento não encontrado."
+          }
+        },
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/get-by-slug/{slug}": {
+      "get": {
+        "operationId": "CompanyController_getCompanyBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Empresa encontrada com sucesso"
+          },
+          "404": {
+            "description": "Estabelecimento não encontrado."
+          }
+        },
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/update/{companyId}": {
+      "patch": {
+        "operationId": "CompanyController_updateCompany",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Atualizar empresa",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompanyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Empresa atualizada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "businessName": "Barber's Shop Atualizada",
+                    "slug": "barbers-shop",
+                    "providerType": "Barbearia",
+                    "district": "SIM",
+                    "street": "Artemia Pires Freitas",
+                    "city": "Feira de Santana",
+                    "state": "Bahia",
+                    "zipCode": "44085370",
+                    "number": "123",
+                    "whatsapp": "75999999999",
+                    "createdAt": "2026-07-18T10:33:00.000Z",
+                    "isActive": true,
+                    "userId": "clsw0s98x000013z81z8z8z8z",
+                    "banner": "https://res.cloudinary.com/sinalizego/image/upload/v1700000000/sinalizego/companyId/banner/public_id.jpg",
+                    "logo": "https://res.cloudinary.com/sinalizego/image/upload/v1700000000/sinalizego/companyId/logo/public_id.jpg"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado."
+          },
+          "404": {
+            "description": "Nenhuma empresa encontrada para este usuário ou empresa."
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/deactivate/{companyId}": {
+      "delete": {
+        "operationId": "CompanyController_deactivateCompany",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Empresa desativada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "businessName": "Barber's Shop",
+                    "slug": "barbers-shop",
+                    "providerType": "Barbearia",
+                    "district": "SIM",
+                    "street": "Artemia Pires Freitas",
+                    "city": "Feira de Santana",
+                    "state": "Bahia",
+                    "zipCode": "44085370",
+                    "number": "123",
+                    "whatsapp": "75999999999",
+                    "createdAt": "2026-07-18T10:33:00.000Z",
+                    "isActive": false,
+                    "disabledAt": "2026-07-18T10:33:00.000Z",
+                    "userId": "clsw0s98x000013z81z8z8z8z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado."
+          },
+          "404": {
+            "description": "Nenhuma empresa encontrada para este usuário ou empresa não encontrada."
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/activate/{companyId}": {
+      "patch": {
+        "operationId": "CompanyController_activateCompany",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Empresa ativada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "businessName": "Barber's Shop",
+                    "slug": "barbers-shop",
+                    "providerType": "Barbearia",
+                    "district": "SIM",
+                    "street": "Artemia Pires Freitas",
+                    "city": "Feira de Santana",
+                    "state": "Bahia",
+                    "zipCode": "44085370",
+                    "number": "123",
+                    "whatsapp": "75999999999",
+                    "createdAt": "2026-07-18T10:33:00.000Z",
+                    "isActive": true,
+                    "disabledAt": null,
+                    "userId": "clsw0s98x000013z81z8z8z8z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado."
+          },
+          "404": {
+            "description": "Nenhuma empresa encontrada para este usuário ou empresa não encontrada."
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/create-company-to-user": {
+      "post": {
+        "operationId": "CompanyController_createCompanyToUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Criar empresa para um usuário existente",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCompanyWithoutUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Empresa criada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Empresa criada com sucesso",
+                    "user": {
+                      "id": "clsw0s98x000013z81z8z8z8z",
+                      "businessName": "Barber's Shop",
+                      "slug": "barbers-shop",
+                      "providerType": "Barbearia",
+                      "district": "SIM",
+                      "street": "Artemia Pires Freitas",
+                      "city": "Feira de Santana",
+                      "state": "Bahia",
+                      "zipCode": "44085370",
+                      "number": "123",
+                      "whatsapp": "75999999999",
+                      "createdAt": "2026-07-18T10:33:00.000Z",
+                      "isActive": true,
+                      "userId": "clsw0s98x000013z81z8z8z8z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro ao criar empresa"
+          },
+          "409": {
+            "description": "E-mail já está em uso"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company/get-by-id/{companyId}": {
+      "get": {
+        "operationId": "CompanyController_getCompanyById",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Empresa encontrada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "businessName": "Barber's Shop",
+                    "slug": "barbers-shop",
+                    "providerType": "Barbearia",
+                    "district": "SIM",
+                    "street": "Artemia Pires Freitas",
+                    "city": "Feira de Santana",
+                    "state": "Bahia",
+                    "zipCode": "44085370",
+                    "number": "123",
+                    "whatsapp": "75999999999",
+                    "createdAt": "2026-07-18T10:33:00.000Z",
+                    "isActive": true,
+                    "userId": "clsw0s98x000013z81z8z8z8z"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhuma empresa encontrada para este ID."
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Empresas"
+        ]
+      }
+    },
+    "/api/v1/company-service/create": {
+      "post": {
+        "operationId": "CompanyServiceController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Criar serviço",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateServiceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Serviço criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s2b0003138mg1wmg1wmg1",
+                    "name": "Corte de Cabelo",
+                    "description": "Corte de cabelo masculino e feminino",
+                    "durationMinutes": 60,
+                    "totalPrice": 50,
+                    "downPaymentPercent": 10,
+                    "availableEmployers": 2,
+                    "companyId": "clsw0s2b0003138mg1wmg1wmg1",
+                    "createdAt": "2023-11-20T17:21:51.000Z",
+                    "updatedAt": "2023-11-20T17:21:51.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado."
+          },
+          "404": {
+            "description": "Nenhuma empresa encontrada para este usuário."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Serviços"
+        ]
+      }
+    },
+    "/api/v1/company-service/list": {
+      "get": {
+        "operationId": "CompanyServiceController_getServicesByCompany",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Status do serviço",
+            "schema": {
+              "example": "active",
+              "type": "string"
+            }
+          },
+          {
+            "name": "totalPrice",
+            "required": false,
+            "in": "query",
+            "description": "Preço exato do serviço",
+            "schema": {
+              "example": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "durationMinutes",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 60,
+              "type": "number"
+            }
+          },
+          {
+            "name": "serviceGroupId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 2,
+              "type": "number"
+            }
+          },
+          {
+            "name": "downPaymentPercent",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "description": "Ordem de ordenação",
+            "schema": {
+              "example": "desc",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de serviços retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "clsw0s2b0003138mg1wmg1wmg1",
+                      "name": "Corte de Cabelo",
+                      "description": "Corte de cabelo masculino e feminino",
+                      "durationMinutes": 60,
+                      "totalPrice": 50,
+                      "downPaymentPercent": 10,
+                      "availableEmployers": 2,
+                      "companyId": "clsw0s2b0003138mg1wmg1wmg1",
+                      "createdAt": "2023-11-20T17:21:51.000Z",
+                      "updatedAt": "2023-11-20T17:21:51.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado."
+          },
+          "404": {
+            "description": "Nenhuma empresa encontrada para este usuário."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Serviços"
+        ]
+      }
+    },
+    "/api/v1/company-service/list/{slug}": {
+      "get": {
+        "operationId": "CompanyServiceController_getServicesBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de serviços retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "clsw0s2b0003138mg1wmg1wmg1",
+                      "name": "Corte de Cabelo",
+                      "description": "Corte de cabelo masculino e feminino",
+                      "durationMinutes": 60,
+                      "totalPrice": 50,
+                      "downPaymentPercent": 10,
+                      "availableEmployers": 2,
+                      "companyId": "clsw0s2b0003138mg1wmg1wmg1",
+                      "createdAt": "2023-11-20T17:21:51.000Z",
+                      "updatedAt": "2023-11-20T17:21:51.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhuma empresa encontrada para este slug ou nenhum serviço encontrado para esta empresa."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "tags": [
+          "Serviços"
+        ]
+      }
+    },
+    "/api/v1/company-service/update/{serviceId}": {
+      "patch": {
+        "operationId": "CompanyServiceController_update",
+        "parameters": [
+          {
+            "name": "serviceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Atualizar serviço",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateServiceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Serviço atualizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s2b0003138mg1wmg1wmg1",
+                    "name": "Corte de Cabelo Atualizado",
+                    "description": "Corte de cabelo masculino e feminino com novos produtos",
+                    "durationMinutes": 75,
+                    "totalPrice": 60,
+                    "downPaymentPercent": 15,
+                    "availableEmployers": 3,
+                    "companyId": "clsw0s2b0003138mg1wmg1wmg1",
+                    "createdAt": "2023-11-20T17:21:51.000Z",
+                    "updatedAt": "2023-11-20T17:21:51.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado."
+          },
+          "404": {
+            "description": "Nenhuma empresa encontrada para este usuário ou serviço não encontrado."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Serviços"
+        ]
+      }
+    },
+    "/api/v1/company-service/deactivate/{serviceId}": {
+      "delete": {
+        "operationId": "CompanyServiceController_deactivateService",
+        "parameters": [
+          {
+            "name": "serviceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Serviço desativado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s2b0003138mg1wmg1wmg1",
+                    "name": "Corte de Cabelo",
+                    "description": "Corte de cabelo masculino e feminino",
+                    "durationMinutes": 60,
+                    "totalPrice": 50,
+                    "downPaymentPercent": 10,
+                    "availableEmployers": 2,
+                    "companyId": "clsw0s2b0003138mg1wmg1wmg1",
+                    "createdAt": "2023-11-20T17:21:51.000Z",
+                    "updatedAt": "2023-11-20T17:21:51.000Z",
+                    "isActive": false,
+                    "disabledAt": "2023-11-20T17:21:51.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado."
+          },
+          "404": {
+            "description": "Nenhuma empresa encontrada para este usuário ou serviço não encontrado."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Serviços"
+        ]
+      }
+    },
+    "/api/v1/company-service/activate/{serviceId}": {
+      "patch": {
+        "operationId": "CompanyServiceController_activateService",
+        "parameters": [
+          {
+            "name": "serviceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Serviço ativado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s2b0003138mg1wmg1wmg1",
+                    "name": "Corte de Cabelo",
+                    "description": "Corte de cabelo masculino e feminino",
+                    "durationMinutes": 60,
+                    "totalPrice": 50,
+                    "downPaymentPercent": 10,
+                    "availableEmployers": 2,
+                    "companyId": "clsw0s2b0003138mg1wmg1wmg1",
+                    "createdAt": "2023-11-20T17:21:51.000Z",
+                    "updatedAt": "2023-11-20T17:21:51.000Z",
+                    "isActive": true,
+                    "disabledAt": null
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado."
+          },
+          "404": {
+            "description": "Nenhuma empresa encontrada para este usuário ou serviço não encontrado."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Serviços"
+        ]
+      }
+    },
+    "/api/v1/company-service/all": {
+      "get": {
+        "operationId": "CompanyServiceController_getAllServices",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Status do serviço",
+            "schema": {
+              "example": "active",
+              "type": "string"
+            }
+          },
+          {
+            "name": "totalPrice",
+            "required": false,
+            "in": "query",
+            "description": "Preço exato do serviço",
+            "schema": {
+              "example": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "durationMinutes",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 60,
+              "type": "number"
+            }
+          },
+          {
+            "name": "serviceGroupId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 2,
+              "type": "number"
+            }
+          },
+          {
+            "name": "downPaymentPercent",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "description": "Ordem de ordenação",
+            "schema": {
+              "example": "desc",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de todos os serviços retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "clsw0s2b0003138mg1wmg1wmg1",
+                      "name": "Corte de Cabelo",
+                      "description": "Corte de cabelo masculino e feminino",
+                      "durationMinutes": 60,
+                      "totalPrice": 50,
+                      "downPaymentPercent": 10,
+                      "availableEmployers": 2,
+                      "companyId": "clsw0s2b0003138mg1wmg1wmg1",
+                      "createdAt": "2023-11-20T17:21:51.000Z",
+                      "updatedAt": "2023-11-20T17:21:51.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Serviços"
+        ]
+      }
+    },
+    "/api/v1/transactions/pix/{appointmentId}": {
+      "post": {
+        "operationId": "TransactionsController_createPix",
+        "parameters": [
+          {
+            "name": "appointmentId",
+            "required": true,
+            "in": "path",
+            "description": "ID do agendamento (UUID)",
+            "schema": {
+              "example": "f1e2d3c4-b5a6-0987-6543-210fedcba987",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Cobrança PIX gerada ou recuperada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "paymentId": "pay_000000000000",
+                    "totalValue": 52,
+                    "qrCodePayload": "00020126580014BR.GOV.BCB.PIX0136a1b2c3d4-e5f6-7890-1234-567890abcdef520400005303986540552.005802BR5925NOME DO RECEBEDOR LTDA6007BRASIL62070503***6304A1B2",
+                    "qrCodeImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA...",
+                    "expirationDate": "2023-10-27T10:00:00.000Z",
+                    "barberNetValue": 49.01,
+                    "platformFee": 2,
+                    "asaasFee": 0.99
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ID inválido (não UUID) ou cliente sem cadastro financeiro"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado para este agendamento"
+          },
+          "404": {
+            "description": "Agendamento ou empresa não encontrada"
+          },
+          "409": {
+            "description": "Agendamento não está aguardando pagamento"
+          },
+          "410": {
+            "description": "Reserva expirada"
+          },
+          "429": {
+            "description": "Muitas tentativas de geração de Pix. Tente novamente mais tarde."
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cria ou recupera a cobrança PIX para reserva de agendamento",
+        "tags": [
+          "Transações"
+        ]
+      }
+    },
+    "/api/v1/appointments/available-slots": {
+      "get": {
+        "operationId": "AppointmentsController_getAvailableSlots",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "query",
+            "description": "ID da empresa (UUID)",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceId",
+            "required": true,
+            "in": "query",
+            "description": "ID do serviço a ser agendado (UUID)",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174001",
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "description": "Data da consulta no formato YYYY-MM-DD",
+            "schema": {
+              "example": "2026-08-25",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de horários livres retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "date": "2026-08-25",
+                    "totalAvailable": 8,
+                    "slots": [
+                      "09:00",
+                      "09:30",
+                      "10:00",
+                      "10:30",
+                      "14:00",
+                      "14:30",
+                      "15:00",
+                      "15:30"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parâmetros inválidos"
+          },
+          "404": {
+            "description": "Empresa ou serviço não encontrado"
+          },
+          "429": {
+            "description": "Muitas consultas de disponibilidade em curto intervalo. Tente novamente mais tarde."
+          }
+        },
+        "summary": "Consulta pública de horários (slots) disponíveis para um serviço em uma data",
+        "tags": [
+          "Agendamentos"
+        ]
+      }
+    },
+    "/api/v1/appointments": {
+      "post": {
+        "operationId": "AppointmentsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Criar agendamento",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAppointmentsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Agendamento criado com sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "409": {
+            "description": "Não há vagas disponíveis para este serviço neste horário"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cria um novo agendamento",
+        "tags": [
+          "Agendamentos"
+        ]
+      },
+      "get": {
+        "operationId": "AppointmentsController_findAll",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": false,
+            "in": "query",
+            "description": "ID da empresa",
+            "schema": {
+              "example": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "clientId",
+            "required": false,
+            "in": "query",
+            "description": "ID do cliente",
+            "schema": {
+              "example": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceId",
+            "required": false,
+            "in": "query",
+            "description": "ID do serviço",
+            "schema": {
+              "example": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Novo status do agendamento",
+            "schema": {
+              "example": "CONFIRMED",
+              "type": "string",
+              "enum": [
+                "PENDING_PAYMENT",
+                "CONFIRMED",
+                "COMPLETED",
+                "CANCELED"
+              ]
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Data de início mínima (ISO 8601)",
+            "schema": {
+              "example": "2024-01-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Data de início máxima (ISO 8601)",
+            "schema": {
+              "example": "2024-01-31T23:59:59Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "servicePrice",
+            "required": false,
+            "in": "query",
+            "description": "Preço mínimo do serviço",
+            "schema": {
+              "example": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "downPaymentAmount",
+            "required": false,
+            "in": "query",
+            "description": "Valor mínimo do adiantamento",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "platformFeeAmount",
+            "required": false,
+            "in": "query",
+            "description": "Valor mínimo da taxa da plataforma",
+            "schema": {
+              "example": 5,
+              "type": "number"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por agendamentos ativos",
+            "schema": {
+              "example": true,
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "description": "Ordem de ordenação",
+            "schema": {
+              "example": "desc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Número da página (inicia em 1)",
+            "schema": {
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limite de registros por página (máximo 100)",
+            "schema": {
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agendamentos encontrados com sucesso"
+          },
+          "404": {
+            "description": "Nenhum agendamento encontrado"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Retorna todos os agendamentos (apenas para super admin)",
+        "tags": [
+          "Agendamentos"
+        ]
+      }
+    },
+    "/api/v1/appointments/company": {
+      "get": {
+        "operationId": "AppointmentsController_findByCompany",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": false,
+            "in": "query",
+            "description": "ID da empresa",
+            "schema": {
+              "example": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "clientId",
+            "required": false,
+            "in": "query",
+            "description": "ID do cliente",
+            "schema": {
+              "example": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceId",
+            "required": false,
+            "in": "query",
+            "description": "ID do serviço",
+            "schema": {
+              "example": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Novo status do agendamento",
+            "schema": {
+              "example": "CONFIRMED",
+              "type": "string",
+              "enum": [
+                "PENDING_PAYMENT",
+                "CONFIRMED",
+                "COMPLETED",
+                "CANCELED"
+              ]
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Data de início mínima (ISO 8601)",
+            "schema": {
+              "example": "2024-01-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Data de início máxima (ISO 8601)",
+            "schema": {
+              "example": "2024-01-31T23:59:59Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "servicePrice",
+            "required": false,
+            "in": "query",
+            "description": "Preço mínimo do serviço",
+            "schema": {
+              "example": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "downPaymentAmount",
+            "required": false,
+            "in": "query",
+            "description": "Valor mínimo do adiantamento",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por agendamentos ativos",
+            "schema": {
+              "example": true,
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "description": "Ordem de ordenação",
+            "schema": {
+              "example": "desc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Número da página (inicia em 1)",
+            "schema": {
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limite de registros por página (máximo 100)",
+            "schema": {
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agendamentos encontrados com sucesso"
+          },
+          "404": {
+            "description": "Nenhum agendamento encontrado"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Retorna agendamentos de uma empresa específica",
+        "tags": [
+          "Agendamentos"
+        ]
+      }
+    },
+    "/api/v1/appointments/user": {
+      "get": {
+        "operationId": "AppointmentsController_findByUser",
+        "parameters": [
+          {
+            "name": "serviceId",
+            "required": false,
+            "in": "query",
+            "description": "ID do serviço",
+            "schema": {
+              "example": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Data de início mínima (ISO 8601)",
+            "schema": {
+              "example": "2024-01-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "description": "Ordem de ordenação",
+            "schema": {
+              "example": "desc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Número da página (inicia em 1)",
+            "schema": {
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limite de registros por página (máximo 100)",
+            "schema": {
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agendamentos encontrados com sucesso"
+          },
+          "404": {
+            "description": "Nenhum agendamento encontrado"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Retorna agendamentos do cliente logado",
+        "tags": [
+          "Agendamentos"
+        ]
+      }
+    },
+    "/api/v1/appointments/{id}/complete": {
+      "patch": {
+        "operationId": "AppointmentsController_complete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID do agendamento (UUID)",
+            "schema": {
+              "example": "f1e2d3c4-b5a6-0987-6543-210fedcba987",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agendamento concluído com sucesso"
+          },
+          "400": {
+            "description": "Status inválido (ex: agendamento pendente, cancelado ou já concluído)"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado para este agendamento"
+          },
+          "404": {
+            "description": "Agendamento não encontrado"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Conclui um agendamento confirmado (transição para COMPLETED)",
+        "tags": [
+          "Agendamentos"
+        ]
+      }
+    },
+    "/api/v1/appointments/{id}/no-show": {
+      "patch": {
+        "operationId": "AppointmentsController_markNoShow",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID do agendamento (UUID)",
+            "schema": {
+              "example": "f1e2d3c4-b5a6-0987-6543-210fedcba987",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agendamento registrado como No-Show com sucesso"
+          },
+          "400": {
+            "description": "Status inválido ou tentativa de registro antes do horário do agendamento (+15 min de tolerância)"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado para este agendamento"
+          },
+          "404": {
+            "description": "Agendamento não encontrado"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Registra a falta do cliente (No-Show) com retenção legal do sinal de garantia para o estabelecimento",
+        "tags": [
+          "Agendamentos"
+        ]
+      }
+    },
+    "/api/v1/appointments/{id}/status": {
+      "patch": {
+        "operationId": "AppointmentsController_updateStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID do agendamento (UUID)",
+            "schema": {
+              "example": "f1e2d3c4-b5a6-0987-6543-210fedcba987",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Atualizar status do agendamento (COMPLETED ou CANCELED)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppointmentsStatusUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status do agendamento atualizado com sucesso"
+          },
+          "400": {
+            "description": "Status inválido ou transição não permitida"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado para este agendamento"
+          },
+          "404": {
+            "description": "Agendamento não encontrado"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Atualiza o status de um agendamento da empresa (COMPLETED ou CANCELED)",
+        "tags": [
+          "Agendamentos"
+        ]
+      }
+    },
+    "/api/v1/appointments/{id}/client": {
+      "delete": {
+        "operationId": "AppointmentsController_cancelByClient",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID do agendamento (UUID)",
+            "schema": {
+              "example": "f1e2d3c4-b5a6-0987-6543-210fedcba987",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agendamento cancelado com sucesso"
+          },
+          "400": {
+            "description": "Agendamento já está inativo"
+          },
+          "404": {
+            "description": "Agendamento não encontrado"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancela um agendamento solicitado pelo cliente (com estorno integral se > 24h ou retenção integral de 100% do sinal se <= 24h)",
+        "tags": [
+          "Agendamentos"
+        ]
+      }
+    },
+    "/api/v1/appointments/{id}/deactivate": {
+      "delete": {
+        "operationId": "AppointmentsController_deactivate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID do agendamento (UUID)",
+            "schema": {
+              "example": "f1e2d3c4-b5a6-0987-6543-210fedcba987",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agendamento desativado com sucesso"
+          },
+          "400": {
+            "description": "Agendamento já está inativo"
+          },
+          "404": {
+            "description": "Agendamento não encontrado"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Desativa um agendamento",
+        "tags": [
+          "Agendamentos"
+        ]
+      }
+    },
+    "/api/v1/upload/image/{companyId}/{imageType}": {
+      "post": {
+        "operationId": "UploadController_uploadImage",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "description": "ID da empresa (Company)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "imageType",
+            "required": true,
+            "in": "path",
+            "description": "Tipo da imagem (ex: logo, banner, service)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Faz upload de imagem dinamicamente para a empresa",
+        "tags": [
+          "Uploads"
+        ]
+      }
+    },
+    "/api/v1/financial-profile/create": {
+      "post": {
+        "operationId": "FinancialProfileController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Dados para criação da subconta financeira no Asaas",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFinancialProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Perfil financeiro criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "Barbearia do João LTDA",
+                    "companyType": "MEI",
+                    "isActive": true,
+                    "createdAt": "2026-07-29T10:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro de validação (ex: data de nascimento obrigatória para CPF ou tipo de empresa para CNPJ)"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "409": {
+            "description": "Este CPF/CNPJ já está vinculado a outra conta no sistema"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cria o perfil financeiro (subconta Asaas) do usuário logado",
+        "tags": [
+          "Perfil Financeiro"
+        ]
+      }
+    },
+    "/api/v1/financial-profile/list": {
+      "get": {
+        "operationId": "FinancialProfileController_getAllByUserId",
+        "parameters": [
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "Nome da empresa ou nome completo se pessoa física",
+            "schema": {
+              "example": "Barbearia do João LTDA",
+              "type": "string"
+            }
+          },
+          {
+            "name": "cpfCnpj",
+            "required": false,
+            "in": "query",
+            "description": "CPF (11 dígitos) ou CNPJ (14 dígitos) sem pontuação",
+            "schema": {
+              "example": "12345678909",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de perfis financeiros retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "clsw0s98x000013z81z8z8z8z",
+                      "name": "Barbearia do João LTDA",
+                      "companyType": "MEI",
+                      "isActive": true,
+                      "createdAt": "2026-07-29T10:00:00.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Nenhum perfil encontrado para este usuário"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lista todos os perfis financeiros do usuário logado (com filtros)",
+        "tags": [
+          "Perfil Financeiro"
+        ]
+      }
+    },
+    "/api/v1/financial-profile/get-all": {
+      "get": {
+        "operationId": "FinancialProfileController_getAllProfiles",
+        "parameters": [
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "Nome da empresa ou nome completo se pessoa física",
+            "schema": {
+              "example": "Barbearia do João LTDA",
+              "type": "string"
+            }
+          },
+          {
+            "name": "cpfCnpj",
+            "required": false,
+            "in": "query",
+            "description": "CPF (11 dígitos) ou CNPJ (14 dígitos) sem pontuação",
+            "schema": {
+              "example": "12345678909",
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "ID do usuário dono do perfil",
+            "schema": {
+              "example": "1a6d4b6a4er6_va1sf64a",
+              "type": "string"
+            }
+          },
+          {
+            "name": "address",
+            "required": false,
+            "in": "query",
+            "description": "Logradouro / Nome da rua ou avenida",
+            "schema": {
+              "example": "Avenida Getúlio Vargas",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista completa de perfis financeiros retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "clsw0s98x000013z81z8z8z8z",
+                      "name": "Barbearia do João LTDA",
+                      "companyType": "MEI",
+                      "isActive": true,
+                      "createdAt": "2026-07-29T10:00:00.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado (requer role de administração)"
+          },
+          "404": {
+            "description": "Nenhum perfil encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lista todos os perfis financeiros do sistema (Apenas administradores)",
+        "tags": [
+          "Perfil Financeiro"
+        ]
+      }
+    },
+    "/api/v1/financial-profile/user/{id}": {
+      "get": {
+        "operationId": "FinancialProfileController_getByUserId",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID único do perfil financeiro",
+            "schema": {
+              "example": "clsw0s98x000013z81z8z8z8z",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil financeiro do usuário retornado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "Barbearia do João LTDA",
+                    "companyType": "MEI",
+                    "isActive": true,
+                    "createdAt": "2026-07-29T10:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Perfil financeiro não encontrado para este usuário"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Busca um perfil financeiro específico pertencente ao usuário logado pelo ID",
+        "tags": [
+          "Perfil Financeiro"
+        ]
+      }
+    },
+    "/api/v1/financial-profile/get-by-id/{id}": {
+      "get": {
+        "operationId": "FinancialProfileController_getById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID do perfil financeiro",
+            "schema": {
+              "example": "clsw0s98x000013z81z8z8z8z",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil financeiro retornado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "Barbearia do João LTDA",
+                    "companyType": "MEI",
+                    "isActive": true,
+                    "createdAt": "2026-07-29T10:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Perfil não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Busca detalhes de um perfil financeiro pelo ID com validação de posse",
+        "tags": [
+          "Perfil Financeiro"
+        ]
+      }
+    },
+    "/api/v1/financial-profile/deactivate/{id}": {
+      "delete": {
+        "operationId": "FinancialProfileController_deactivate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID do perfil financeiro a ser desativado",
+            "schema": {
+              "example": "clsw0s98x000013z81z8z8z8z",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil financeiro desativado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "Barbearia do João LTDA",
+                    "companyType": "MEI",
+                    "isActive": false,
+                    "disabledAt": "2026-07-29T10:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Perfil já está desativado"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Perfil não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Desativa um perfil financeiro do usuário logado (Soft Delete)",
+        "tags": [
+          "Perfil Financeiro"
+        ]
+      }
+    },
+    "/api/v1/financial-profile/activate/{id}": {
+      "patch": {
+        "operationId": "FinancialProfileController_activate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID do perfil financeiro a ser reativado",
+            "schema": {
+              "example": "clsw0s98x000013z81z8z8z8z",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil financeiro ativado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "Barbearia do João LTDA",
+                    "companyType": "MEI",
+                    "isActive": true,
+                    "disabledAt": null
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Perfil já está ativado"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Perfil não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reativa um perfil financeiro do usuário logado",
+        "tags": [
+          "Perfil Financeiro"
+        ]
+      }
+    },
+    "/api/v1/financial-profile/balance/{id}": {
+      "get": {
+        "operationId": "FinancialProfileController_getFinancialProfileBalance",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID do perfil financeiro para buscar o saldo",
+            "schema": {
+              "example": "clsw0s98x000013z81z8z8z8z",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saldo do perfil financeiro retornado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "balance": 1234.56
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro de validação ou erro retornado pelo Asaas"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Perfil financeiro não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Busca o saldo de um perfil financeiro do usuário logado",
+        "tags": [
+          "Perfil Financeiro"
+        ]
+      }
+    },
+    "/webhooks/asaas": {
+      "post": {
+        "operationId": "WebhooksController_handleAsaasWebhook",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AsaasWebhookDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Evento processado com sucesso"
+          },
+          "401": {
+            "description": "Token de webhook inválido"
+          }
+        },
+        "summary": "Recebe os eventos e notificações de pagamento do Asaas",
+        "tags": [
+          "Webhooks"
+        ]
+      }
+    },
+    "/api/v1/service-group": {
+      "post": {
+        "operationId": "ServiceGroupController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Dados para criação do grupo de serviços",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateServiceGroupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Grupo de serviços criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "Cabeleireiros",
+                    "capacity": 2,
+                    "companyId": "6e463255-9c3e-47e1-b417-60382e3d2223"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados de requisição inválidos"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado para esta empresa"
+          },
+          "404": {
+            "description": "Empresa não encontrada"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cria um novo grupo de serviços",
+        "tags": [
+          "Grupo de Serviços"
+        ]
+      },
+      "get": {
+        "operationId": "ServiceGroupController_findAll",
+        "parameters": [
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "Nome do grupo de serviços",
+            "schema": {
+              "example": "Cabeleireiros",
+              "type": "string"
+            }
+          },
+          {
+            "name": "capacity",
+            "required": false,
+            "in": "query",
+            "description": "Quantidade de profissionais disponíveis para o grupo de serviços",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "companyId",
+            "required": false,
+            "in": "query",
+            "description": "ID da empresa à qual este grupo de serviços pertence",
+            "schema": {
+              "example": "6e463255-9c3e-47e1-b417-60382e3d2223",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de grupos de serviços retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "clsw0s98x000013z81z8z8z8z",
+                      "name": "Cabeleireiros",
+                      "capacity": 1,
+                      "companyId": "6e463255-9c3e-47e1-b417-60382e3d2223"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lista todos os grupos de serviços (com filtros)",
+        "tags": [
+          "Grupo de Serviços"
+        ]
+      }
+    },
+    "/api/v1/service-group/company/{companyId}": {
+      "get": {
+        "operationId": "ServiceGroupController_findAllByCompanyId",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "description": "ID da empresa (UUID)",
+            "schema": {
+              "example": "6e463255-9c3e-47e1-b417-60382e3d2223",
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "Nome do grupo de serviços",
+            "schema": {
+              "example": "Cabeleireiros",
+              "type": "string"
+            }
+          },
+          {
+            "name": "capacity",
+            "required": false,
+            "in": "query",
+            "description": "Quantidade de profissionais disponíveis para o grupo de serviços",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de grupos de serviços da empresa retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "clsw0s98x000013z81z8z8z8z",
+                      "name": "Cabeleireiros",
+                      "capacity": 1,
+                      "companyId": "6e463255-9c3e-47e1-b417-60382e3d2223"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado para esta empresa"
+          },
+          "404": {
+            "description": "Empresa não encontrada"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lista todos os grupos de serviços de uma empresa específica",
+        "tags": [
+          "Grupo de Serviços"
+        ]
+      }
+    },
+    "/api/v1/service-group/{id}": {
+      "get": {
+        "operationId": "ServiceGroupController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID único do grupo de serviços (UUID)",
+            "schema": {
+              "example": "clsw0s98x000013z81z8z8z8z",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Grupo de serviços encontrado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "Cabeleireiros",
+                    "capacity": 1,
+                    "companyId": "6e463255-9c3e-47e1-b417-60382e3d2223"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Grupo de serviços não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Busca um grupo de serviços pelo ID",
+        "tags": [
+          "Grupo de Serviços"
+        ]
+      },
+      "patch": {
+        "operationId": "ServiceGroupController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID único do grupo de serviços (UUID)",
+            "schema": {
+              "example": "clsw0s98x000013z81z8z8z8z",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Dados para atualização do grupo de serviços",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateServiceGroupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Grupo de serviços atualizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "Cabeleireiros & Barbeiros",
+                    "capacity": 4,
+                    "companyId": "6e463255-9c3e-47e1-b417-60382e3d2223"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados de requisição inválidos"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado para este grupo de serviços"
+          },
+          "404": {
+            "description": "Grupo de serviços não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Atualiza um grupo de serviços pelo ID",
+        "tags": [
+          "Grupo de Serviços"
+        ]
+      },
+      "delete": {
+        "operationId": "ServiceGroupController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID único do grupo de serviços a ser removido (UUID)",
+            "schema": {
+              "example": "clsw0s98x000013z81z8z8z8z",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Grupo de serviços desativado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "Cabeleireiros",
+                    "capacity": 2,
+                    "companyId": "6e463255-9c3e-47e1-b417-60382e3d2223",
+                    "isActive": false,
+                    "disabledAt": "2026-08-19T21:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Grupo possui serviços ativos vinculados"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado para este grupo de serviços"
+          },
+          "404": {
+            "description": "Grupo de serviços não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Desativa/remove um grupo de serviços pelo ID",
+        "tags": [
+          "Grupo de Serviços"
+        ]
+      }
+    },
+    "/api/v1/service-group/company/{companyId}/{id}": {
+      "patch": {
+        "operationId": "ServiceGroupController_updateByCompanyId",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID único do grupo de serviços (UUID)",
+            "schema": {
+              "example": "clsw0s98x000013z81z8z8z8z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "description": "ID da empresa (UUID)",
+            "schema": {
+              "example": "6e463255-9c3e-47e1-b417-60382e3d2223",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Dados para atualização do grupo de serviços",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateServiceGroupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Grupo de serviços atualizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "clsw0s98x000013z81z8z8z8z",
+                    "name": "Cabeleireiros & Barbeiros",
+                    "capacity": 4,
+                    "companyId": "6e463255-9c3e-47e1-b417-60382e3d2223"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados de requisição inválidos"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado para esta empresa"
+          },
+          "404": {
+            "description": "Grupo de serviços não encontrado para esta empresa"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Atualiza um grupo de serviços de uma empresa específica",
+        "tags": [
+          "Grupo de Serviços"
+        ]
+      }
+    },
+    "/api/v1/working-hours": {
+      "put": {
+        "operationId": "WorkingHoursController_updateWorkingHours",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkingHoursDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Grade semanal de horários atualizada com sucesso"
+          },
+          "400": {
+            "description": "Erro de validação nos horários informados"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado para esta empresa"
+          },
+          "404": {
+            "description": "Empresa não encontrada"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Atualiza a grade semanal de funcionamento da empresa",
+        "tags": [
+          "Horários de Funcionamento"
+        ]
+      },
+      "get": {
+        "operationId": "WorkingHoursController_getWorkingHours",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": false,
+            "in": "query",
+            "description": "ID da empresa (apenas para administradores)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Grade de horários retornada com sucesso"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Empresa não encontrada"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Retorna a grade semanal de horários da empresa autenticada",
+        "tags": [
+          "Horários de Funcionamento"
+        ]
+      }
+    },
+    "/api/v1/working-hours/company/{companyId}": {
+      "get": {
+        "operationId": "WorkingHoursController_getWorkingHoursByCompany",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "description": "ID da empresa (UUID)",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Grade de horários retornada com sucesso"
+          },
+          "404": {
+            "description": "Empresa não encontrada"
+          }
+        },
+        "summary": "Consulta pública da grade de horários de uma empresa",
+        "tags": [
+          "Horários de Funcionamento"
+        ]
+      }
+    },
+    "/api/v1/working-hours/exceptions": {
+      "post": {
+        "operationId": "WorkingHoursController_createScheduleException",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateScheduleExceptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Exceção de agenda cadastrada com sucesso"
+          },
+          "400": {
+            "description": "Erro de validação na data/horário"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado para esta empresa"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cadastra uma exceção na agenda da empresa (feriado, folga ou horário especial)",
+        "tags": [
+          "Horários de Funcionamento"
+        ]
+      },
+      "get": {
+        "operationId": "WorkingHoursController_getScheduleExceptions",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": false,
+            "in": "query",
+            "description": "ID da empresa (apenas para administradores)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de exceções retornada com sucesso"
+          },
+          "401": {
+            "description": "Não autorizado"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lista exceções futuras na agenda da empresa autenticada",
+        "tags": [
+          "Horários de Funcionamento"
+        ]
+      }
+    },
+    "/api/v1/working-hours/exceptions/{id}": {
+      "delete": {
+        "operationId": "WorkingHoursController_deleteScheduleException",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID da exceção (UUID)",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exceção removida com sucesso"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Acesso negado"
+          },
+          "404": {
+            "description": "Exceção não encontrada"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove/desativa uma exceção de agenda",
+        "tags": [
+          "Horários de Funcionamento"
+        ]
+      }
+    },
+    "/api/v1/admin/dashboard/metrics": {
+      "get": {
+        "description": "Retorna receita consolidada do SaaS, GMV, custos de gateway, métricas de crescimento e ranking de empresas (Restrito a ADMIN e SUPER_ADMIN).",
+        "operationId": "AdminController_getDashboardMetrics",
+        "parameters": [
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Data inicial do período (formato YYYY-MM-DD)",
+            "schema": {
+              "example": "2026-08-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Data final do período (formato YYYY-MM-DD)",
+            "schema": {
+              "example": "2026-08-31",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Métricas globais da plataforma calculadas com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "period": {
+                      "startDate": "2026-08-01T00:00:00.000Z",
+                      "endDate": "2026-08-31T23:59:59.999Z"
+                    },
+                    "financial": {
+                      "platformGrossRevenue": 4500,
+                      "totalAsaasPixCosts": 89.1,
+                      "platformNetProfit": 4410.9,
+                      "gmv": 45000
+                    },
+                    "growth": {
+                      "users": {
+                        "total": 250,
+                        "clients": 210,
+                        "owners": 40
+                      },
+                      "companies": {
+                        "total": 40,
+                        "active": 38,
+                        "inactive": 2
+                      },
+                      "appointments": {
+                        "total": 1200,
+                        "completed": 980,
+                        "confirmed": 120,
+                        "canceled": 70,
+                        "pendingPayment": 30
+                      }
+                    },
+                    "topTenants": [
+                      {
+                        "companyId": "uuid",
+                        "businessName": "Barber's Shop VIP",
+                        "slug": "barbers-shop-vip",
+                        "appointmentsCount": 250,
+                        "totalRevenue": 12500,
+                        "platformFeeGenerated": 1250
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parâmetros de data inválidos."
+          },
+          "403": {
+            "description": "Acesso proibido para papéis não administrativos."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Métricas Globais da Plataforma (Platform Intelligence)",
+        "tags": [
+          "Admin — Super Admin & Gestão Global"
+        ]
+      }
+    },
+    "/api/v1/admin/companies": {
+      "get": {
+        "description": "Retorna todas as empresas cadastradas no ecossistema com paginação, filtros por status e busca por nome, cidade ou proprietário.",
+        "operationId": "AdminController_listCompanies",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Número da página (iniciando em 1)",
+            "schema": {
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Quantidade de registros por página",
+            "schema": {
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Termo de busca (filtra por nome do negócio, slug, cidade ou e-mail/nome do proprietário)",
+            "schema": {
+              "example": "Barbearia VIP",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Filtro por status de atividade da empresa",
+            "schema": {
+              "default": "ALL",
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "INACTIVE",
+                "ALL"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada de empresas retornada com sucesso."
+          },
+          "403": {
+            "description": "Acesso proibido para papéis não administrativos."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Listagem Administrativa Global de Empresas",
+        "tags": [
+          "Admin — Super Admin & Gestão Global"
+        ]
+      }
+    },
+    "/api/v1/admin/companies/{id}/toggle-status": {
+      "patch": {
+        "description": "Alterna o status ativo/inativo de um estabelecimento por infração ou inadimplência.",
+        "operationId": "AdminController_toggleCompanyStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID (UUID) da empresa a ser suspensa ou reativada",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status do estabelecimento atualizado com sucesso."
+          },
+          "403": {
+            "description": "Acesso proibido para papéis não administrativos."
+          },
+          "404": {
+            "description": "Empresa não encontrada."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Ativar / Suspender Administrativamente Estabelecimento",
+        "tags": [
+          "Admin — Super Admin & Gestão Global"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "SinalizeGO API",
+    "description": "API RESTful do ecossistema SinalizeGO — Plataforma para gestão de agendamentos, vitrine pública, subcontas e split de pagamentos Pix via Asaas Sandbox.",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "Autenticação",
+      "description": "Endpoints de login, renovação de tokens e recuperação de senha"
+    },
+    {
+      "name": "Usuários",
+      "description": "Gerenciamento de contas de clientes, prestadores e administradores"
+    },
+    {
+      "name": "Admin — Super Admin & Gestão Global",
+      "description": "Platform Intelligence, receita SaaS, GMV e moderação de empresas"
+    },
+    {
+      "name": "Empresas",
+      "description": "Cadastro, vitrine pública consolidada e dashboard financeiro do dono"
+    },
+    {
+      "name": "Serviços",
+      "description": "Catálogo de serviços por empresa com faixas progressivas e split"
+    },
+    {
+      "name": "Grupo de Serviços",
+      "description": "Organização de serviços com controle de capacidade concorrente"
+    },
+    {
+      "name": "Horários de Funcionamento",
+      "description": "Grade semanal de atendimento, intervalos e feriados/exceções"
+    },
+    {
+      "name": "Agendamentos",
+      "description": "Criação de reservas, motor de disponibilidade e conclusão de atendimentos"
+    },
+    {
+      "name": "Perfil Financeiro",
+      "description": "Subcontas Asaas Sandbox com credenciais criptografadas em repouso"
+    },
+    {
+      "name": "Transações",
+      "description": "Geração de cobranças Pix com split e conciliação financeira"
+    },
+    {
+      "name": "Uploads",
+      "description": "Upload seguro de imagens com validação binária de magic bytes"
+    },
+    {
+      "name": "Webhooks",
+      "description": "Processamento assíncrono e idempotente de notificações do Asaas"
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "João Silva",
+            "description": "Nome do usuário"
+          },
+          "email": {
+            "type": "string",
+            "example": "joao.silva@example.com",
+            "description": "Endereço de e-mail do usuário"
+          },
+          "password": {
+            "type": "string",
+            "example": "senha123",
+            "description": "Senha do usuário (mínimo 6 caracteres)"
+          },
+          "phone": {
+            "type": "string",
+            "example": "5561999999999",
+            "description": "Número de telefone do usuário (com DDD)"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "phone"
+        ]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "João Silva Atualizado",
+            "description": "Nome do usuário"
+          },
+          "phone": {
+            "type": "string",
+            "example": "5561999999999",
+            "description": "Número de telefone do usuário (com DDD)"
+          }
+        }
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "example": "senhaAtual123",
+            "description": "Senha atual do usuário"
+          },
+          "newPassword": {
+            "type": "string",
+            "example": "novaSenha456",
+            "description": "Nova senha do usuário (mínimo 6 caracteres)"
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
+      "UpdateCpfCnpjDto": {
+        "type": "object",
+        "properties": {
+          "cpfCnpj": {
+            "type": "string",
+            "example": "12345678909",
+            "description": "CPF (11 dígitos) ou CNPJ (14 dígitos) do usuário para cadastro de cliente no Asaas"
+          }
+        },
+        "required": [
+          "cpfCnpj"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "joao.silva@example.com",
+            "description": "Email do usuário"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123",
+            "description": "Senha do usuário"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "ForgotPasswordDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "cliente@exemplo.com",
+            "description": "E-mail cadastrado na plataforma para recuperação de senha"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "description": "Token JWT de recuperação recebido por e-mail"
+          },
+          "newPassword": {
+            "type": "string",
+            "example": "novaSenhaForte123",
+            "description": "Nova senha do usuário (mínimo de 6 caracteres)"
+          }
+        },
+        "required": [
+          "token",
+          "newPassword"
+        ]
+      },
+      "CreateCompanyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Carlos Alberto"
+          },
+          "email": {
+            "type": "string",
+            "example": "carlos@barbershop.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "Senha123!"
+          },
+          "phone": {
+            "type": "string",
+            "example": "75999999999"
+          },
+          "providerType": {
+            "type": "string",
+            "example": "Barbearia"
+          },
+          "businessName": {
+            "type": "string",
+            "example": "Barber's Shop"
+          },
+          "state": {
+            "type": "string",
+            "example": "Bahia"
+          },
+          "city": {
+            "type": "string",
+            "example": "Feira de Santana"
+          },
+          "district": {
+            "type": "string",
+            "example": "SIM"
+          },
+          "street": {
+            "type": "string",
+            "example": "Artemia Pires Freitas"
+          },
+          "zipCode": {
+            "type": "string",
+            "example": "44085370"
+          },
+          "number": {
+            "type": "string",
+            "example": "123"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "phone",
+          "providerType",
+          "businessName",
+          "state",
+          "city",
+          "district",
+          "street",
+          "zipCode",
+          "number"
+        ]
+      },
+      "WithdrawDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "description": "Valor desejado para saque avulso em Reais (opcional. Se omitido, saca todo o saldo disponível liberado)",
+            "example": 100,
+            "minimum": 0.01
+          }
+        }
+      },
+      "UpdateCompanyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Carlos Alberto"
+          },
+          "email": {
+            "type": "string",
+            "example": "carlos@barbershop.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "Senha123!"
+          },
+          "phone": {
+            "type": "string",
+            "example": "75999999999"
+          },
+          "providerType": {
+            "type": "string",
+            "example": "Barbearia"
+          },
+          "businessName": {
+            "type": "string",
+            "example": "Barber's Shop"
+          },
+          "state": {
+            "type": "string",
+            "example": "Bahia"
+          },
+          "city": {
+            "type": "string",
+            "example": "Feira de Santana"
+          },
+          "district": {
+            "type": "string",
+            "example": "SIM"
+          },
+          "street": {
+            "type": "string",
+            "example": "Artemia Pires Freitas"
+          },
+          "zipCode": {
+            "type": "string",
+            "example": "44085370"
+          },
+          "number": {
+            "type": "string",
+            "example": "123"
+          },
+          "bannerPhoto": {
+            "type": "string",
+            "example": "https://res.cloudinary.com/sinalizego/image/upload/v1700000000/sinalizego/companyId/banner/public_id.jpg",
+            "description": "URL ou Data URL (base64) do banner da empresa"
+          },
+          "logoPhoto": {
+            "type": "string",
+            "example": "https://res.cloudinary.com/sinalizego/image/upload/v1700000000/sinalizego/companyId/logo/public_id.jpg",
+            "description": "URL ou Data URL (base64) da logo da empresa"
+          }
+        }
+      },
+      "CreateCompanyWithoutUserDto": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "example": "Senha123!"
+          },
+          "phone": {
+            "type": "string",
+            "example": "75999999999"
+          },
+          "providerType": {
+            "type": "string",
+            "example": "Barbearia"
+          },
+          "businessName": {
+            "type": "string",
+            "example": "Barber's Shop"
+          },
+          "state": {
+            "type": "string",
+            "example": "Bahia"
+          },
+          "city": {
+            "type": "string",
+            "example": "Feira de Santana"
+          },
+          "district": {
+            "type": "string",
+            "example": "SIM"
+          },
+          "street": {
+            "type": "string",
+            "example": "Artemia Pires Freitas"
+          },
+          "zipCode": {
+            "type": "string",
+            "example": "44085370"
+          },
+          "number": {
+            "type": "string",
+            "example": "123"
+          }
+        },
+        "required": [
+          "password",
+          "phone",
+          "providerType",
+          "businessName",
+          "state",
+          "city",
+          "district",
+          "street",
+          "zipCode",
+          "number"
+        ]
+      },
+      "CreateServiceDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Corte de Cabelo Masculino",
+            "description": "Nome do serviço oferecido"
+          },
+          "description": {
+            "type": "string",
+            "example": "Corte com tesoura e máquina, incluindo lavagem.",
+            "description": "Descrição detalhada do serviço"
+          },
+          "durationMinutes": {
+            "type": "number",
+            "example": 60,
+            "description": "Duração do serviço em minutos"
+          },
+          "totalPrice": {
+            "type": "number",
+            "example": 50,
+            "description": "Preço do serviço"
+          },
+          "downPaymentPercent": {
+            "type": "number",
+            "example": 50,
+            "description": "Porcentagem do valor do sinal (depósito) - 50% padrão, ou 30% opcional para serviços de alto valor (>= R$ 400,00)",
+            "enum": [
+              30,
+              50
+            ],
+            "default": 50
+          },
+          "depositPercentage": {
+            "type": "number",
+            "example": 50,
+            "description": "Alias para downPaymentPercent (30% ou 50%)",
+            "enum": [
+              30,
+              50
+            ],
+            "default": 50
+          },
+          "serviceGroupId": {
+            "type": "string",
+            "example": "d9b2b63d-a233-4123-8478-831d12345678",
+            "description": "ID do grupo de serviços (ServiceGroup) associado"
+          }
+        },
+        "required": [
+          "name",
+          "durationMinutes",
+          "totalPrice",
+          "serviceGroupId"
+        ]
+      },
+      "UpdateServiceDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Corte de Cabelo Masculino",
+            "description": "Nome do serviço oferecido"
+          },
+          "description": {
+            "type": "string",
+            "example": "Corte com tesoura e máquina, incluindo lavagem.",
+            "description": "Descrição detalhada do serviço"
+          },
+          "durationMinutes": {
+            "type": "number",
+            "example": 60,
+            "description": "Duração do serviço em minutos"
+          },
+          "totalPrice": {
+            "type": "number",
+            "example": 50,
+            "description": "Preço do serviço"
+          },
+          "downPaymentPercent": {
+            "type": "number",
+            "example": 50,
+            "description": "Porcentagem do valor do sinal (depósito) - 50% padrão, ou 30% opcional para serviços de alto valor (>= R$ 400,00)",
+            "enum": [
+              30,
+              50
+            ],
+            "default": 50
+          },
+          "depositPercentage": {
+            "type": "number",
+            "example": 50,
+            "description": "Alias para downPaymentPercent (30% ou 50%)",
+            "enum": [
+              30,
+              50
+            ],
+            "default": 50
+          },
+          "serviceGroupId": {
+            "type": "string",
+            "example": "d9b2b63d-a233-4123-8478-831d12345678",
+            "description": "ID do grupo de serviços (ServiceGroup) associado"
+          }
+        }
+      },
+      "CreateAppointmentsDto": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "description": "ID da empresa / negócio",
+            "example": "clsw0s2b0003138mg1wmg1wmg1"
+          },
+          "serviceId": {
+            "type": "string",
+            "description": "ID do serviço escolhido",
+            "example": "clsw0s2b0003138mg1wmg1wmg1"
+          },
+          "appointmentDate": {
+            "type": "string",
+            "description": "Data e hora de início do agendamento (formato ISO 8601)",
+            "example": "2026-07-22T14:30:00.000Z"
+          }
+        },
+        "required": [
+          "companyId",
+          "serviceId",
+          "appointmentDate"
+        ]
+      },
+      "AppointmentsStatusUpdateDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "COMPLETED",
+            "description": "Novo status do agendamento (COMPLETED ou CANCELED)",
+            "enum": [
+              "PENDING_PAYMENT",
+              "CONFIRMED",
+              "COMPLETED",
+              "CANCELED",
+              "NO_SHOW"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "CreateFinancialProfileDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Barbearia do João LTDA",
+            "description": "Nome da empresa ou nome completo se pessoa física"
+          },
+          "email": {
+            "type": "string",
+            "example": "contato@barbeariadojoao.com",
+            "description": "E-mail principal de contato"
+          },
+          "cpfCnpj": {
+            "type": "string",
+            "example": "12345678909",
+            "description": "CPF (11 dígitos) ou CNPJ (14 dígitos) sem pontuação"
+          },
+          "birthDate": {
+            "type": "object",
+            "example": "1995-04-12",
+            "description": "Data de nascimento no formato YYYY-MM-DD (somente Pessoa Física)"
+          },
+          "companyType": {
+            "type": "object",
+            "example": "MEI",
+            "description": "Tipo da empresa (somente quando Pessoa Jurídica)"
+          },
+          "mobilePhone": {
+            "type": "string",
+            "example": "75999998888",
+            "description": "Celular / WhatsApp com DDD (somente números)"
+          },
+          "incomeValue": {
+            "type": "number",
+            "example": 5000,
+            "description": "Renda ou faturamento mensal estimado (R$)"
+          },
+          "address": {
+            "type": "string",
+            "example": "Avenida Getúlio Vargas",
+            "description": "Logradouro / Nome da rua ou avenida"
+          },
+          "addressNumber": {
+            "type": "string",
+            "example": "1500",
+            "description": "Número do endereço"
+          },
+          "province": {
+            "type": "string",
+            "example": "Centro",
+            "description": "Bairro"
+          },
+          "postalCode": {
+            "type": "string",
+            "example": "44001000",
+            "description": "CEP sem hífen (8 dígitos)"
+          },
+          "pixAddressKey": {
+            "type": "string",
+            "example": "12345678909",
+            "description": "Chave PIX para recebimento"
+          },
+          "pixAddressKeyType": {
+            "type": "string",
+            "example": "CPF",
+            "description": "Tipo da chave PIX (CPF, EMAIL, PHONE, RANDOM)"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "cpfCnpj",
+          "birthDate",
+          "companyType",
+          "mobilePhone",
+          "incomeValue",
+          "address",
+          "addressNumber",
+          "province",
+          "postalCode",
+          "pixAddressKey",
+          "pixAddressKeyType"
+        ]
+      },
+      "AsaasWebhookDto": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "description": "O tipo do evento gerado",
+            "example": "PAYMENT_RECEIVED"
+          },
+          "payment": {
+            "type": "object",
+            "description": "Objeto de pagamento enviado pelo webhook"
+          },
+          "id": {
+            "type": "string",
+            "description": "O ID do evento no Asaas",
+            "example": "evt_123456"
+          }
+        },
+        "required": [
+          "event",
+          "payment"
+        ]
+      },
+      "CreateServiceGroupDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Cabeleireiros",
+            "description": "Nome do grupo de serviços"
+          },
+          "capacity": {
+            "type": "number",
+            "example": 1,
+            "description": "Quantidade de profissionais disponíveis para o grupo de serviços"
+          },
+          "companyId": {
+            "type": "string",
+            "example": "6e463255-9c3e-47e1-b417-60382e3d2223",
+            "description": "ID da empresa à qual este grupo de serviços pertence"
+          }
+        },
+        "required": [
+          "name",
+          "capacity",
+          "companyId"
+        ]
+      },
+      "UpdateServiceGroupDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Cabeleireiros",
+            "description": "Nome do grupo de serviços"
+          },
+          "capacity": {
+            "type": "number",
+            "example": 1,
+            "description": "Quantidade de profissionais disponíveis para o grupo de serviços"
+          }
+        }
+      },
+      "WorkingHourItemDto": {
+        "type": "object",
+        "properties": {
+          "dayOfWeek": {
+            "type": "number",
+            "description": "Dia da semana (0 = Domingo, 1 = Segunda, ..., 6 = Sábado)",
+            "example": 1,
+            "minimum": 0,
+            "maximum": 6
+          },
+          "isClosed": {
+            "type": "boolean",
+            "description": "Indica se a empresa estará fechada neste dia",
+            "example": false,
+            "default": false
+          },
+          "startTime": {
+            "type": "string",
+            "description": "Horário de abertura no formato HH:mm (obrigatório se aberto)",
+            "example": "09:00"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "Horário de encerramento no formato HH:mm (obrigatório se aberto)",
+            "example": "18:00"
+          },
+          "lunchStartTime": {
+            "type": "object",
+            "description": "Início do intervalo de almoço no formato HH:mm",
+            "example": "12:00"
+          },
+          "lunchEndTime": {
+            "type": "object",
+            "description": "Fim do intervalo de almoço no formato HH:mm",
+            "example": "13:00"
+          }
+        },
+        "required": [
+          "dayOfWeek"
+        ]
+      },
+      "UpdateWorkingHoursDto": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "description": "ID da empresa (opcional para COMPANY_OWNER com única empresa, obrigatório para administradores)",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "hours": {
+            "description": "Lista de dias da semana e horários de funcionamento",
+            "example": [
+              {
+                "dayOfWeek": 1,
+                "isClosed": false,
+                "startTime": "09:00",
+                "endTime": "19:00",
+                "lunchStartTime": "12:00",
+                "lunchEndTime": "13:00"
+              },
+              {
+                "dayOfWeek": 2,
+                "isClosed": false,
+                "startTime": "09:00",
+                "endTime": "19:00",
+                "lunchStartTime": "12:00",
+                "lunchEndTime": "13:00"
+              },
+              {
+                "dayOfWeek": 0,
+                "isClosed": true
+              }
+            ],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkingHourItemDto"
+            }
+          }
+        },
+        "required": [
+          "hours"
+        ]
+      },
+      "CreateScheduleExceptionDto": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "description": "ID da empresa (opcional para COMPANY_OWNER com única empresa, obrigatório para administradores)",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "date": {
+            "type": "string",
+            "description": "Data da exceção no formato YYYY-MM-DD",
+            "example": "2026-12-25"
+          },
+          "isClosed": {
+            "type": "boolean",
+            "description": "Indica se o estabelecimento estará totalmente fechado nesta data",
+            "example": true,
+            "default": true
+          },
+          "startTime": {
+            "type": "string",
+            "description": "Horário especial de abertura no formato HH:mm (se isClosed for false)",
+            "example": "10:00"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "Horário especial de encerramento no formato HH:mm (se isClosed for false)",
+            "example": "14:00"
+          },
+          "description": {
+            "type": "string",
+            "description": "Descrição ou motivo da exceção (ex: Feriado de Natal)",
+            "example": "Feriado de Natal",
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "date"
+        ]
+      }
+    }
+  }
+}
