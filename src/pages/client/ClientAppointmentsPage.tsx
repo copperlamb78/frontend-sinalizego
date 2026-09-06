@@ -26,10 +26,11 @@ export const ClientAppointmentsPage: React.FC = () => {
   const [appointmentToCancel, setAppointmentToCancel] = useState<Appointment | null>(null);
   const [voucherAppointment, setVoucherAppointment] = useState<Appointment | null>(null);
 
-  // 1. Fetch User Appointments
+  // 1. Fetch User Appointments (shared cache with Explore page)
   const { data: appointments, isLoading } = useQuery({
-    queryKey: ['user-appointments-list'],
-    queryFn: () => appointmentsService.getUserAppointments()
+    queryKey: ['user-appointments'],
+    queryFn: () => appointmentsService.getUserAppointments(),
+    staleTime: 1000 * 60 * 3 // 3 minutes
   });
 
   const { upcomingItems, historyItems, upcomingCount, historyCount } = useMemo(() => {
