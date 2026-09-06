@@ -56,7 +56,7 @@ export const ServerErrorPage: React.FC<ServerErrorPageProps> = ({
           </p>
         </div>
 
-        {/* Error Detail */}
+        {/* Error Detail (apenas em ambiente de desenvolvimento) */}
         {import.meta.env.DEV && error && (
           <div className="p-3.5 rounded-xl bg-[#0B1120] border border-red-500/30 text-left overflow-x-auto text-[11px] font-mono text-red-300 max-h-32 space-y-1">
             <span className="text-[10px] text-red-400 font-bold uppercase tracking-wider block">Detalhes do Erro (Dev Only):</span>
