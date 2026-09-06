@@ -86,7 +86,7 @@ export const OwnerDashboardPage: React.FC = () => {
     mutationFn: (appointmentId: string) => appointmentsService.completeAppointment(appointmentId),
     onMutate: (id) => setCompletingId(id),
     onSuccess: () => {
-      toast.success('Atendimento concluído! O valor retido em custódia foi liberado.');
+      toast.success('Atendimento concluído! O valor retido em garantia foi liberado.');
       queryClient.invalidateQueries({ queryKey: ['company-metrics'] });
       queryClient.invalidateQueries({ queryKey: ['company-balance'] });
       queryClient.invalidateQueries({ queryKey: ['company-appointments'] });
@@ -102,7 +102,7 @@ export const OwnerDashboardPage: React.FC = () => {
   const noShowMutation = useMutation({
     mutationFn: (appointmentId: string) => appointmentsService.registerNoShow(appointmentId),
     onSuccess: () => {
-      toast.success('Falta (No-Show) registrada com sucesso! O sinal de reserva foi liberado para sua carteira.');
+      toast.success('Não comparecimento registrado com sucesso! A garantia de reserva foi liberada para seu saldo.');
       queryClient.invalidateQueries({ queryKey: ['company-metrics'] });
       queryClient.invalidateQueries({ queryKey: ['company-balance'] });
       queryClient.invalidateQueries({ queryKey: ['company-appointments'] });
@@ -200,7 +200,7 @@ export const OwnerDashboardPage: React.FC = () => {
             </Badge>
           </div>
           <p className="text-xs text-slate-400">
-            Acompanhe o faturamento, liquidação de custódia e a fila de clientes do dia.
+            Acompanhe o faturamento, liberação de valores e a fila de clientes do dia.
           </p>
         </div>
 
@@ -302,7 +302,7 @@ export const OwnerDashboardPage: React.FC = () => {
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
               <Lock className="w-4 h-4 text-amber-400" />
-              Saldo em Custódia
+              Saldo em Garantia
             </span>
             <div className="group relative cursor-pointer" title="Valores retidos de agendamentos futuros. Liberados automaticamente após a conclusão do serviço.">
               <HelpCircle className="w-3.5 h-3.5 text-slate-500 hover:text-slate-300" />
@@ -374,7 +374,7 @@ export const OwnerDashboardPage: React.FC = () => {
                 <h3 className="text-base font-black text-white">
                   Prejuízo Evitado com SinalizeGO
                 </h3>
-                <Badge variant="teal" size="sm">CUSTÓDIA PROTEGIDA</Badge>
+                <Badge variant="teal" size="sm">GARANTIA DE HORÁRIOS</Badge>
               </div>
 
               <p className="text-xs text-slate-300 leading-relaxed">
@@ -540,7 +540,7 @@ export const OwnerDashboardPage: React.FC = () => {
                         title={
                           !canComplete
                             ? `Disponível a partir das ${time}`
-                            : 'Concluir atendimento e liberar custódia'
+                            : 'Concluir atendimento e liberar valor'
                         }
                       >
                         {canComplete ? 'Concluir' : `Aguardando ${time}`}
@@ -584,7 +584,7 @@ export const OwnerDashboardPage: React.FC = () => {
       <div className="p-4 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center gap-3 text-xs text-slate-400">
         <ShieldCheck className="w-5 h-5 text-teal-400 shrink-0" />
         <span>
-          O sinal Pix recebido fica protegido em custódia até você concluir o serviço ou registrar no-show após a tolerância de 15 minutos, garantindo total segurança contra prejuízos de agenda vazia.
+          O sinal Pix recebido fica protegido em garantia até você concluir o atendimento ou registrar a ausência do cliente após a tolerância de 15 minutos, garantindo total segurança contra prejuízos de agenda vazia.
         </span>
       </div>
 
@@ -592,7 +592,7 @@ export const OwnerDashboardPage: React.FC = () => {
       <Modal
         isOpen={!!noShowTarget}
         onClose={() => setNoShowTarget(null)}
-        title="Confirmar Falta do Cliente (No-Show)"
+        title="Confirmar Ausência do Cliente"
         description="Esta ação libera o sinal de reserva diretamente para a sua conta."
         size="sm"
       >
