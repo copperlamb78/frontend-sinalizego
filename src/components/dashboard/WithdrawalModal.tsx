@@ -37,7 +37,8 @@ export const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
   const { data: history, isLoading: isLoadingHistory } = useQuery({
     queryKey: ['withdrawals-history'],
     queryFn: () => companyService.getWithdrawalsHistory(),
-    enabled: isOpen
+    enabled: isOpen,
+    staleTime: 1000 * 60 * 2 // 2 minutes
   });
 
   const withdrawMutation = useMutation({
