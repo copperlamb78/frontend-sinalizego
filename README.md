@@ -48,7 +48,7 @@ Por meio de um fluxo de agendamento online integrado com o gateway de pagamentos
 - **Histórico & Próximos Atendimentos**: Abas organizadas separando compromissos futuros de atendimentos passados, com detalhamento claro do sinal pago e valor restante no balcão.
 - **Cancelamento Transparente**:
   - *Com mais de 24 horas de antecedência*: Estorno integral automático (100% via Pix).
-  - *Com menos de 24 horas de antecedência*: Retenção legal do piso de R$ 15,00 para compensação da cadeira vaga (Arts. 417 a 420 do Código Civil) e devolução automática do valor excedente.
+  - *Com menos de 24 horas de antecedência*: Retenção legal de 100% do sinal para compensação da cadeira vaga (Arts. 417 a 420 do Código Civil - Arras Confirmatórias), sem estorno.
 - **Minha Conta & Privacidade**: Edição de dados cadastrais, validação de CPF, alteração de senha e exclusão definitiva de dados pessoais conforme a LGPD.
 
 ### 4. Experiência PWA & Otimização de Performance
