@@ -49,10 +49,11 @@ export const OwnerSettingsPage: React.FC = () => {
   const [copiedLink, setCopiedLink] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
-  // 1. Fetch Company Data
+  // 1. Fetch Company Data (shared cache with OwnerLayout)
   const { data: company, isLoading } = useQuery({
-    queryKey: ['company-owner-settings'],
-    queryFn: () => companyService.getCompanyByUserId()
+    queryKey: ['owner-company-profile'],
+    queryFn: () => companyService.getCompanyByUserId(),
+    staleTime: 1000 * 60 * 5 // 5 minutes cache
   });
 
   const {
@@ -99,7 +100,7 @@ export const OwnerSettingsPage: React.FC = () => {
     },
     onSuccess: () => {
       toast.success('Configurações do estabelecimento atualizadas com sucesso!');
-      queryClient.invalidateQueries({ queryKey: ['company-owner-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['owner-company-profile'] });
       queryClient.invalidateQueries({ queryKey: ['company-by-slug'] });
     },
     onError: (err: any) => {
