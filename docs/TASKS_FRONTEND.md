@@ -258,7 +258,7 @@ src/
 2. **`CancelAppointmentModal`**:
    - [x] Cálculo dinâmico do tempo restante até o atendimento.
    - [x] Cenário > 24 horas: Estorno integral garantido (100% Pix) de volta para a conta de origem.
-   - [x] Cenário <= 24 horas: Explicação jurídica (Arts. 417 a 420 do Código Civil) sobre a retenção do piso de R$ 15,00 e devolução do valor excedente caso o sinal pago seja superior a R$ 15,00.
+   - [x] Cenário <= 24 horas: Explicação jurídica (Arts. 417 a 420 do Código Civil - Arras Confirmatórias) sobre a retenção integral de 100% do sinal como indenização de vacância da cadeira reservada do profissional (sem devolução do sinal).
 3. **`ClientProfilePage` (`/minha-conta`)**:
    - [x] Formulário de dados cadastrais com React Hook Form e validação via Zod.
    - [x] Campo de CPF para segurança de estornos bancários e aviso de criptografia de ponta a ponta.
