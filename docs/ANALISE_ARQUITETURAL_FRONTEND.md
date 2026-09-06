@@ -58,8 +58,10 @@ graph TD
     I -- Expira 15 min --> K[Liberar Vaga & Marcar CANCELED]
 ```
 
-### 3.1. Micro-Transaction Safety Gate (Trava de R$ 15,00) & Blocos de Sinal
-- **Serviços < R$ 15,00**: O frontend desabilita seleção fracionada e força **100% de pagamento antecipado**.
+### 3.1. Micro-Transaction Safety Gate (Trava de R$ 15,00) & Regras de Sinal
+- **Serviços < R$ 15,00**: Força **100% de sinal antecipado**.
+- **Serviços de R$ 15,00 a R$ 399,99**: **50% de sinal** padronizado.
+- **Serviços >= R$ 400,00**: Escolha de 30% ou 50% configurável pelo parceiro.
 - **Serviços >= R$ 15,00**: A interface gera opções dinâmicas progressivas `[Piso Configurado (25% ou 50%), ..., 75%, 100%]`, descartando qualquer fração cujo valor monetário seja inferior a R$ 15,00.
 
 ### 3.2. Ciclo de Vida do Pix & Anti-DoS (15 Minutos)
