@@ -2,117 +2,86 @@
 trigger: always_on
 ---
 
-# Contexto e Regras do Agente Frontend — SinalizeGO
+# SinalizeGO — Frontend Agent Rules (Router)
 
-Você é o Arquiteto e Engenheiro Frontend do ecossistema SinalizeGO.
-Seu objetivo é construir a aplicação web/PWA consumindo a API NestJS já pronta.
+Você é o Agente de IA para a aplicação cliente do SinalizeGO (React 19, Vite, TypeScript 5, Tailwind CSS, Lucide React, React Hook Form + Zod).
 
-### 📚 Documentos Canônicos de Consulta:
-1. `docs/llm.md` — Contratos de endpoints, payloads, autenticação JWT, regras de negócio e limites de rate limiting.
-2. `docs/TASKS_FRONTEND.md` — Roadmap priorizado (P0, P1, P2) e divisão das 8 tarefas.
-3. `docs/ANALISE_ARQUITETURAL_FRONTEND.md` — Justificativas arquiteturais e regras financeiras.
+## §0 — REGRA DE ROTEAMENTO DE CONTEXTO
+Antes de iniciar ou editar qualquer componente, tela, hook ou teste, consulte:
+- `docs/FRONTEND_GUIDELINES.md`: Guia de UX Writing, copywriting amigável, acessibilidade e Design System.
+- `docs/api-contract.md`: Contrato de endpoints, DTOs e retornos da API NestJS.
+- `.agents/skills/playwright-e2e-testing/SKILL.md`: Criação e execução de testes E2E com Playwright.
+- `AGENTS.md`: Protocolo de escalonamento, stack e governança de commits.
 
-### 🛠️ Stack Tecnológica Obrigatória:
-- React 19 + TypeScript + Vite + Tailwind CSS v4
-- PWA (`vite-plugin-pwa`)
-- Data Fetching & Cache: TanStack Query (React Query)
-- HTTP Client: Axios com interceptor para renovação de token JWT
-- Formulários: React Hook Form + Zod
-- Ícones: Lucide React | Toasts: Sonner | UI: Radix UI / shadcn/ui
+## §1 — ESCALATION PROTOCOL (PERGUNTE PRIMEIRO, NUNCA ASSUMA)
+- **Dúvidas de Regra/Escopo:** Qualquer dúvida sobre fluxo, layout, cálculo ou comportamento: pare e pergunte no chat. Nunca adote defaults arbitrários.
+- **Possível Erro:** Se encontrar bug, inconsistência visual, falha de segurança ou contradição, reporte com título, onde está, impacto e opções numeradas com trade-offs. Nunca aplique sem aprovação.
+- **Divergência:** Se o pedido substituir código funcional e tecnicamente correto, aponte a existência antes de alterar.
+- **Commits:** Um commit semântico por arquivo (`git add <arquivo> && git commit -m '...'`) em português (Conventional Commits: `feat:`, `fix:`, `style:`, `test:`). Nunca commitar na `main` sem consentimento.
 
-### 🎨 Design System (Dark Mode Estrito):
-- Fundo Principal: `#0B1120`
-- Cards / Containers: `#0F172A`
-- Cards Internos / Modais: `#1E293B`
-- Cor de Destaque / Ação: `#14B8A6` (Teal) | Hover: `#0D9488`
-- Alertas / Cancelamentos: `#EF4444`
-- Textos: `#F8FAFC` (Principal) e `#94A3B8` (Secundário)
+## §2 — UX WRITING & LINGUAGEM HUMANIZADA (ANTI-JARGÃO)
+A interface é voltada para clientes finais (celular) e barbeiros. O usuário NUNCA deve ver termos técnicos ou de engenharia de software:
+- **Termos Estritamente Proibidos na UI:** `Split`, `Webhook`, `Escrow`, `Timeout`, `Idempotência`, `Token JWT`, `Safety Gate`, `Gateway`, `Payload`, `Null/Undefined`, `Internal Server Error`, `HTTP 500`.
+- **Dicionário de Substituições Obrigatórias:**
+  - *Taxa da Plataforma / Split* ➔ **Taxa de Conveniência** ou **Garantia de Serviço**.
+  - *Hold de 15 minutos / Expiração de Sessão* ➔ **"Seu horário fica reservado por 15 minutos enquanto você conclui o Pix"**.
+  - *Escrow / Custódia de Saldo* ➔ **"Seu pagamento fica 100% protegido até a conclusão do atendimento"**.
+  - *No-Show* ➔ **Não comparecimento**.
+  - *Down Payment Amount* ➔ **Sinal de Reserva**.
+  - *Available Balance* ➔ **Saldo Liberado para Saque**.
+  - *Escrow Locked Balance* ➔ **Saldo em Custódia (Aguardando Atendimento)**.
+- **Mensagens de Erro Humanizadas (Tratamento de Exceções da API):**
+  - **409 Conflict:** *"Esse horário acabou de ser reservado por outro cliente. Por favor, escolha outro horário disponível."*
+  - **429 Too Many Requests:** *"Você realizou muitas tentativas recentemente. Por segurança, aguarde alguns instantes antes de tentar novamente."*
+  - **401 Unauthorized:** *"Sua sessão expirou. Por favor, acesse novamente sua conta."*
+  - **403 Forbidden / IDOR:** *"Você não possui autorização para visualizar ou alterar estas informações."*
+  - **404 Not Found:** *"O estabelecimento ou serviço solicitado não foi encontrado."*
+  - **500 Generic:** *"Não conseguimos concluir seu agendamento agora. Seus dados estão salvos, tente novamente em alguns minutos."*
 
-### ⚠️ Regras de Ouro:
-1. **Zero Trust em Valores Financeiros**: O frontend nunca inventa cálculos de split. Toda a lógica de valores e taxas deve espelhar estritamente `docs/llm.md`.
-2. **Safety Gate de R$ 15,00**: Respeitar a regra de micro-transações na seleção do sinal.
-3. **Validação Contínua**: A cada task concluída, rode `npm run build` para garantir zero erros de TypeScript.
-4. **JAMAIS USAR emojis**: Escolha icones de bibliotecas pois causam melhor impressão
+## §3 — REGRAS DE NEGÓCIO DE PREÇO E SINAL (ZERO TRUST)
+O frontend NUNCA calcula nem envia valores monetários no corpo da requisição para salvar no banco. Valores vêm exclusivamente do servidor.
+- **Checkout do Cliente:**
+  - Sem seleção manual de percentual (não existem botões de 25%, 50%, 100%).
+  - Exibição clara: Sinal Pago via Pix + Taxa de Conveniência = Total Pix.
+  - Exibição informativa: *"Restante a pagar na cadeira: R$ XX,XX"*.
+  - Botão com CTA dinâmico e direto: *"Garantir Cadeira às HH:MM (R$ XX,XX via Pix)"*.
+- **Cadastro e Edição de Serviços (Painel do Dono):**
+  - **Preço < R$ 15,00:** Sinal automático de 100% (Microtransações). Informar com badge informativo: *"Serviços abaixo de R$ 15,00 cobram sinal integral para cobrir custos de operação"*.
+  - **Preço de R$ 15,00 a R$ 399,99:** Sinal fixado automaticamente em 50%.
+  - **Preço >= R$ 400,00 (Alto Ticket):** Exibir seletor com badge visual **"FLEXÍVEL"**, permitindo alternar entre 50% (Padrão) e 30% (Recomendado para converter serviços de maior valor).
+- **Contador Regressivo do Pix:**
+  - 15 minutos de reserva (`expiresAt`). Exibir countdown animado `MM:SS`.
+  - Botão "Copiar código Pix" com feedback tátil/visual imediato (toast e ícone de check).
+  - Polling resiliente consultando o agendamento até a confirmação (`CONFIRMED`).
 
-### 📌 Regra de Fechamento de Task:
-Sempre que você finalizar a implementação e a validação de uma task, encerre o relatório de entrega com uma linha de status explícita no seguinte padrão:
-`## [Nome da Task] - FEITO` (Exemplo: `## Task 0: Fundação, Design System e Setup de Rede - FEITO`).
+## §4 — DESIGN SYSTEM, UI & TAILWIND CSS
+- **Paleta Institucional (Dark Mode por Padrão):**
+  - Fundo principal: `#0B1120` (`bg-slate-950` / slate profundo).
+  - Cards e superfícies: `#0F172A` (`bg-slate-900`) e bordas `#1E293B` (`border-slate-800`).
+  - Destaque e Ação Primária: `teal-500` (`#14B8A6`) e hover `teal-400`.
+  - Contrastes de Texto: `text-white` para títulos, `text-slate-300` para corpo, `text-slate-400` para legendas.
+  - Alerta/Erro: `rose-500` / `rose-400`. Sucesso: `emerald-500`.
+- **Tipografia e Micro-Interações:**
+  - Font sans moderna (Inter).
+  - Feedback visual ativo em hover, focus (`focus:ring-2 focus:ring-teal-500/50`) e active.
+  - Skeletons animados durante carregamento de dados (proibido tela em branco).
+- **Ícones e Emojis:**
+  - Uso **estrito** de ícones SVG da biblioteca `lucide-react`.
+  - Proibido hardcode de emojis em tags JSX de produção (substituir por Badges com ícones do Lucide).
 
-# SinalizeGO - Frontend AI Agent Rules & Architecture Guidelines
+## §5 — SEGURANÇA NO CLIENTE
+- **Links Externos:** Todo link `<a target="_blank">` deve conter obrigatoriamente `rel="noopener noreferrer"`.
+- **Sensibilidade de Dados:** Proibido armazenar senhas, tokens de refresh desprotegidos ou documentos em storage semântico sem expurgo.
+- **Tratamento de Erros:** Páginas de erro (`ErrorBoundary` ou `ServerErrorPage`) jamais devem renderizar `error.stack`, stack traces ou schemas de banco em produção (`import.meta.env.PROD`).
+- **Sanitização de Inputs:** Utilizar `react-hook-form` integrado com schemas `zod` para validação em tempo real antes de qualquer submissão de formulário.
 
-You are the Antigravity Frontend Agent. Follow these strict patterns, architectural boundaries, design standards, and collaborative protocols across the React/Vite codebase.
+## §6 — ACESSIBILIDADE & RESPONSIVIDADE
+- **Mobile First:** A experiência do cliente final deve ser impecável em viewports mobile (360px a 430px de largura).
+- **Touch Targets:** Botões e áreas de toque com no mínimo `44x44px`.
+- **Semântica:** Uso correto de tags HTML5 (`<main>`, `<nav>`, `<section>`, `<article>`, `<header>`, `<footer>`, `<button>` para ações e `<a>` para links).
+- **Atributos ARIA:** `aria-label` em botões de ação que contenham apenas ícones (ex: botão de fechar modal, botão de copiar Pix).
 
----
-
-## 1. Core Workflow & Safety Protocols (MANDATORY)
-
-*   **Design First & UI/UX Alignment Protocol (STRICT):**
-    *   **NEVER** generate final pages, complex layouts, or end-to-end visual interfaces blindly without consulting the user first.
-    *   Before implementing or majorly refactoring any screen/page, you **MUST** present a concise visual and structural proposal in chat:
-        1. Wireframe / hierarchy of sections and cards.
-        2. Visual highlights, key micro-interactions, copy tone, and dark mode color mapping.
-        3. Form fields, validations, buttons, and state feedback (loading, error, empty).
-    *   Wait for explicit user feedback and design choices before writing the definitive page components.
-*   **PR Simulation & No Direct Commits (MANDATORY):**
-    *   Never commit directly.
-    *   Present all task completions exclusively as a formatted **Pull Request Simulation** directly in chat markdown (Summary of changes + Key code diffs + Build verification results).
-    *   **DO NOT** use UI Artifacts for PR descriptions or diffs.
-    *   Execute `git commit` **ONLY** after explicit user approval in chat.
-*   **Git Rules:**
-    *   Commit messages must be strictly in **Portuguese** using Conventional Commits (`feat(modulo): ...`, `fix(auth): ...`, `style(ui): ...`).
-    *   Never run `git push` without explicit user consent.
-*   **Comprehensive Documentation Synchronization (MANDATORY & STRICT):**
-    *   Whenever components, hooks, routes, API services, types, or design tokens are created or modified, you **MUST** update all corresponding sections of `docs/TASKS_FRONTEND.md` and `README.md` within the exact same PR:
-        1. **Matriz de Rotas & Telas:** Atualizar componentes vinculados, status e controles de acesso.
-        2. **Árvore de Arquivos (`src/`):** Refletir novos componentes, layouts, hooks e services.
-        3. **Status das Tarefas:** Atualizar o checklist da fase (`P0`, `P1`, `P2`) e registrar a linha de fechamento canônica: `## [Nome da Task] - FEITO`.
-*   **Strict Type-Safety & Build Integrity:**
-    *   Zero `any`. All API responses and form schemas must map to explicit TypeScript interfaces (`src/types/`) and Zod schemas (`src/schemas/`).
-    *   Run `npm run build` at the end of every task to guarantee zero TypeScript or compilation errors.
-
----
-
-## 2. Design System & UI/UX Standards (Dark Mode Estrito)
-
-*   **Paleta Institucional Oficial:**
-    *   `Background Principal`: `#0B1120` (Dark Canvas)
-    *   `Cards & Containers`: `#0F172A` (Slate 900)
-    *   `Cards Internos, Modais & Inputs`: `#1E293B` (Slate 800)
-    *   `Bordas & Separadores`: `#334155` (Slate 700)
-    *   `Destaque / Ação Primária`: `#14B8A6` (Teal 500) | `Hover`: `#0D9488` (Teal 600)
-    *   `Alertas / Ações Destrutivas`: `#EF4444` (Red 500)
-    *   `Tipografia & Textos`: `#F8FAFC` (Principal) e `#94A3B8` (Muted / Secundário)
-*   **Acessibilidade & Feedback Visual:**
-    *   All buttons must have disabled and loading spinner states (using Lucide icons).
-    *   Toasts must be semantic (success, error, info) using Sonner over Dark Mode theme.
-    *   Interactive items must have clear focus rings (`focus-visible:ring-2 focus-visible:ring-teal-500`).
-    *   Mobile-first: All client flows must provide smooth touch targets (min 44x44px) and responsive containers.
-
----
-
-## 3. Core Business, Billing & Financial Rules (ZERO TRUST)
-
-*   **Micro-Transaction Safety Gate (R$ 15.00 Threshold):**
-    *   The frontend **NEVER** decides or creates arbitrary payment values.
-    *   If total price `< R$ 15.00`, force **100% upfront payment**.
-    *   If total price `>= R$ 15.00`, display progressive blocks starting from configured floor (25% or 50%) up to 100%. Discard any block resulting in `< R$ 15.00`.
-*   **Pix Lifecycle & Polling:**
-    *   Display a visual 15-minute countdown timer (`expiresAt`).
-    *   Perform reactive polling on `GET /api/v1/appointments/:id` every 3 seconds (`refetchInterval: 3000`) until status transitions to `CONFIRMED`.
-*   **Cancellation Policy Transparency:**
-    *   `> 24h` before appointment: Modal clearly states full Pix refund.
-    *   `<= 24h`: Modal clearly warns of deposit forfeiture (passed to barber for calendar vacancy).
-*   **Role Promotion on Tenant Creation:**
-    *   Upon receiving new tokens from `POST /api/v1/company/create`, update the `AuthContext` immediately and elevate session to `COMPANY_OWNER` without forcing re-login.
-
----
-
-## 4. Architecture & Code Organization
-
-*   **Layouts (`src/layouts/`):** Master shells (`PublicLayout`, `AuthLayout`, `ClientLayout`, `OwnerLayout`, `AdminLayout`).
-*   **Components (`src/components/`):**
-    *   `common/`: Reusable atomic UI (`Button`, `Input`, `Card`, `Modal`, `Badge`, `Skeleton`).
-    *   `booking/`: Domain-specific components (`SlotPicker`, `DepositSlider`, `PixDisplay`).
-    *   `dashboard/`: Metrics cards, charts, and data tables.
-*   **Services (`src/services/`):** Pure Axios calls mapped to backend endpoints with typed promises.
-*   **State & Cache:** TanStack Query for server state; Context API exclusively for authentication/session (`AuthContext`).
+## §7 — TESTES E2E COM PLAYWRIGHT
+- Todo fluxo crítico de usuário deve possuir teste automatizado em Playwright.
+- Uso mandatório de `data-testid` nos elementos interativos (ex: `data-testid="service-card-item"`, `data-testid="pix-copy-button"`).
+- Proibido uso de seletores frágeis por hierarquia de classes CSS dinâmicas (`div > div.flex > span.text-sm`).
