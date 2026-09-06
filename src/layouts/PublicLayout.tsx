@@ -59,7 +59,7 @@ export const PublicLayout: React.FC = () => {
                   leftIcon={<LayoutDashboard className="w-4 h-4 text-[#14B8A6]" />}
                   onClick={() => navigate(getDashboardPath())}
                 >
-                  Meu Painel ({user.name.split(' ')[0]})
+                  Meu Painel
                 </Button>
                 <Button
                   variant="ghost"
