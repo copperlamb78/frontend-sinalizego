@@ -218,7 +218,7 @@ export const PublicLayout: React.FC = () => {
             <ul className="space-y-2 text-sm text-[#94A3B8]">
               <li>
                 <a href="#politica" className="hover:text-white transition-colors">
-                  Política de Cancelamento (&gt;24h)
+                  Política de Cancelamento
                 </a>
               </li>
               <li>
