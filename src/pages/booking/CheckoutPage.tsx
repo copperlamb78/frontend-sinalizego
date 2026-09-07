@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/config/api.config';
 import { appointmentsService } from '@/services/appointments.service';
+import { companyService } from '@/services/company.service';
 import { useAuth } from '@/contexts/auth.context';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
@@ -25,13 +26,24 @@ import { toast } from 'sonner';
 import type { CompanyStorefront, CompanyService } from '@/types/company.types';
 
 export const CheckoutPage: React.FC = () => {
-  const { companyId, serviceId } = useParams<{ companyId: string; serviceId: string }>();
+    const { companyId, serviceId } = useParams<{ companyId: string; serviceId: string }>();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const stateData = location.state as { service?: CompanyService; company?: CompanyStorefront } | undefined;
+  const initialService = stateData?.service;
+  const initialCompany = stateData?.company;
+
+  const formatLocalDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
+    return formatLocalDate(new Date());
   });
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,24 +51,25 @@ export const CheckoutPage: React.FC = () => {
   // Fetch company data to extract service details and working hours
   const { data: company, isLoading: isLoadingCompany } = useQuery<CompanyStorefront>({
     queryKey: ['company-checkout', companyId],
-    queryFn: async () => {
-      const response = await api.get<CompanyStorefront>(`/company/${companyId}`);
-      return response.data;
-    },
+    queryFn: () => companyService.getCompanyByIdOrSlug(companyId!),
+    initialData: initialCompany,
     enabled: !!companyId,
-    staleTime: 1000 * 60 * 5, // 5 minutes cache
+    staleTime: 1000 * 60 * 5,
     retry: 1
   });
 
   // Extract selected service from company catalog
   const selectedService: CompanyService | undefined = useMemo(() => {
+    if (initialService && initialService.id === serviceId) {
+      return initialService;
+    }
     if (!company?.serviceGroups) return undefined;
     for (const group of company.serviceGroups) {
       const found = group.services?.find((s) => s.id === serviceId);
       if (found) return found;
     }
     return undefined;
-  }, [company, serviceId]);
+  }, [company, serviceId, initialService]);
 
   // Fetch available slots from backend
   const {
@@ -86,7 +99,7 @@ export const CheckoutPage: React.FC = () => {
     for (let i = 0; i < 14; i++) {
       const d = new Date();
       d.setDate(today.getDate() + i);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = formatLocalDate(d);
       const dayOfWeek = d.getDay();
 
       const wh = company?.workingHours?.find((item) => item.dayOfWeek === dayOfWeek);
@@ -253,7 +266,7 @@ export const CheckoutPage: React.FC = () => {
           </span>
         </div>
 
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-800">
+        <div className="flex items-center gap-2.5 overflow-x-auto pt-3.5 pb-2 scrollbar-thin scrollbar-thumb-slate-800">
           {nextDays.map((day) => {
             const isSelected = selectedDate === day.dateStr;
             return (
