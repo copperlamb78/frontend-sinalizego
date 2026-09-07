@@ -37,3 +37,17 @@ export interface FinancialProfileResponse {
   message?: string;
   financialProfile: FinancialProfile;
 }
+
+export interface PixKeyItem {
+  id: string;
+  key: string;
+  type: 'CPF' | 'CNPJ' | 'EMAIL' | 'PHONE' | 'EVP';
+  isDefault: boolean;
+  createdAt: string;
+}
+
+export interface CreatePixKeyPayload {
+  key: string;
+  type: 'CPF' | 'CNPJ' | 'EMAIL' | 'PHONE' | 'EVP';
+  isDefault?: boolean;
+}
