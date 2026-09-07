@@ -80,8 +80,7 @@ export const RegisterPage: React.FC = () => {
     } catch (err: any) {
       let formattedMessage = 'Não foi possível realizar o cadastro. Verifique os dados informados.';
       if (err.code === 'ERR_NETWORK' || !err.response) {
-        formattedMessage =
-          'Servidor backend indisponível em http://localhost:3000. Inicie a API NestJS para registrar a conta.';
+        formattedMessage = 'Falha ao se comunicar com o servidor. Verifique sua conexão e tente novamente.';
       } else if (err.response?.data?.message) {
         const message = err.response.data.message;
         formattedMessage = Array.isArray(message) ? message.join(', ') : message;
