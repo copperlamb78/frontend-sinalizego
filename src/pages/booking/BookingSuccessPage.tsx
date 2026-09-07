@@ -333,25 +333,25 @@ export const BookingSuccessPage: React.FC = () => {
             href={backendIcsUrl}
             onClick={handleDownloadAppleCalendar}
             download={`agendamento-${appointmentId?.slice(0, 8)}.ics`}
-            className="w-full flex items-center justify-between p-3.5 rounded-xl bg-[#0F172A] border border-slate-800 hover:border-teal-500/50 hover:bg-slate-800/60 transition-all text-left group cursor-pointer"
+            className="w-full flex items-center justify-between p-3.5 rounded-xl bg-[#0F172A] border border-slate-800 hover:border-teal-500/50 hover:bg-slate-800/60 transition-all text-left group cursor-pointer gap-2"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 rounded-xl bg-slate-500/10 border border-slate-500/20 flex items-center justify-center text-slate-300 shrink-0">
                 <Smartphone className="w-5 h-5 text-slate-300" />
               </div>
-              <div>
-                <div className="flex items-center gap-1.5">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
                   <span className="text-sm font-bold text-white group-hover:text-teal-400 transition-colors">
-                    Apple Agenda (iPhone / Mac)
+                    iPhone (Apple Calendar)
                   </span>
                   <Badge variant="teal" size="sm">iOS Nativo</Badge>
                 </div>
-                <span className="text-[11px] text-slate-400 block">
+                <span className="text-[11px] text-slate-400 block truncate">
                   Abre nativamente no app Calendário do iOS
                 </span>
               </div>
             </div>
-            <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-teal-400 transition-colors" />
+            <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-teal-400 transition-colors shrink-0" />
           </a>
 
           {/* Opção 3: Outlook / Outros (.ics Universal) */}
