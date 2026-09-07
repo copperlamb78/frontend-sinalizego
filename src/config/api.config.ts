@@ -2,10 +2,11 @@ import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import type { AuthTokens } from '../types/auth.types';
 
 const getApiBaseUrl = () => {
-  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return '/api/v1';
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
   }
-  return import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+  // Em ambiente de desenvolvimento ou produção com proxy Vite/Vercel, rota relativa é a mais confiável
+  return '/api/v1';
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -72,7 +73,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Handle 401 and Auto-Refresh
+// Response Interceptor: Handle 401 and Auto-Refresh with Resilience
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -80,11 +81,11 @@ api.interceptors.response.use(
 
     // Don't retry if the request was to refresh token itself or login/register
     const isAuthRoute =
-      originalRequest.url?.includes('/auth/refresh') ||
-      originalRequest.url?.includes('/auth/login') ||
-      originalRequest.url?.includes('/auth/logout');
+      originalRequest?.url?.includes('/auth/refresh') ||
+      originalRequest?.url?.includes('/auth/login') ||
+      originalRequest?.url?.includes('/auth/logout');
 
-    if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !isAuthRoute) {
       if (isRefreshing) {
         // If already refreshing, push into queue
         return new Promise((resolve, reject) => {
