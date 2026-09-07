@@ -3,9 +3,12 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/config/api.config';
 import { appointmentsService } from '@/services/appointments.service';
+import { authService } from '@/services/auth.service';
 import { companyService } from '@/services/company.service';
 import { useAuth } from '@/contexts/auth.context';
 import { Button } from '@/components/common/Button';
+import { Modal } from '@/components/common/Modal';
+import { Input } from '@/components/common/Input';
 import { Card } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
 import { Skeleton } from '@/components/common/Skeleton';
@@ -26,8 +29,8 @@ import { toast } from 'sonner';
 import type { CompanyStorefront, CompanyService } from '@/types/company.types';
 
 export const CheckoutPage: React.FC = () => {
-    const { companyId, serviceId } = useParams<{ companyId: string; serviceId: string }>();
-  const { isAuthenticated } = useAuth();
+  const { companyId, serviceId } = useParams<{ companyId: string; serviceId: string }>();
+  const { isAuthenticated, user, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -151,24 +154,11 @@ export const CheckoutPage: React.FC = () => {
     return (hour >= 10 && hour <= 12) || (hour >= 16 && hour <= 19);
   };
 
-  const handleBookingSubmit = async () => {
-    if (!selectedSlot) {
-      toast.error('Por favor, selecione um horário disponível para continuar.');
-      return;
-    }
-
-    if (!isAuthenticated) {
-      toast.info('Faça login ou crie sua conta para concluir a reserva.');
-      navigate('/login', {
-        state: { from: { pathname: `/reserva/${companyId}/${serviceId}` } }
-      });
-      return;
-    }
-
+    const executeBooking = async () => {
     setIsSubmitting(true);
     try {
       // Compose full ISO date time
-      const [hours, minutes] = selectedSlot.split(':');
+      const [hours, minutes] = selectedSlot!.split(':');
       const appointmentDateTime = new Date(selectedDate);
       appointmentDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
 
@@ -188,9 +178,63 @@ export const CheckoutPage: React.FC = () => {
         err.response?.data?.message ||
         'Não foi possível realizar o agendamento. O horário pode ter sido preenchido por outro cliente.';
       const formattedMessage = Array.isArray(message) ? message.join(', ') : message;
+
+      // Se o erro for de falta de CPF/CNPJ, abre a modal de CPF imediatamente
+      if (typeof formattedMessage === 'string' && (formattedMessage.includes('CPF') || formattedMessage.includes('CPF/CNPJ'))) {
+        setIsCpfModalOpen(true);
+        return;
+      }
+
       toast.error(formattedMessage);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleBookingSubmit = async () => {
+    if (!selectedSlot) {
+      toast.error('Por favor, selecione um horário disponível para continuar.');
+      return;
+    }
+
+    if (!isAuthenticated) {
+      toast.info('Faça login ou crie sua conta para concluir a reserva.');
+      navigate('/login', {
+        state: { from: { pathname: `/reserva/${companyId}/${serviceId}` } }
+      });
+      return;
+    }
+
+    // Se o usuário logado ainda não possui CPF cadastrado, abre a modal de CPF
+    if (user && !user.cpfCnpj) {
+      setIsCpfModalOpen(true);
+      return;
+    }
+
+    await executeBooking();
+  };
+
+  const handleSaveCpfAndContinue = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanCpf = cpfInput.replace(/\D/g, '');
+    if (cleanCpf.length !== 11) {
+      toast.error('Informe um CPF válido com 11 dígitos.');
+      return;
+    }
+
+    setIsSavingCpf(true);
+    try {
+      await authService.updateCpf({ cpfCnpj: cleanCpf });
+      await refreshProfile();
+      toast.success('CPF cadastrado com sucesso!');
+      setIsCpfModalOpen(false);
+      // Continua automaticamente o agendamento
+      await executeBooking();
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Não foi possível salvar o CPF. Verifique o número digitado.';
+      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
+    } finally {
+      setIsSavingCpf(false);
     }
   };
 
@@ -282,8 +326,8 @@ export const CheckoutPage: React.FC = () => {
                   isSelected
                     ? 'bg-[#14B8A6] border-[#14B8A6] text-white shadow-lg shadow-teal-500/25 scale-105'
                     : day.isClosed
-                    ? 'bg-slate-900/40 border-slate-800/50 text-slate-600 cursor-not-allowed opacity-50'
-                    : 'bg-[#0F172A] border-slate-800 text-slate-300 hover:border-teal-500/50 hover:bg-[#1E293B]'
+                      ? 'bg-slate-900/40 border-slate-800/50 text-slate-600 cursor-not-allowed opacity-50'
+                      : 'bg-[#0F172A] border-slate-800 text-slate-300 hover:border-teal-500/50 hover:bg-[#1E293B]'
                 )}
                 aria-label={`Selecionar dia ${day.dayNum}, ${day.dayLabel}${day.isClosed ? ' (Fechado)' : ''}${day.isPeakDay ? ' (Disputado)' : ''}`}
                 aria-pressed={isSelected}
@@ -463,7 +507,7 @@ export const CheckoutPage: React.FC = () => {
             {/* Taxa de Conveniência (Serviço) */}
             <div className="flex items-center justify-between pt-2.5">
               <div className="space-y-0.5">
-                <span className="text-slate-400 font-medium block">Taxa de Conveniência (Serviço)</span>
+                <span className="text-slate-400 font-medium block">Reserva (Serviço)</span>
                 <span className="text-[10px] text-slate-500 block">Garantia e segurança da transação Pix</span>
               </div>
               <span className="font-semibold text-teal-400 text-xs">
@@ -521,6 +565,48 @@ export const CheckoutPage: React.FC = () => {
           </p>
         )}
       </div>
+      {/* Modal para Cadastro Rápido de CPF para o Pix */}
+      <Modal
+        isOpen={isCpfModalOpen}
+        onClose={() => setIsCpfModalOpen(false)}
+        title="CPF Necessário para Gerar o Pix"
+        description="O Banco Central e o gateway de pagamento exigem o CPF do titular para gerar a cobrança Pix e emitir o comprovante de reserva."
+        size="sm"
+      >
+        <form onSubmit={handleSaveCpfAndContinue} className="space-y-4">
+          <Input
+            label="Seu CPF"
+            placeholder="000.000.000-00"
+            value={cpfInput}
+            onChange={(e) => setCpfInput(formatCpf(e.target.value))}
+            maxLength={14}
+            required
+            autoFocus
+          />
+
+          <p className="text-[11px] text-slate-400 leading-relaxed bg-[#0B1120] p-2.5 rounded-xl border border-slate-800">
+            🔒 Seus dados são protegidos por criptografia e usados exclusivamente para registrar sua reserva com garantia e estorno facilitado.
+          </p>
+
+          <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-800">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsCpfModalOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              size="sm"
+              isLoading={isSavingCpf}
+            >
+              Salvar CPF e Continuar
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
