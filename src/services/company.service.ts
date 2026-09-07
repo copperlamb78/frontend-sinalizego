@@ -51,6 +51,17 @@ export const companyService = {
   },
 
   /**
+   * Fetches company by ID or Slug automatically
+   */
+  getCompanyByIdOrSlug: async (idOrSlug: string): Promise<CompanyStorefront> => {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
+    if (isUuid) {
+      return companyService.getCompanyById(idOrSlug);
+    }
+    return companyService.getCompanyBySlug(idOrSlug);
+  },
+
+  /**
    * Fetches company of the logged in user
    * GET /api/v1/company/get-by-user-id
    */
