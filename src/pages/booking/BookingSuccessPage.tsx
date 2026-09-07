@@ -6,6 +6,7 @@ import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
 import { Skeleton } from '@/components/common/Skeleton';
+import { Modal } from '@/components/common/Modal';
 import {
   CheckCircle2,
   Calendar,
@@ -17,16 +18,20 @@ import {
   ArrowRight,
   Phone,
   Check,
-  ShieldCheck
+  ShieldCheck,
+  ExternalLink,
+  Smartphone,
+  Download
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
-import { downloadIcsFile } from '@/lib/calendar';
+import { downloadIcsFile, getGoogleCalendarUrl, IcsEventOptions } from '@/lib/calendar';
 import { toast } from 'sonner';
 import { triggerCelebrationConfetti } from '@/lib/confetti';
 import { triggerHaptic } from '@/lib/haptics';
 
 export const BookingSuccessPage: React.FC = () => {
   const { appointmentId } = useParams<{ appointmentId: string }>();
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = React.useState(false);
 
   // Subtle celebratory confetti & haptic on load
   React.useEffect(() => {
@@ -41,8 +46,8 @@ export const BookingSuccessPage: React.FC = () => {
     staleTime: 1000 * 60 * 5 // 5 minutes
   });
 
-  const handleDownloadCalendar = () => {
-    if (!appointment) return;
+  const getCalendarEventOptions = (): IcsEventOptions | null => {
+    if (!appointment) return null;
 
     const startDate = new Date(appointment.appointmentDate);
     const duration = appointment.service?.durationMinutes || 30;
@@ -58,7 +63,7 @@ export const BookingSuccessPage: React.FC = () => {
       .filter(Boolean)
       .join(', ');
 
-    downloadIcsFile({
+    return {
       title: `${serviceName} - ${companyName}`,
       description: `Agendamento confirmado no ${companyName}.\nServiço: ${serviceName}\nTaxa de Reserva: ${formatCurrency(
         appointment.downPaymentAmount
@@ -66,9 +71,35 @@ export const BookingSuccessPage: React.FC = () => {
       location: address || 'Endereço do Estabelecimento',
       startDate,
       durationMinutes: duration
-    });
+    };
+  };
 
-    toast.success('Evento de calendário (.ics) baixado com sucesso!');
+  const handleOpenGoogleCalendar = () => {
+    const options = getCalendarEventOptions();
+    if (!options) return;
+
+    const googleUrl = getGoogleCalendarUrl(options);
+    window.open(googleUrl, '_blank', 'noopener,noreferrer');
+    setIsCalendarModalOpen(false);
+    toast.success('Abrindo evento no Google Agenda...');
+  };
+
+  const handleDownloadAppleCalendar = () => {
+    const options = getCalendarEventOptions();
+    if (!options) return;
+
+    downloadIcsFile(options);
+    setIsCalendarModalOpen(false);
+    toast.success('Arquivo aberto! Toque nele para adicionar ao Calendário do iPhone/Mac.');
+  };
+
+  const handleDownloadIcsFile = () => {
+    const options = getCalendarEventOptions();
+    if (!options) return;
+
+    downloadIcsFile(options);
+    setIsCalendarModalOpen(false);
+    toast.success('Arquivo (.ics) baixado com sucesso!');
   };
 
   if (isLoading) {
@@ -221,7 +252,7 @@ export const BookingSuccessPage: React.FC = () => {
             variant="secondary"
             className="w-full justify-center"
             leftIcon={<CalendarPlus className="w-4 h-4 text-teal-400" />}
-            onClick={handleDownloadCalendar}
+            onClick={() => setIsCalendarModalOpen(true)}
           >
             Adicionar à Agenda
           </Button>
@@ -250,6 +281,86 @@ export const BookingSuccessPage: React.FC = () => {
           </div>
         )}
       </Card>
+
+      {/* Modal de Escolha da Agenda */}
+      <Modal
+        isOpen={isCalendarModalOpen}
+        onClose={() => setIsCalendarModalOpen(false)}
+        title="Adicionar à Agenda 📅"
+        description="Escolha onde deseja salvar e sincronizar o lembrete do seu atendimento:"
+        size="sm"
+      >
+        <div className="space-y-3 pt-2">
+          {/* Opção 1: Google Agenda */}
+          <button
+            type="button"
+            onClick={handleOpenGoogleCalendar}
+            className="w-full flex items-center justify-between p-3.5 rounded-xl bg-[#0F172A] border border-slate-800 hover:border-teal-500/50 hover:bg-slate-800/60 transition-all text-left group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                <Calendar className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-bold text-white group-hover:text-teal-400 transition-colors">
+                    Google Agenda
+                  </span>
+                  <Badge variant="teal" size="sm">Recomendado</Badge>
+                </div>
+                <span className="text-[11px] text-slate-400 block">
+                  Abre diretamente no app ou navegador
+                </span>
+              </div>
+            </div>
+            <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-teal-400 transition-colors" />
+          </button>
+
+          {/* Opção 2: Apple Agenda / iPhone */}
+          <button
+            type="button"
+            onClick={handleDownloadAppleCalendar}
+            className="w-full flex items-center justify-between p-3.5 rounded-xl bg-[#0F172A] border border-slate-800 hover:border-teal-500/50 hover:bg-slate-800/60 transition-all text-left group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-slate-500/10 border border-slate-500/20 flex items-center justify-center text-slate-300 shrink-0">
+                <Smartphone className="w-5 h-5 text-slate-300" />
+              </div>
+              <div>
+                <span className="text-sm font-bold text-white group-hover:text-teal-400 transition-colors block">
+                  Apple Agenda (iPhone / Mac)
+                </span>
+                <span className="text-[11px] text-slate-400 block">
+                  Sincroniza com o app nativo do iOS / macOS
+                </span>
+              </div>
+            </div>
+            <Download className="w-4 h-4 text-slate-500 group-hover:text-teal-400 transition-colors" />
+          </button>
+
+          {/* Opção 3: Outlook / Outros (.ics) */}
+          <button
+            type="button"
+            onClick={handleDownloadIcsFile}
+            className="w-full flex items-center justify-between p-3.5 rounded-xl bg-[#0F172A] border border-slate-800 hover:border-teal-500/50 hover:bg-slate-800/60 transition-all text-left group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                <CalendarPlus className="w-5 h-5 text-amber-400" />
+              </div>
+              <div>
+                <span className="text-sm font-bold text-white group-hover:text-teal-400 transition-colors block">
+                  Outlook & Outros (.ics)
+                </span>
+                <span className="text-[11px] text-slate-400 block">
+                  Baixar arquivo universal de calendário
+                </span>
+              </div>
+            </div>
+            <Download className="w-4 h-4 text-slate-500 group-hover:text-teal-400 transition-colors" />
+          </button>
+        </div>
+      </Modal>
 
       {/* Footer Navigation */}
       <div className="text-center pt-2">
