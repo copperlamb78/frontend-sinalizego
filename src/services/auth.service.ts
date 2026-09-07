@@ -130,8 +130,10 @@ export const authService = {
    * PATCH /api/v1/users/change-password
    */
   changePassword: async (dto: ChangePasswordDto): Promise<{ message: string }> => {
+    const password = dto.currentPassword || dto.oldPassword;
     const response = await api.patch<{ message: string }>('/users/change-password', {
-      oldPassword: dto.oldPassword || dto.currentPassword,
+      currentPassword: password,
+      oldPassword: password,
       newPassword: dto.newPassword
     });
     return response.data;
