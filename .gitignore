@@ -30,3 +30,8 @@ dev-dist
 .env.local
 .env.production.local
 .env.development.local
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
