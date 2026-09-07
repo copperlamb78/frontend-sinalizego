@@ -284,7 +284,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
                   <span className="text-sm font-bold text-white group-hover:text-teal-400 transition-colors">
-                    iPhone (Apple Calendar)
+                    Apple Calendar
                   </span>
                   <Badge variant="teal" size="sm">iOS Nativo</Badge>
                 </div>
