@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HelpCircle, Check } from 'lucide-react';
+import { CircleHelp, Check } from 'lucide-react';
 import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
 
@@ -33,7 +33,7 @@ export const HelpInfoButton: React.FC<HelpInfoButtonProps> = ({
         aria-label={buttonAriaLabel}
         className={`inline-flex items-center justify-center p-1.5 -m-1 text-slate-400 hover:text-amber-400 active:scale-95 transition-all rounded-lg hover:bg-slate-800/80 focus:outline-none focus:ring-2 focus:ring-amber-500/30 touch-manipulation cursor-pointer ${className || ''}`}
       >
-        <HelpCircle className="w-4 h-4 transition-transform hover:scale-110" />
+        <CircleHelp className="w-4 h-4 transition-transform hover:scale-110" />
       </button>
 
       <Modal
