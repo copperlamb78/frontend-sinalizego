@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { servicesService } from '@/services/services.service';
 import { companyService } from '@/services/company.service';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
+import { Select } from '@/components/common/Select';
 import { Badge } from '@/components/common/Badge';
 import { Modal } from '@/components/common/Modal';
 import { Skeleton } from '@/components/common/Skeleton';
@@ -25,7 +26,7 @@ import {
   Sparkles,
   CheckCircle2
 } from 'lucide-react';
-import { formatCurrency, cn } from '@/lib/utils';
+import { formatCurrency, cn, extractErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { ServiceGroup, CompanyService } from '@/types/company.types';
 
@@ -73,6 +74,13 @@ export const OwnerServicesPage: React.FC = () => {
     staleTime: 1000 * 60 * 5 // 5 minutes
   });
 
+  // Keep svcGroupId synchronized when groups load
+  useEffect(() => {
+    if (!svcGroupId && groups && groups.length > 0) {
+      setSvcGroupId(groups[0].id);
+    }
+  }, [groups, svcGroupId]);
+
   // 3. Service Mutations
   const saveServiceMutation = useMutation({
     mutationFn: async () => {
@@ -81,6 +89,11 @@ export const OwnerServicesPage: React.FC = () => {
       }
       const price = parseFloat(svcPrice.replace(',', '.')) || 0;
       
+      const targetGroupId = svcGroupId || groups?.[0]?.id;
+      if (!targetGroupId || targetGroupId === 'grp-default') {
+        throw new Error('Selecione uma cadeira ou equipe de atendimento para vincular este serviço.');
+      }
+
       // Calculate final deposit percentage based on price rules
       let finalDownPayment = 50;
       if (price < 15.0) {
@@ -99,7 +112,7 @@ export const OwnerServicesPage: React.FC = () => {
           totalPrice: price,
           downPaymentPercent: finalDownPayment,
           depositPercentage: finalDownPayment,
-          serviceGroupId: svcGroupId
+          serviceGroupId: targetGroupId
         });
       }
       return servicesService.createService({
@@ -109,7 +122,7 @@ export const OwnerServicesPage: React.FC = () => {
         totalPrice: price,
         downPaymentPercent: finalDownPayment,
         depositPercentage: finalDownPayment,
-        serviceGroupId: svcGroupId || groups?.[0]?.id || 'grp-default'
+        serviceGroupId: targetGroupId
       });
     },
     onSuccess: () => {
@@ -119,8 +132,7 @@ export const OwnerServicesPage: React.FC = () => {
       resetServiceForm();
     },
     onError: (err: any) => {
-      const msg = err.response?.data?.message || 'Não foi possível salvar o serviço.';
-      toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
+      toast.error(extractErrorMessage(err, 'Não foi possível salvar o serviço.'));
     }
   });
 
@@ -131,7 +143,7 @@ export const OwnerServicesPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['service-groups'] });
       setServiceToDelete(null);
     },
-    onError: () => toast.error('Não foi possível excluir o serviço.')
+    onError: (err: any) => toast.error(extractErrorMessage(err, 'Não foi possível excluir o serviço.'))
   });
 
   // 4. Group Mutations
@@ -155,7 +167,7 @@ export const OwnerServicesPage: React.FC = () => {
       setGroupName('');
       setEditingGroup(null);
     },
-    onError: () => toast.error('Não foi possível salvar.')
+    onError: (err: any) => toast.error(extractErrorMessage(err, 'Não foi possível salvar a cadeira/equipe.'))
   });
 
   const deleteGroupMutation = useMutation({
@@ -164,7 +176,7 @@ export const OwnerServicesPage: React.FC = () => {
       toast.success('Cadeira/Equipe removida com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['service-groups'] });
     },
-    onError: () => toast.error('Não foi possível excluir.')
+    onError: (err: any) => toast.error(extractErrorMessage(err, 'Não foi possível excluir a cadeira/equipe.'))
   });
 
   const resetServiceForm = () => {
@@ -181,6 +193,11 @@ export const OwnerServicesPage: React.FC = () => {
     if (!hasSubaccount) {
       toast.info('Ative sua subconta Asaas para desbloquear o cadastro de serviços com sinal online.');
       setIsFinancialModalOpen(true);
+      return;
+    }
+    if (!groups || groups.length === 0) {
+      toast.info('Para cadastrar serviços, você precisa criar ao menos uma cadeira ou equipe de atendimento primeiro.');
+      handleOpenCreateGroup();
       return;
     }
     resetServiceForm();
@@ -514,6 +531,21 @@ export const OwnerServicesPage: React.FC = () => {
               toast.error('Informe o nome do serviço.');
               return;
             }
+            if (!groups || groups.length === 0) {
+              toast.error('Cadastre ao menos uma cadeira ou equipe antes de criar serviços.');
+              setIsServiceModalOpen(false);
+              handleOpenCreateGroup();
+              return;
+            }
+            if (!svcGroupId || !groups.some((g) => g.id === svcGroupId)) {
+              toast.error('Selecione a cadeira ou equipe responsável pelo serviço.');
+              return;
+            }
+            const price = parseFloat(svcPrice.replace(',', '.')) || 0;
+            if (price <= 0) {
+              toast.error('Informe um valor válido para o serviço.');
+              return;
+            }
             saveServiceMutation.mutate();
           }}
           className="space-y-4"
@@ -527,22 +559,43 @@ export const OwnerServicesPage: React.FC = () => {
             required
           />
 
-          <div className="space-y-1">
-            <label className="block text-xs font-semibold text-slate-300">
-              Cadeira / Equipe Responsável
-            </label>
-            <select
+          {groups && groups.length > 0 ? (
+            <Select
+              label="Cadeira / Equipe Responsável"
               value={svcGroupId}
-              onChange={(e) => setSvcGroupId(e.target.value)}
-              className="w-full h-11 px-3.5 rounded-xl bg-[#1E293B] border border-slate-700 text-white text-xs font-medium focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-            >
-              {groups?.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.name} ({g.capacity === 1 ? '1 cadeira/vaga' : `${g.capacity} vagas simultâneas`})
-                </option>
-              ))}
-            </select>
-          </div>
+              onChange={(val) => setSvcGroupId(val)}
+              options={groups.map((g) => ({
+                value: g.id,
+                label: g.name,
+                description: g.capacity === 1 ? '1 cadeira (atendimento individual)' : `${g.capacity} atendimentos simultâneos`
+              }))}
+              placeholder="Selecione a cadeira ou equipe"
+              leftIcon={<Users className="w-4 h-4 text-teal-400" />}
+            />
+          ) : (
+            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-xs text-amber-200">
+              <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div className="space-y-1 flex-1">
+                <p className="font-bold text-white">Nenhuma cadeira ou equipe cadastrada</p>
+                <p className="text-slate-300">
+                  Todo serviço precisa ser vinculado a uma cadeira ou profissional. Crie uma cadeira primeiro para continuar.
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="mt-2 text-amber-300 border-amber-500/40 hover:bg-amber-500/20"
+                  onClick={() => {
+                    setIsServiceModalOpen(false);
+                    handleOpenCreateGroup();
+                  }}
+                  leftIcon={<FolderPlus className="w-3.5 h-3.5" />}
+                >
+                  Criar Cadeira / Equipe Agora
+                </Button>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-1">
             <label className="block text-xs font-semibold text-slate-300">
@@ -553,28 +606,25 @@ export const OwnerServicesPage: React.FC = () => {
               placeholder="Ex: Lavagem com shampoo especial, corte fade com máquina e acabamento na navalha."
               value={svcDescription}
               onChange={(e) => setSvcDescription(e.target.value)}
-              className="w-full p-3 rounded-xl bg-[#1E293B] border border-slate-700 text-white text-xs font-medium focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+              className="w-full p-3 rounded-xl bg-[#1E293B] border border-slate-700 text-white text-xs font-medium focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold text-slate-300">
-                Tempo de Duração (Minutos)
-              </label>
-              <select
-                value={svcDuration}
-                onChange={(e) => setSvcDuration(parseInt(e.target.value, 10))}
-                className="w-full h-11 px-3.5 rounded-xl bg-[#1E293B] border border-slate-700 text-white text-xs font-medium focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-              >
-                <option value={15}>15 minutos (Rápido / Acabamento)</option>
-                <option value={30}>30 minutos (Padrão)</option>
-                <option value={45}>45 minutos</option>
-                <option value={60}>60 minutos (1 hora)</option>
-                <option value={90}>90 minutos (1h30)</option>
-                <option value={120}>120 minutos (2 horas)</option>
-              </select>
-            </div>
+            <Select
+              label="Tempo de Duração"
+              value={String(svcDuration)}
+              onChange={(val) => setSvcDuration(parseInt(val, 10))}
+              options={[
+                { value: '15', label: '15 minutos', description: 'Rápido / Acabamento' },
+                { value: '30', label: '30 minutos', description: 'Tempo padrão' },
+                { value: '45', label: '45 minutos' },
+                { value: '60', label: '60 minutos (1 hora)' },
+                { value: '90', label: '90 minutos (1h30)' },
+                { value: '120', label: '120 minutos (2 horas)' }
+              ]}
+              leftIcon={<Clock className="w-4 h-4 text-teal-400" />}
+            />
 
             <Input
               label="Preço Total do Serviço (R$)"
