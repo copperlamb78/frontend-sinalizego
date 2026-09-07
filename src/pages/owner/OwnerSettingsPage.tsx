@@ -21,8 +21,13 @@ import {
   Camera,
   Image as ImageIcon,
   Sparkles,
-  Users
+  Users,
+  Scissors,
+  Palette,
+  Smile,
+  Heart
 } from 'lucide-react';
+import { Select, type SelectOption } from '@/components/common/Select';
 import { toast } from 'sonner';
 import { extractErrorMessage } from '@/lib/utils';
 import { compressLogoFile, compressBannerFile } from '@/lib/image.utils';
@@ -42,6 +47,39 @@ const settingsSchema = z.object({
 
 type SettingsFormData = z.infer<typeof settingsSchema>;
 
+const PROVIDER_TYPE_OPTIONS: SelectOption[] = [
+  {
+    value: 'Barbearia',
+    label: 'Barbearia',
+    description: 'Cortes masculinos, barba e cuidados',
+    icon: <Scissors className="w-4 h-4" />
+  },
+  {
+    value: 'Salão de Beleza',
+    label: 'Salão de Beleza',
+    description: 'Cabelos, escovas, penteados e mechas',
+    icon: <Sparkles className="w-4 h-4" />
+  },
+  {
+    value: 'Esmalteria',
+    label: 'Esmalteria',
+    description: 'Manicure, pedicure, alongamento e nail art',
+    icon: <Heart className="w-4 h-4" />
+  },
+  {
+    value: 'Estética & Spa',
+    label: 'Estética & Spa',
+    description: 'Tratamentos faciais, corporais e bem-estar',
+    icon: <Smile className="w-4 h-4" />
+  },
+  {
+    value: 'Estúdio de Tatuagem',
+    label: 'Estúdio de Tatuagem',
+    description: 'Tatuagem, piercing e micropigmentação',
+    icon: <Palette className="w-4 h-4" />
+  }
+];
+
 export const OwnerSettingsPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -60,6 +98,7 @@ export const OwnerSettingsPage: React.FC = () => {
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors }
   } = useForm<SettingsFormData>({
@@ -346,21 +385,13 @@ export const OwnerSettingsPage: React.FC = () => {
             {...register('businessName')}
           />
 
-          <div className="space-y-1">
-            <label className="block text-xs font-semibold text-slate-300">
-              Tipo de Estabelecimento
-            </label>
-            <select
-              className="w-full h-11 px-3.5 rounded-xl bg-[#1E293B] border border-slate-700 text-white text-xs font-medium focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-              {...register('providerType')}
-            >
-              <option value="Barbearia">Barbearia</option>
-              <option value="Salão de Beleza">Salão de Beleza</option>
-              <option value="Esmalteria">Esmalteria</option>
-              <option value="Estética & Spa">Estética & Spa</option>
-              <option value="Estúdio de Tatuagem">Estúdio de Tatuagem</option>
-            </select>
-          </div>
+          <Select
+            label="Tipo de Estabelecimento"
+            value={watch('providerType')}
+            onChange={(val) => setValue('providerType', val, { shouldValidate: true })}
+            options={PROVIDER_TYPE_OPTIONS}
+            error={errors.providerType?.message}
+          />
 
           <Input
             label="WhatsApp Comercial (Com DDD)"
