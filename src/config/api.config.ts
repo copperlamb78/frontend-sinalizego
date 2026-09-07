@@ -2,6 +2,18 @@ import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import type { AuthTokens } from '../types/auth.types';
 
 const getApiBaseUrl = () => {
+  // Se estiver executando no navegador:
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    const isDirectLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+    // Se estiver em túnel ngrok, rede externa ou HTTPS, utilizar obrigatoriamente rota relativa
+    // para aproveitar o proxy do Vite e evitar bloqueio de Mixed Content (HTTPS -> HTTP) ou localhost inválido no celular
+    if (!isDirectLocalhost || window.location.protocol === 'https:') {
+      return '/api/v1';
+    }
+  }
+
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
