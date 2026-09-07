@@ -54,7 +54,9 @@ export const LoginPage: React.FC = () => {
     } catch (err: any) {
       let formattedMessage = 'Não foi possível autenticar. Verifique suas credenciais.';
       if (err.code === 'ERR_NETWORK' || !err.response) {
-        formattedMessage = 'Servidor backend offline ou inacessível. Verifique sua conexão com a API.';
+        formattedMessage = 'Falha ao se comunicar com o servidor. Verifique sua conexão e tente novamente.';
+      } else if (err.response?.status === 401) {
+        formattedMessage = 'E-mail ou senha incorretos. Verifique suas credenciais.';
       } else if (err.response?.data?.message) {
         const message = err.response.data.message;
         formattedMessage = Array.isArray(message) ? message.join(', ') : message;
