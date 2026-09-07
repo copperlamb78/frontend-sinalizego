@@ -24,6 +24,11 @@ export const MandatoryChangePasswordModal: React.FC = () => {
     e.preventDefault();
     setErrorMessage(null);
 
+    if (!currentPassword.trim()) {
+      setErrorMessage('Informe a senha atual (temporária) recebida por e-mail.');
+      return;
+    }
+
     if (newPassword.length < 6) {
       setErrorMessage('A nova senha deve ter no mínimo 6 caracteres.');
       return;
@@ -46,10 +51,20 @@ export const MandatoryChangePasswordModal: React.FC = () => {
       setUser(updatedUser);
       localStorage.setItem('@sinalizego:user', JSON.stringify(updatedUser));
     } catch (error: any) {
-      const msg =
-        error?.response?.data?.message ||
-        'Não foi possível alterar a senha. Verifique se a senha atual (temporária) está correta.';
-      setErrorMessage(typeof msg === 'string' ? msg : 'Erro ao alterar a senha.');
+      const rawMessage = error?.response?.data?.message;
+      let detailedMessage: string;
+
+      if (Array.isArray(rawMessage)) {
+        detailedMessage = rawMessage.join('. ');
+      } else if (typeof rawMessage === 'string' && rawMessage.trim() !== '') {
+        detailedMessage = rawMessage;
+      } else if (error?.response?.status === 401) {
+        detailedMessage = 'A senha atual (temporária) informada está incorreta. Verifique o código recebido no seu e-mail.';
+      } else {
+        detailedMessage = 'Não foi possível alterar a senha. Verifique os dados informados e tente novamente.';
+      }
+
+      setErrorMessage(detailedMessage);
     } finally {
       setIsLoading(false);
     }
