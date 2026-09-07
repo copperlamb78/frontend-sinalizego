@@ -1,7 +1,14 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import type { AuthTokens } from '../types/auth.types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+const getApiBaseUrl = () => {
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return '/api/v1';
+  }
+  return import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export const ACCESS_TOKEN_KEY = '@sinalizego:access_token';
 export const REFRESH_TOKEN_KEY = '@sinalizego:refresh_token';
