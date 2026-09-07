@@ -22,11 +22,17 @@ import { formatCurrency, cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { Appointment, AppointmentStatus } from '@/types/appointment.types';
 
+// Helper para formatar data local no formato YYYY-MM-DD imune a variações UTC
+const getLocalDateString = (d: Date = new Date()): string => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export const OwnerCalendarPage: React.FC = () => {
   const queryClient = useQueryClient();
-  const [selectedDate, setSelectedDate] = useState<string>(() => {
-    return new Date().toISOString().split('T')[0];
-  });
+  const [selectedDate, setSelectedDate] = useState<string>(() => getLocalDateString());
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [completingId, setCompletingId] = useState<string | null>(null);
   const [noShowTarget, setNoShowTarget] = useState<Appointment | null>(null);
@@ -89,12 +95,12 @@ export const OwnerCalendarPage: React.FC = () => {
   const daysStrip = useMemo(() => {
     const list = [];
     const base = new Date();
-    base.setHours(0, 0, 0, 0);
+    base.setHours(12, 0, 0, 0);
 
     for (let i = -2; i <= 7; i++) {
       const d = new Date(base);
       d.setDate(base.getDate() + i);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = getLocalDateString(d);
       const dayName = d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '').toUpperCase();
       list.push({
         dateStr,
