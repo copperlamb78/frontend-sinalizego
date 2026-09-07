@@ -1,7 +1,9 @@
 import { api } from '@/config/api.config';
 import type {
   CreateFinancialProfileDto,
-  FinancialProfile
+  FinancialProfile,
+  PixKeyItem,
+  CreatePixKeyPayload
 } from '@/types/financial.types';
 
 export const financialService = {
@@ -41,5 +43,41 @@ export const financialService = {
         return null;
       }
     }
+  },
+
+  /**
+   * Fetches all registered Pix keys for payouts
+   * GET /api/v1/financial-profile/pix-keys
+   */
+  getPixKeys: async (): Promise<PixKeyItem[]> => {
+    const response = await api.get<PixKeyItem[]>('/financial-profile/pix-keys');
+    return response.data;
+  },
+
+  /**
+   * Adds a new Pix key
+   * POST /api/v1/financial-profile/pix-keys
+   */
+  addPixKey: async (data: CreatePixKeyPayload): Promise<PixKeyItem> => {
+    const response = await api.post<PixKeyItem>('/financial-profile/pix-keys', data);
+    return response.data;
+  },
+
+  /**
+   * Deletes a Pix key
+   * DELETE /api/v1/financial-profile/pix-keys/:id
+   */
+  deletePixKey: async (id: string): Promise<{ success: boolean; message: string }> => {
+    const response = await api.delete<{ success: boolean; message: string }>(`/financial-profile/pix-keys/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Sets a Pix key as default
+   * PATCH /api/v1/financial-profile/pix-keys/:id/default
+   */
+  setDefaultPixKey: async (id: string): Promise<PixKeyItem> => {
+    const response = await api.patch<PixKeyItem>(`/financial-profile/pix-keys/${id}/default`);
+    return response.data;
   }
 };
