@@ -9,16 +9,20 @@ import { Modal } from '@/components/common/Modal';
 import { Skeleton } from '@/components/common/Skeleton';
 import { AppointmentPaymentTimer } from '@/components/client/AppointmentPaymentTimer';
 import {
+  Sparkles,
   Calendar as CalendarIcon,
   Clock,
   Scissors,
   Phone,
   CheckCircle2,
+  CalendarClock,
   Check,
   Lock,
-  UserX
+  UserX,
+  MessageSquare,
+  Copy
 } from 'lucide-react';
-import { formatCurrency, cn } from '@/lib/utils';
+import { formatCurrency, cn, extractErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { Appointment, AppointmentStatus } from '@/types/appointment.types';
 
@@ -36,6 +40,12 @@ export const OwnerCalendarPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [completingId, setCompletingId] = useState<string | null>(null);
   const [noShowTarget, setNoShowTarget] = useState<Appointment | null>(null);
+  const [rescheduleTarget, setRescheduleTarget] = useState<Appointment | null>(null);
+  const [rescheduleResult, setRescheduleResult] = useState<{
+    appointment: Appointment;
+    rescheduleUrl?: string;
+  } | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   // 1. Fetch Company Profile (for subaccount check)
   const { data: company } = useQuery({
@@ -76,6 +86,27 @@ export const OwnerCalendarPage: React.FC = () => {
   });
 
   // 4. No-Show Mutation
+  const rescheduleMutation = useMutation({
+    mutationFn: async (appointmentId: string) => {
+      return appointmentsService.rescheduleByOwnerUnavailability(appointmentId);
+    },
+    onSuccess: (data) => {
+      toast.success(data.message || 'Horário liberado e link de reagendamento enviado ao cliente!');
+      if (rescheduleTarget) {
+        setRescheduleResult({
+          appointment: rescheduleTarget,
+          rescheduleUrl: data.rescheduleUrl
+        });
+      }
+      setRescheduleTarget(null);
+      queryClient.invalidateQueries({ queryKey: ['ownerAppointments'] });
+      queryClient.invalidateQueries({ queryKey: ['companyBalance'] });
+    },
+    onError: (err: any) => {
+      toast.error(extractErrorMessage(err, 'Não foi possível liberar o horário no momento.'));
+    },
+  });
+
   const noShowMutation = useMutation({
     mutationFn: (appointmentId: string) => appointmentsService.registerNoShow(appointmentId),
     onSuccess: () => {
@@ -352,6 +383,18 @@ export const OwnerCalendarPage: React.FC = () => {
                         >
                           {canNoShow ? 'Faltou' : `Tolerância (${minutesUntilNoShow}m)`}
                         </Button>
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-10 font-bold text-xs text-sky-300 hover:text-sky-200 border-sky-500/30 hover:bg-sky-500/10"
+                          disabled={isCompleting || isNoShowing || rescheduleMutation.isPending}
+                          onClick={() => setRescheduleTarget(app)}
+                          leftIcon={<CalendarClock className="w-4 h-4 text-sky-400" />}
+                          title="Informar imprevisto e salvar a venda com crédito para o cliente reagendar"
+                        >
+                          Indisponível / Alterar
+                        </Button>
                       </div>
                     )}
 
@@ -383,6 +426,189 @@ export const OwnerCalendarPage: React.FC = () => {
           </p>
         </div>
       )}
+
+      
+      {/* Modal de Confirmação: Reagendamento por Imprevisto */}
+      <Modal
+        isOpen={!!rescheduleTarget}
+        onClose={() => setRescheduleTarget(null)}
+        title={
+          <div className="flex items-center gap-2 text-white">
+            <CalendarClock className="w-5 h-5 text-sky-400" />
+            <span>Avisar Imprevisto no Horário</span>
+          </div>
+        }
+        description="Libere este horário na sua agenda e convide o cliente a remarcar com o sinal 100% garantido."
+        size="md"
+      >
+        {rescheduleTarget && (
+          <div className="space-y-4 text-xs text-slate-300">
+            <div className="p-3.5 rounded-xl bg-[#0B1120] border border-slate-800 space-y-2">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Cliente:</span>
+                <strong className="text-white">{rescheduleTarget.client?.name || 'Cliente'}</strong>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Serviço:</span>
+                <span className="text-slate-200 font-medium">{rescheduleTarget.service?.name || 'Serviço'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Horário Atual:</span>
+                <span className="text-slate-200 font-medium">
+                  {new Date(rescheduleTarget.appointmentDate).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-slate-800/80 items-center">
+                <span className="text-slate-300 font-medium">Sinal garantido em crédito:</span>
+                <span className="text-teal-400 font-bold text-sm bg-teal-500/10 px-2.5 py-0.5 rounded-lg border border-teal-500/20">
+                  {formatCurrency(rescheduleTarget.downPaymentAmount)}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-[#0B1120] border border-slate-800 rounded-xl space-y-2 text-xs">
+              <p className="font-bold text-slate-200 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-sky-400" />
+                <span>O que acontece a seguir:</span>
+              </p>
+              <ul className="space-y-1.5 text-slate-300 pl-1 text-[11px] leading-relaxed">
+                <li className="flex items-start gap-2">
+                  <span className="text-teal-400 font-bold">•</span>
+                  <span><strong>Horário liberado:</strong> Este horário fica livre imediatamente na sua agenda para atender outro cliente.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-teal-400 font-bold">•</span>
+                  <span><strong>Sinal 100% garantido:</strong> O valor pago de <strong>{formatCurrency(rescheduleTarget.downPaymentAmount)}</strong> fica retido na barbearia e salvo como crédito por 90 dias para o cliente.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-teal-400 font-bold">•</span>
+                  <span><strong>Notificação imediata:</strong> O cliente recebe um e-mail com acesso direto para escolher uma nova data sem pagar nada a mais. Você também poderá enviar mensagem no WhatsApp com 1 clique.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setRescheduleTarget(null)}
+                disabled={rescheduleMutation.isPending}
+              >
+                Voltar
+              </Button>
+              <Button
+                size="sm"
+                className="bg-sky-600 hover:bg-sky-500 text-white font-bold gap-1.5"
+                isLoading={rescheduleMutation.isPending}
+                onClick={() => rescheduleMutation.mutate(rescheduleTarget.id)}
+                leftIcon={<CalendarClock className="w-4 h-4" />}
+              >
+                Confirmar e Notificar Cliente
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+
+      {/* Modal de Sucesso: Venda Salva e Link Mágico */}
+      <Modal
+        isOpen={!!rescheduleResult}
+        onClose={() => setRescheduleResult(null)}
+        title={
+          <div className="flex items-center gap-2 text-sky-400">
+            <CheckCircle2 className="w-5 h-5 text-teal-400" />
+            <span>Venda Salva com Sucesso! 🎟️</span>
+          </div>
+        }
+        description="O horário foi desocupado e o sinal do cliente está 100% garantido como crédito."
+        size="md"
+      >
+        {rescheduleResult && (() => {
+          const client = rescheduleResult.appointment.client;
+          const serviceName = rescheduleResult.appointment.service?.name || 'atendimento';
+          const depositVal = formatCurrency(rescheduleResult.appointment.downPaymentAmount);
+          const rawPhone = client?.phone?.replace(/\D/g, '') || '';
+          const rescheduleLink = rescheduleResult.rescheduleUrl || window.location.origin;
+
+          const whatsappMessage = `Olá, ${client?.name || 'amigo(a)'}! Tivemos um imprevisto e não poderemos te atender no horário marcado. Mas não se preocupe! Seu sinal de ${depositVal} está 100% garantido na sua conta como crédito. Escolha um novo horário por aqui sem pagar nada a mais: ${rescheduleLink}`;
+
+          const whatsappUrl = `https://api.whatsapp.com/send?phone=55${rawPhone}&text=${encodeURIComponent(whatsappMessage)}`;
+
+          return (
+            <div className="space-y-4 text-xs text-slate-300">
+              <div className="p-4 rounded-xl bg-teal-500/10 border border-teal-500/20 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-teal-400 font-bold uppercase tracking-wider text-[10px]">
+                    Status do Atendimento
+                  </span>
+                  <Badge variant="teal" size="sm">Crédito de 90 dias gerado</Badge>
+                </div>
+                <p className="text-sm font-bold text-white">
+                  {client?.name || 'Cliente'} • {serviceName}
+                </p>
+                <p className="text-xs text-slate-300">
+                  Sinal garantido: <strong className="text-teal-300 font-bold">{depositVal}</strong>. O cliente já recebeu um e-mail com o link mágico para escolher um novo horário sem custos adicionais.
+                </p>
+              </div>
+
+              {/* Ação rápida para WhatsApp */}
+              <div className="p-3.5 rounded-xl bg-[#0B1120] border border-slate-800 space-y-2.5">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  Notificar Cliente via WhatsApp
+                </span>
+                <p className="text-[11px] text-slate-400">
+                  Envie uma mensagem instantânea diretamente para o WhatsApp do cliente com o link mágico:
+                </p>
+                <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                  {rawPhone ? (
+                    <a
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors flex-1 text-center"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span>Abrir WhatsApp do Cliente</span>
+                    </a>
+                  ) : (
+                    <span className="text-[11px] text-slate-500 italic">
+                      Telefone do cliente não cadastrado para envio direto.
+                    </span>
+                  )}
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-10 text-xs border-slate-700 text-slate-300 gap-1.5"
+                    onClick={() => {
+                      navigator.clipboard.writeText(whatsappMessage);
+                      setCopiedLink(true);
+                      toast.success('Mensagem copiada para a área de transferência!');
+                      setTimeout(() => setCopiedLink(false), 2000);
+                    }}
+                  >
+                    {copiedLink ? <Check className="w-3.5 h-3.5 text-teal-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedLink ? 'Copiado!' : 'Copiar Mensagem'}</span>
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2 border-t border-slate-800">
+                <Button
+                  size="sm"
+                  variant="teal"
+                  onClick={() => setRescheduleResult(null)}
+                >
+                  Concluir
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
+      </Modal>
 
       {/* Modal de Confirmação de No-Show */}
       <Modal
