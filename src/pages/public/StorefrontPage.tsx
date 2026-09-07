@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { companyService } from '@/services/company.service';
+import { useAuth } from '@/contexts/AuthContext';
+import { clientCreditsService } from '@/services/client-credits.service';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
@@ -42,6 +44,30 @@ export const StorefrontPage: React.FC = () => {
   const [showSchedule, setShowSchedule] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isCopied, setIsCopied] = useState(false);
+
+  const [searchParams] = useSearchParams();
+  const hasCreditParam = searchParams.get('creditApplied') === 'true';
+
+  const { user } = useAuth();
+  const { data: clientCredits = [] } = useQuery({
+    queryKey: ['client-credits'],
+    queryFn: () => clientCreditsService.getCredits(),
+    enabled: !!user,
+    staleTime: 1000 * 60 * 2
+  });
+
+  const availableCreditForCompany = useMemo(() => {
+    if (!company) return 0;
+    return clientCredits
+      .filter(
+        (c) =>
+          (c.companyId === company.id || c.company?.slug === company.slug || c.company?.slug === slug) &&
+          c.status === 'AVAILABLE'
+      )
+      .reduce((sum, c) => sum + Number(c.amount), 0);
+  }, [clientCredits, company, slug]);
+
+  const hasActiveCredit = availableCreditForCompany > 0 || hasCreditParam;
 
   const handleShare = async () => {
     if (!company) return;
