@@ -94,6 +94,7 @@ export interface CompanyBalance {
   companyId: string;
   businessName: string;
   walletId?: string;
+  walletMask?: string;
   availableBalance: number;
   escrowLockedBalance: number;
   completedNetRevenue: number;
