@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/config/api.config';
 import { appointmentsService } from '@/services/appointments.service';
 import { authService } from '@/services/auth.service';
 import { companyService } from '@/services/company.service';
@@ -564,7 +563,7 @@ export const CheckoutPage: React.FC = () => {
           <div className="pt-2 text-xs text-slate-400 leading-relaxed bg-teal-500/5 p-3.5 rounded-xl border border-teal-500/10 flex items-start gap-2.5">
             <ShieldCheck className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
             <span>
-              <strong className="text-teal-300 font-semibold">Garantia de Horário:</strong> Sua reserva garante atendimento pontual sem filas. Caso precise cancelar com mais de 24h de antecedência, o valor do sinal é estornado integralmente para sua conta Pix.
+              <strong className="text-teal-300 font-semibold">Garantia de Horário e Política Justa:</strong> Sua cadeira fica 100% reservada para você. Se precisar cancelar: com <strong>mais de 24h</strong>, o sinal é estornado integralmente via Pix; entre <strong>2h e 24h</strong>, seu sinal vira crédito válido por 90 dias para reagendar sem perder nada; com <strong>menos de 2h</strong>, o sinal é retido como compensação de vacância (Arts. 417 a 420 do Código Civil).
             </span>
           </div>
         </Card>
