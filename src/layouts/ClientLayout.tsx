@@ -3,6 +3,8 @@ import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import { Logo } from '@/components/common/Logo';
 import { Button } from '@/components/common/Button';
 import { useAuth } from '@/contexts/auth.context';
+import { clientCreditsService } from '@/services/client-credits.service';
+import { useQuery } from '@tanstack/react-query';
 import { Role } from '@/types/auth.types';
 import {
   CalendarDays,
@@ -123,6 +125,19 @@ export const ClientLayout: React.FC = () => {
 
           {/* 3. Right: Context Switcher, Install, User Profile & Logout */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* Credit Balance Chip */}
+            {totalCreditAmount > 0 && (
+              <Link
+                to="/minha-conta"
+                title="Seus créditos disponíveis em barbearias"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 text-teal-300 text-xs font-bold transition-all shadow-sm shrink-0"
+              >
+                <Ticket className="w-3.5 h-3.5 text-teal-400" />
+                <span className="hidden xs:inline font-mono">{formatCurrency(totalCreditAmount)}</span>
+                <span className="xs:hidden font-mono">Crédito</span>
+              </Link>
+            )}
+
             {/* Context Switcher Buttons (Desktop / Tablet) */}
             {isOwner && (
               <Link to="/painel" className="hidden sm:inline-block">
