@@ -8,6 +8,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   helperText?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  containerClassName?: string;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -20,8 +21,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       helperText,
       leftIcon,
       rightIcon,
+      containerClassName,
       id,
       disabled,
+      onClick,
       ...props
     },
     ref
@@ -30,9 +33,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const inputId = id || generatedId;
     const errorId = `${inputId}-error`;
     const helperId = `${inputId}-helper`;
+    const isDateField = type === 'date' || type === 'time' || type === 'datetime-local';
 
     return (
-      <div className="w-full space-y-1.5 text-left">
+      <div className={cn("w-full space-y-1.5 text-left", containerClassName)}>
         {label && (
           <label
             htmlFor={inputId}
@@ -58,10 +62,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             aria-describedby={
               error ? errorId : helperText ? helperId : undefined
             }
+            onClick={(e) => {
+              if (isDateField && !disabled && !props.readOnly) {
+                try {
+                  (e.currentTarget as HTMLInputElement).showPicker?.();
+                } catch {
+                  // Fallback for browsers that restrict programmatic showPicker
+                }
+              }
+              onClick?.(e);
+            }}
             className={cn(
               'w-full h-11 px-4 rounded-xl bg-[#1E293B] text-[#F8FAFC] placeholder-slate-500 border border-slate-700/80 transition-all duration-200',
               'focus:outline-none focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/20',
               'disabled:opacity-50 disabled:cursor-not-allowed',
+              isDateField && 'cursor-pointer [color-scheme:dark]',
               leftIcon && 'pl-11',
               (rightIcon || error) && 'pr-11',
               error && 'border-red-500/80 focus:border-red-500 focus:ring-red-500/20 text-red-100',
