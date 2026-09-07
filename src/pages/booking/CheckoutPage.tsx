@@ -171,10 +171,10 @@ export const CheckoutPage: React.FC = () => {
     const executeBooking = async () => {
     setIsSubmitting(true);
     try {
-      // Compose full ISO date time
-      const [hours, minutes] = selectedSlot!.split(':');
-      const appointmentDateTime = new Date(selectedDate);
-      appointmentDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+            // Compose full ISO date time no fuso horário local exato
+      const [year, month, day] = selectedDate.split('-').map(Number);
+      const [hours, minutes] = selectedSlot!.split(':').map(Number);
+      const appointmentDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
 
       const payload = {
         companyId: companyId!,
