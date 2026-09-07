@@ -106,6 +106,57 @@ function humanizeErrorText(text: string): string {
     return 'Já existe um cadastro com essas informações.';
   }
 
+  // 9. Technical validation jargon (UUIDs, DTOs, IDs)
+  if (
+    lower.includes('uuid') ||
+    lower.includes('deve ser um uuid') ||
+    lower.includes('must be a uuid')
+  ) {
+    if (
+      lower.includes('grupo') ||
+      lower.includes('servicegroup') ||
+      lower.includes('service_group')
+    ) {
+      return 'Por favor, selecione uma cadeira ou equipe de atendimento para vincular este serviço.';
+    }
+    if (lower.includes('serviço') || lower.includes('service')) {
+      return 'Por favor, selecione um serviço válido.';
+    }
+    if (lower.includes('company') || lower.includes('empresa')) {
+      return 'Estabelecimento não identificado. Recarregue a página e tente novamente.';
+    }
+    if (lower.includes('user') || lower.includes('usuário')) {
+      return 'Usuário não identificado. Recarregue a página e tente novamente.';
+    }
+    return 'Por favor, selecione uma opção válida na lista.';
+  }
+
+  // 10. Empty field validation
+  if (
+    lower.includes('should not be empty') ||
+    lower.includes('não pode ser vazio') ||
+    lower.includes('isnotempty')
+  ) {
+    if (lower.includes('name') || lower.includes('nome')) {
+      return 'Por favor, informe o nome para continuar.';
+    }
+    if (lower.includes('phone') || lower.includes('telefone') || lower.includes('whatsapp')) {
+      return 'Por favor, informe um número de WhatsApp válido.';
+    }
+    return 'Por favor, preencha todos os campos obrigatórios.';
+  }
+
+  // 11. Forbidden technical jargon (Anti-Jargão Rule §2)
+  if (lower.includes('split') || lower.includes('taxa da plataforma')) {
+    return 'Houve uma divergência no cálculo da taxa de garantia. Tente novamente.';
+  }
+  if (lower.includes('escrow')) {
+    return 'Ocorreu um imprevisto na garantia do atendimento. Tente novamente.';
+  }
+  if (lower.includes('webhook')) {
+    return 'Aguardando atualização do status. Tente novamente em instantes.';
+  }
+
   return text;
 }
 
