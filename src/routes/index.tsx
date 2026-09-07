@@ -124,6 +124,10 @@ export const router = createBrowserRouter([
             element: withSuspense(StorefrontPage)
           },
           {
+            path: 'agendar/:slug',
+            element: withSuspense(StorefrontPage)
+          },
+          {
             path: 'reserva/:companyId/:serviceId',
             element: withSuspense(CheckoutPage)
           },
