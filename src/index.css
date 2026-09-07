@@ -2,6 +2,7 @@
 
 @layer base {
   :root {
+    color-scheme: dark;
     --background: #0B1120;
     --surface: #0F172A;
     --surface-secondary: #1E293B;
@@ -37,6 +38,44 @@
 
   ::-webkit-scrollbar-thumb:hover {
     background: #14B8A6;
+  }
+
+  /* Native date/time picker dark theme & indicator styling */
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    color-scheme: dark;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 2px;
+    opacity: 0.85;
+    transition: opacity 0.2s ease, filter 0.2s ease, transform 0.15s ease;
+    /* Brand teal tone (#14B8A6) */
+    filter: brightness(0) saturate(100%) invert(73%) sepia(23%) saturate(1048%) hue-rotate(124deg) brightness(96%) contrast(87%);
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator:hover,
+  input[type="time"]::-webkit-calendar-picker-indicator:hover,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    filter: brightness(0) saturate(100%) invert(85%) sepia(30%) saturate(1300%) hue-rotate(124deg) brightness(105%) contrast(90%);
+  }
+
+  /* Native select & option dark styling */
+  select {
+    color-scheme: dark;
+  }
+
+  select option {
+    background-color: #0F172A;
+    color: #F8FAFC;
+    padding: 8px;
   }
 }
 
