@@ -6,6 +6,7 @@ import {
   clearAuthTokens
 } from '@/config/api.config';
 import { authService } from '@/services/auth.service';
+import { queryClient } from '@/config/query-client';
 import type { User, AuthTokens, AuthResponse, LoginDto } from '@/types/auth.types';
 
 interface AuthContextType {
@@ -96,6 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setTokensState(null);
       localStorage.removeItem('@sinalizego:user');
+      queryClient.clear();
     };
 
     const handleTokensUpdated = () => {
@@ -124,6 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updateTokens({ access_token, refresh_token });
       setUser(userData);
       localStorage.setItem('@sinalizego:user', JSON.stringify(userData));
+      queryClient.clear();
       return response;
     } finally {
       setIsLoading(false);
@@ -141,6 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('@sinalizego:user');
       setUser(null);
       setTokensState(null);
+      queryClient.clear();
     }
   };
 
