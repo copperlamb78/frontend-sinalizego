@@ -7,6 +7,7 @@ import { Card } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
 import { Modal } from '@/components/common/Modal';
 import { Skeleton } from '@/components/common/Skeleton';
+import { AppointmentPaymentTimer } from '@/components/client/AppointmentPaymentTimer';
 import {
   Calendar as CalendarIcon,
   Clock,
@@ -259,6 +260,12 @@ export const OwnerCalendarPage: React.FC = () => {
                         {app.client?.name || 'Cliente'}
                       </h3>
                       {getStatusBadge(app.status)}
+                      {app.status === 'PENDING_PAYMENT' && (
+                        <AppointmentPaymentTimer
+                          createdAt={app.createdAt}
+                          expiresAt={app.expiresAt}
+                        />
+                      )}
                     </div>
 
                     <div className="flex items-center gap-3 text-xs text-slate-400">
