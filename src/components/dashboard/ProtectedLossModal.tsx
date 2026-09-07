@@ -9,7 +9,7 @@ import {
   Scissors,
   Calendar,
   Phone,
-  HelpCircle
+  CircleHelp
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import type { ProtectedLossSummary, ProtectedLossItem } from '@/types/company.types';
@@ -83,7 +83,7 @@ export const ProtectedLossModal: React.FC<ProtectedLossModalProps> = ({
 
         {/* Legal Basis Disclaimer */}
         <div className="p-3.5 rounded-xl bg-teal-500/5 border border-teal-500/20 text-xs text-slate-300 leading-relaxed flex items-start gap-2.5">
-          <HelpCircle className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
+          <CircleHelp className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
           <span>
             Os sinais retidos são transferidos para sua carteira com base nos artigos 417 a 420 do Código Civil (Arras Confirmatórias), compensando o profissional pela indisponibilidade da cadeira e o tempo de espera.
           </span>
