@@ -6,6 +6,7 @@ import { AuthProvider } from '@/contexts/auth.context';
 import { Toaster } from '@/components/common/Toaster';
 import { GlobalErrorBoundary } from '@/components/common/GlobalErrorBoundary';
 import { PwaInstallPrompt } from '@/components/common/PwaInstallPrompt';
+import { MandatoryChangePasswordModal } from '@/components/auth/MandatoryChangePasswordModal';
 
 export const RootLayout: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ export const RootLayout: React.FC = () => {
             <Outlet />
             <Toaster />
             <PwaInstallPrompt />
+            <MandatoryChangePasswordModal />
           </div>
         </GlobalErrorBoundary>
       </AuthProvider>
