@@ -70,17 +70,38 @@ export const PixPaymentPage: React.FC = () => {
     }
   }, [appointment?.status, appointmentId, navigate]);
 
-  // Calculate Countdown Timer
+  // Calculate Countdown Timer (Reserva de Cadeira: máximo 15 minutos / Regra N7)
   useEffect(() => {
-    if (!pixData?.expirationDate) return;
+    const MAX_SECONDS = 15 * 60; // 15 minutos
+
+    const getTargetTime = () => {
+      const now = Date.now();
+      if (pixData?.expirationDate) {
+        const expTime = new Date(pixData.expirationDate).getTime();
+        const diffSecs = Math.floor((expTime - now) / 1000);
+        // Se a expiração estiver no futuro e for até 15 minutos, usa ela
+        if (diffSecs > 0 && diffSecs <= MAX_SECONDS) {
+          return expTime;
+        }
+      }
+      // Caso o gateway retorne prazo de sandbox (ex: 1 ano) ou sem expiração, trava em 15 minutos a partir de agora
+      return now + MAX_SECONDS * 1000;
+    };
+
+    const targetTime = getTargetTime();
+
+    const updateCountdown = () => {
+      const now = Date.now();
+      const remainingSecs = Math.max(0, Math.min(MAX_SECONDS, Math.floor((targetTime - now) / 1000)));
+      setTimeLeftSeconds(remainingSecs);
+      return remainingSecs;
+    };
+
+    updateCountdown();
 
     const interval = setInterval(() => {
-      const expTime = new Date(pixData.expirationDate).getTime();
-      const now = new Date().getTime();
-      const diff = Math.max(0, Math.floor((expTime - now) / 1000));
-      setTimeLeftSeconds(diff);
-
-      if (diff <= 0) {
+      const remaining = updateCountdown();
+      if (remaining <= 0) {
         clearInterval(interval);
       }
     }, 1000);
@@ -89,8 +110,9 @@ export const PixPaymentPage: React.FC = () => {
   }, [pixData?.expirationDate]);
 
   const formatTimer = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    const safeSeconds = Math.max(0, Math.min(15 * 60, Math.floor(seconds)));
+    const mins = Math.floor(safeSeconds / 60);
+    const secs = safeSeconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
