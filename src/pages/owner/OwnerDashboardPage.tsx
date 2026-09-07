@@ -24,7 +24,7 @@ import {
   Sparkles,
   ExternalLink,
   ShieldCheck,
-  HelpCircle,
+  CircleHelp,
   ArrowRight,
   UserX
 } from 'lucide-react';
@@ -305,7 +305,7 @@ export const OwnerDashboardPage: React.FC = () => {
               Saldo em Garantia
             </span>
             <div className="group relative cursor-pointer" title="Valores retidos de agendamentos futuros. Liberados automaticamente após a conclusão do serviço.">
-              <HelpCircle className="w-3.5 h-3.5 text-slate-500 hover:text-slate-300" />
+              <CircleHelp className="w-3.5 h-3.5 text-slate-500 hover:text-slate-300" />
             </div>
           </div>
 
