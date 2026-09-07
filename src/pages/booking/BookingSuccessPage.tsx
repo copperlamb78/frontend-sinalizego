@@ -28,7 +28,6 @@ import { formatCurrency } from '@/lib/utils';
 import {
   downloadIcsFile,
   getGoogleCalendarUrl,
-  getIcsDataUri,
   IcsEventOptions
 } from '@/lib/calendar';
 import { toast } from 'sonner';
@@ -90,7 +89,7 @@ export const BookingSuccessPage: React.FC = () => {
     toast.success('Abrindo evento no Google Agenda...');
   };
 
-  const handleDownloadAppleCalendar = (e: React.MouseEvent) => {
+  const handleDownloadAppleCalendar = () => {
     const options = getCalendarEventOptions();
     if (!options) return;
 
