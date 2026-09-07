@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { appointmentsService } from '@/services/appointments.service';
+import { useAuth } from '@/contexts/auth.context';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
@@ -19,14 +20,16 @@ import {
 
 export const ClientExplorePage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [slugSearch, setSlugSearch] = useState('');
 
   // 1. Fetch User Appointments (shared cache with Meus Agendamentos)
   const { data: appointments, isLoading } = useQuery({
-    queryKey: ['user-appointments'],
+    queryKey: ['user-appointments', user?.id],
     queryFn: () => appointmentsService.getUserAppointments(),
-    staleTime: 1000 * 60 * 3 // 3 minutes
+    enabled: !!user?.id,
+    staleTime: 1000 * 30 // 3 minutes
   });
 
   // 2. Extract unique visited establishments, memoized to only recalculate when appointments change
