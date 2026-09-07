@@ -46,8 +46,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Fetch current authenticated user profile
   const refreshProfile = useCallback(async (): Promise<User | null> => {
     const token = getAccessToken();
-    if (!token) {
+    const refreshToken = getRefreshToken();
+
+    // Se não houver nenhum token armazenado, o usuário definitivamente não está autenticado
+    if (!token && !refreshToken) {
       setUser(null);
+      setTokensState(null);
       setIsLoading(false);
       return null;
     }
@@ -57,12 +61,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(userData);
       localStorage.setItem('@sinalizego:user', JSON.stringify(userData));
       return userData;
-    } catch (error) {
-      console.warn('Failed to hydrate user profile:', error);
-      clearAuthTokens();
-      localStorage.removeItem('@sinalizego:user');
-      setUser(null);
-      setTokensState(null);
+    } catch (error: any) {
+      console.warn('Falha ao hidratar perfil do usuário:', error?.message || error);
+
+      // CRÍTICO: Só remove a sessão se o servidor explicitamente rejeitar a autenticação
+      // e o refresh token já não existir ou falhar na renovação.
+      // Erros de rede/timeout transitórios (ex: Ctrl+Shift+R que corta requisição) NUNCA encerram a sessão!
+      const status = error?.response?.status;
+      const currentRefresh = getRefreshToken();
+
+      if ((status === 401 || status === 403) && !currentRefresh) {
+        clearAuthTokens();
+        localStorage.removeItem('@sinalizego:user');
+        setUser(null);
+        setTokensState(null);
+      }
       return null;
     } finally {
       setIsLoading(false);
@@ -134,7 +147,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value: AuthContextType = {
     user,
     tokens,
-    isAuthenticated: !!user && !!tokens,
+    isAuthenticated: !!user || (!!tokens?.access_token || !!tokens?.refresh_token),
     isLoading,
     login,
     logout,
