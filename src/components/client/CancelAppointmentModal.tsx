@@ -9,7 +9,8 @@ import {
   Calendar,
   XCircle,
   Clock,
-  MapPin
+  MapPin,
+  Ticket
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -37,6 +38,7 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
     onSuccess: () => {
       toast.success('Agendamento cancelado com sucesso.');
       queryClient.invalidateQueries({ queryKey: ['user-appointments'] });
+      queryClient.invalidateQueries({ queryKey: ['client-credits'] });
       onSuccess?.();
       onClose();
     },
@@ -53,11 +55,13 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
   const aptTime = new Date(appointment.appointmentDate).getTime();
   const now = Date.now();
   const diffHours = (aptTime - now) / (1000 * 60 * 60);
-  const isMoreThan24Hours = diffHours >= 24;
+
+  // Política em 3 faixas (Regra N6 / Arts. 417 a 420 Código Civil e CDC Art. 51)
+  const isRefundScenario = diffHours > 24;
+  const isCreditScenario = diffHours >= 2 && diffHours <= 24;
+  const isRetainedScenario = diffHours < 2;
 
   const downPayment = appointment.downPaymentAmount || 0;
-  const retainedAmount = isMoreThan24Hours ? 0 : downPayment;
-  const refundAmount = isMoreThan24Hours ? downPayment : 0;
 
   const formattedDate = new Date(appointment.appointmentDate).toLocaleDateString('pt-BR', {
     day: '2-digit',
@@ -78,7 +82,7 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title="Cancelar Agendamento"
-      description="Confira os detalhes e a política de estorno antes de confirmar"
+      description="Confira os detalhes e a política de estorno/crédito antes de confirmar"
       size="md"
     >
       <div className="space-y-4">
@@ -108,56 +112,101 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
           </p>
         </div>
 
-        {/* Cancellation Scenario Breakdown */}
-        {isMoreThan24Hours ? (
-          /* Scenario 1: More than 24h */
-          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-2 text-xs">
+        {/* Cancellation Scenario Breakdown (3 Faixas) */}
+        {isRefundScenario && (
+          /* Faixa 1: Mais de 24h -> Estorno Pix Integral do Sinal */
+          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-2.5 text-xs">
             <div className="flex items-center gap-2 text-emerald-400 font-bold">
               <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Estorno Integral Garantido (100% Pix)</span>
+              <span>Estorno Integral Garantido (100% via Pix)</span>
             </div>
 
             <p className="text-slate-300 leading-relaxed text-[11px]">
-              Este cancelamento está sendo solicitado com <strong>mais de 24 horas de antecedência</strong> do horário marcado.
+              Este cancelamento está sendo solicitado com <strong>mais de 24 horas de antecedência</strong> do horário marcado ({diffHours.toFixed(1)}h restantes).
             </p>
 
-            <p className="text-slate-300 leading-relaxed text-[11px]">
-              O valor total de <strong>{formatCurrency(downPayment)}</strong> pago no sinal será estornado automaticamente para a mesma conta bancária do Pix de origem.
-            </p>
-          </div>
-        ) : (
-          /* Scenario 2: Less than 24h */
-          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2.5 text-xs">
-            <div className="flex items-center gap-2 text-amber-400 font-bold">
-              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>Cancelamento com menos de 24 horas de antecedência</span>
-            </div>
-
-            <p className="text-slate-300 leading-relaxed text-[11px]">
-              Conforme os <strong>Artigos 417 a 420 do Código Civil</strong> (Arras Confirmatórias) e a política de reservas, para cancelamentos realizados com menos de 24 horas de antecedência, <strong>100% do sinal é retido</strong> para cobrir a vacância da cadeira reservada do profissional.
-            </p>
-
-            {/* Financial Balance Breakdown */}
             <div className="p-3 rounded-xl bg-[#0B1120] border border-slate-800 space-y-1 text-[11px]">
               <div className="flex items-center justify-between text-slate-400">
-                <span>Sinal Pago no Agendamento:</span>
+                <span>Sinal Pago:</span>
                 <span className="font-semibold text-white">{formatCurrency(downPayment)}</span>
               </div>
-              <div className="flex items-center justify-between text-amber-400 font-medium">
-                <span>Retenção por Vacância de Cadeira:</span>
-                <span>- {formatCurrency(retainedAmount)}</span>
-              </div>
-              <div className="flex items-center justify-between pt-1 border-t border-slate-800 font-bold text-white">
+              <div className="flex items-center justify-between text-emerald-400 font-bold pt-1 border-t border-slate-800">
                 <span>Devolução via Pix:</span>
-                <span className="text-slate-400 font-semibold">
-                  {formatCurrency(refundAmount)} (Sem estorno)
+                <span className="text-emerald-300 font-black text-xs">
+                  {formatCurrency(downPayment)} (Estorno automático)
                 </span>
               </div>
             </div>
 
             <p className="text-[11px] text-slate-400">
-              O horário será liberado na agenda do estabelecimento. Não haverá estorno financeiro devido à proximidade do atendimento.
+              O valor do sinal será devolvido automaticamente para a mesma conta bancária de origem do seu pagamento Pix.
             </p>
+          </div>
+        )}
+
+        {isCreditScenario && (
+          /* Faixa 2: Entre 2h e 24h -> Sinal Vira Crédito com Validade de 90 dias */
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2.5 text-xs">
+            <div className="flex items-center gap-2 text-amber-400 font-bold">
+              <Ticket className="w-4 h-4 text-amber-400 shrink-0" />
+              <span>Sinal Convertido em Crédito 🎟️ (Validade 90 dias)</span>
+            </div>
+
+            <p className="text-slate-300 leading-relaxed text-[11px]">
+              Cancelamento solicitado com antecedência entre <strong>2h e 24h</strong> ({diffHours.toFixed(1)}h restantes). Conforme os <strong>Arts. 417 a 420 do Código Civil</strong> e a política da plataforma, você <strong>não perde o seu dinheiro</strong>!
+            </p>
+
+            <div className="p-3 rounded-xl bg-[#0B1120] border border-slate-800 space-y-1.5 text-[11px]">
+              <div className="flex items-center justify-between text-slate-400">
+                <span>Sinal Pago:</span>
+                <span className="font-semibold text-white">{formatCurrency(downPayment)}</span>
+              </div>
+              <div className="flex items-center justify-between text-amber-400 font-bold">
+                <span>Crédito na Barbearia:</span>
+                <span className="text-amber-300 font-black text-xs">+ {formatCurrency(downPayment)}</span>
+              </div>
+              <div className="flex items-center justify-between pt-1 border-t border-slate-800 text-slate-400">
+                <span>Devolução via Pix:</span>
+                <span>R$ 0,00 (Convertido em crédito)</span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-amber-200/90 leading-relaxed font-medium">
+              ✨ O valor de <strong>{formatCurrency(downPayment)}</strong> ficará disponível na sua conta para você remarcar ou agendar outro serviço neste mesmo estabelecimento a qualquer momento nos próximos <strong>90 dias</strong>.
+            </p>
+          </div>
+        )}
+
+        {isRetainedScenario && (
+          /* Faixa 3: Menos de 2h -> Retenção de Vacância */
+          <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 space-y-2.5 text-xs">
+            <div className="flex items-center gap-2 text-red-400 font-bold">
+              <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+              <span>Cancelamento Tardio (Menos de 2 horas de antecedência)</span>
+            </div>
+
+            <p className="text-slate-300 leading-relaxed text-[11px]">
+              Cancelamento solicitado com <strong>menos de 2 horas de antecedência</strong> ({Math.max(0, Math.round(diffHours * 60))} minutos restantes).
+            </p>
+
+            <p className="text-slate-300 leading-relaxed text-[11px]">
+              Conforme os <strong>Artigos 417 a 420 do Código Civil</strong> (Arras Confirmatórias) e os termos de uso, devido à impossibilidade de preenchimento da cadeira pelo profissional neste prazo, <strong>100% do sinal é retido pelo estabelecimento</strong> como compensação por vacância da agenda.
+            </p>
+
+            <div className="p-3 rounded-xl bg-[#0B1120] border border-slate-800 space-y-1 text-[11px]">
+              <div className="flex items-center justify-between text-slate-400">
+                <span>Sinal Pago:</span>
+                <span className="font-semibold text-white">{formatCurrency(downPayment)}</span>
+              </div>
+              <div className="flex items-center justify-between text-red-400 font-medium">
+                <span>Retenção por Vacância:</span>
+                <span>- {formatCurrency(downPayment)}</span>
+              </div>
+              <div className="flex items-center justify-between pt-1 border-t border-slate-800 font-bold text-white">
+                <span>Devolução via Pix:</span>
+                <span className="text-slate-500 font-semibold">R$ 0,00 (Sem estorno)</span>
+              </div>
+            </div>
           </div>
         )}
 
@@ -180,7 +229,7 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
             onClick={() => cancelMutation.mutate(appointment.id)}
             leftIcon={<XCircle className="w-4 h-4" />}
           >
-            Confirmar Cancelamento
+            {isCreditScenario ? 'Confirmar e Converter em Crédito' : 'Confirmar Cancelamento'}
           </Button>
         </div>
       </div>
