@@ -9,6 +9,10 @@ import { Skeleton } from '@/components/common/Skeleton';
 import { CancelAppointmentModal } from '@/components/client/CancelAppointmentModal';
 import { VoucherModal } from '@/components/client/VoucherModal';
 import {
+  AppointmentPaymentTimer,
+  AppointmentPaymentNotice
+} from '@/components/client/AppointmentPaymentTimer';
+import {
   Calendar,
   Clock,
   MapPin,
@@ -30,7 +34,13 @@ export const ClientAppointmentsPage: React.FC = () => {
   const { data: appointments, isLoading } = useQuery({
     queryKey: ['user-appointments'],
     queryFn: () => appointmentsService.getUserAppointments(),
-    staleTime: 1000 * 60 * 3 // 3 minutes
+    staleTime: 1000 * 60 * 3, // 3 minutes
+    refetchInterval: (query) => {
+      const hasPending = query.state.data?.some(
+        (apt) => apt.status === 'PENDING_PAYMENT'
+      );
+      return hasPending ? 4000 : false;
+    }
   });
 
   const { upcomingItems, historyItems, upcomingCount, historyCount } = useMemo(() => {
@@ -174,9 +184,15 @@ export const ClientAppointmentsPage: React.FC = () => {
                         </Badge>
                       )}
                       {apt.status === 'PENDING_PAYMENT' && (
-                        <Badge variant="warning" dot>
-                          AGUARDANDO PIX
-                        </Badge>
+                        <>
+                          <Badge variant="warning" dot>
+                            AGUARDANDO PIX
+                          </Badge>
+                          <AppointmentPaymentTimer
+                            createdAt={apt.createdAt}
+                            expiresAt={apt.expiresAt}
+                          />
+                        </>
                       )}
                       {apt.status === 'COMPLETED' && (
                         <Badge variant="neutral">
@@ -261,15 +277,21 @@ export const ClientAppointmentsPage: React.FC = () => {
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2 w-full sm:w-auto">
                       {apt.status === 'PENDING_PAYMENT' && (
-                        <Link to={`/pagamento/pix/${apt.id}`} className="w-full sm:w-auto">
-                          <Button
-                            size="sm"
-                            className="w-full sm:w-auto text-xs h-9 font-bold shadow-md shadow-teal-500/20"
-                            leftIcon={<QrCode className="w-3.5 h-3.5" />}
-                          >
-                            Pagar Pix
-                          </Button>
-                        </Link>
+                        <div className="flex flex-col items-stretch sm:items-end gap-1.5 w-full sm:w-auto">
+                          <Link to={`/pagamento/pix/${apt.id}`} className="w-full sm:w-auto">
+                            <Button
+                              size="sm"
+                              className="w-full sm:w-auto text-xs h-9 font-bold shadow-md shadow-teal-500/20"
+                              leftIcon={<QrCode className="w-3.5 h-3.5" />}
+                            >
+                              Pagar Pix
+                            </Button>
+                          </Link>
+                          <AppointmentPaymentNotice
+                            createdAt={apt.createdAt}
+                            expiresAt={apt.expiresAt}
+                          />
+                        </div>
                       )}
 
                       {apt.status === 'CONFIRMED' && (
