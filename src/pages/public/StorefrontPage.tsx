@@ -410,7 +410,7 @@ export const StorefrontPage: React.FC = () => {
                             </span>
                           </div>
 
-                          <Link to={`/reserva/${company.id}/${service.id}`}>
+                          <Link to={`/reserva/${company.id}/${service.id}`} state={{ service, company }}>
                             <Button size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
                               Agendar
                             </Button>
