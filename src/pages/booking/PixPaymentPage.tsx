@@ -32,6 +32,7 @@ export const PixPaymentPage: React.FC = () => {
     data: pixData,
     isLoading: isLoadingPix,
     isError: isErrorPix,
+    error: pixError,
     refetch: refetchPix
   } = useQuery({
     queryKey: ['pix-transaction', appointmentId],
@@ -69,6 +70,17 @@ export const PixPaymentPage: React.FC = () => {
       navigate(`/reserva/confirmada/${appointmentId}`, { replace: true });
     }
   }, [appointment?.status, appointmentId, navigate]);
+
+  // Se o endpoint de pix retornar 409 (Conflito), indica que a cobrança já foi confirmada
+  useEffect(() => {
+    if (pixError) {
+      const err = pixError as any;
+      if (err?.response?.status === 409) {
+        toast.success('Pagamento já confirmado!');
+        navigate(`/reserva/confirmada/${appointmentId}`, { replace: true });
+      }
+    }
+  }, [pixError, appointmentId, navigate]);
 
   // Calculate Countdown Timer (Reserva de Cadeira: máximo 15 minutos / Regra N7)
   useEffect(() => {
@@ -135,6 +147,17 @@ export const PixPaymentPage: React.FC = () => {
         <Skeleton className="h-20 w-full rounded-2xl" />
         <Skeleton className="h-80 w-full rounded-3xl" />
         <Skeleton className="h-32 w-full rounded-2xl" />
+      </div>
+    );
+  }
+
+  if (appointment?.status === 'CONFIRMED' || appointment?.status === 'COMPLETED') {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-12 text-center space-y-4">
+        <Skeleton className="h-20 w-full rounded-2xl" />
+        <p className="text-sm text-teal-400 font-semibold animate-pulse">
+          Pagamento confirmado com sucesso! Redirecionando...
+        </p>
       </div>
     );
   }
