@@ -26,10 +26,15 @@ import {
   Eye,
   EyeOff,
   Users,
-  Sparkles
+  Sparkles,
+  Scissors,
+  Palette,
+  Smile,
+  Heart
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, extractErrorMessage } from '@/lib/utils';
+import { Select, type SelectOption } from '@/components/common/Select';
 
 const DRAFT_STORAGE_KEY = '@sinalizego:onboarding_company_draft';
 
@@ -69,13 +74,43 @@ const onboardingFullSchema = step1Schema.and(step2Schema);
 
 type OnboardingFormData = z.infer<typeof onboardingFullSchema>;
 
-const PROVIDER_TYPES = [
-  'Barbearia',
-  'Salão de Beleza',
-  'Estúdio',
-  'Clínica de Estética',
-  'Esmalteria',
-  'Outro'
+const PROVIDER_TYPE_OPTIONS: SelectOption[] = [
+  {
+    value: 'Barbearia',
+    label: 'Barbearia',
+    description: 'Cortes masculinos, barba e cuidados',
+    icon: <Scissors className="w-4 h-4" />
+  },
+  {
+    value: 'Salão de Beleza',
+    label: 'Salão de Beleza',
+    description: 'Cabelos, escovas, penteados e mechas',
+    icon: <Sparkles className="w-4 h-4" />
+  },
+  {
+    value: 'Estúdio',
+    label: 'Estúdio',
+    description: 'Tatuagem, micropigmentação ou estúdio criativo',
+    icon: <Palette className="w-4 h-4" />
+  },
+  {
+    value: 'Clínica de Estética',
+    label: 'Clínica de Estética',
+    description: 'Tratamentos faciais, corporais e spa',
+    icon: <Smile className="w-4 h-4" />
+  },
+  {
+    value: 'Esmalteria',
+    label: 'Esmalteria',
+    description: 'Manicure, pedicure, alongamento e nail art',
+    icon: <Heart className="w-4 h-4" />
+  },
+  {
+    value: 'Outro',
+    label: 'Outro',
+    description: 'Outros serviços de beleza, estética e bem-estar',
+    icon: <Store className="w-4 h-4" />
+  }
 ];
 
 const BRAZILIAN_STATES = [
@@ -107,6 +142,11 @@ const BRAZILIAN_STATES = [
   { uf: 'SE', name: 'Sergipe' },
   { uf: 'TO', name: 'Tocantins' }
 ];
+
+const BRAZILIAN_STATE_OPTIONS: SelectOption[] = BRAZILIAN_STATES.map((st) => ({
+  value: st.uf,
+  label: `${st.name} (${st.uf})`
+}));
 
 export const CompanyOnboardingPage: React.FC = () => {
   const { user, refreshProfile } = useAuth();
@@ -381,33 +421,14 @@ export const CompanyOnboardingPage: React.FC = () => {
             </div>
 
             {/* Business Category */}
-            <div className="space-y-1.5 text-left pt-1">
-              <label className="block text-xs font-semibold text-[#94A3B8] tracking-wide uppercase">
-                Tipo de Negócio / Categoria
-              </label>
-              <div className="relative">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400">
-                  <Layers className="w-4 h-4" />
-                </div>
-                <select
-                  className={cn(
-                    'w-full h-11 pl-11 pr-4 rounded-xl bg-[#1E293B] text-[#F8FAFC] border border-slate-700/80 transition-all duration-200',
-                    'focus:outline-none focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/20 cursor-pointer',
-                    errors.providerType && 'border-red-500'
-                  )}
-                  {...register('providerType')}
-                >
-                  {PROVIDER_TYPES.map((cat) => (
-                    <option key={cat} value={cat} className="bg-[#1E293B] text-white">
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {errors.providerType && (
-                <p className="text-xs text-red-400 font-medium">{errors.providerType.message}</p>
-              )}
-            </div>
+            <Select
+              label="Tipo de Negócio / Categoria"
+              value={watch('providerType')}
+              onChange={(val) => setValue('providerType', val, { shouldValidate: true })}
+              options={PROVIDER_TYPE_OPTIONS}
+              leftIcon={<Layers className="w-4 h-4 text-teal-400" />}
+              error={errors.providerType?.message}
+            />
 
             {/* Business Name */}
             <Input
@@ -468,26 +489,14 @@ export const CompanyOnboardingPage: React.FC = () => {
             {/* State (UF) and City */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5 text-left">
-                <label className="block text-xs font-semibold text-[#94A3B8] tracking-wide uppercase">
-                  Estado (UF)
-                </label>
-                <select
-                  className={cn(
-                    'w-full h-11 px-3 rounded-xl bg-[#1E293B] text-[#F8FAFC] border border-slate-700/80 transition-all duration-200',
-                    'focus:outline-none focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/20 cursor-pointer',
-                    errors.state && 'border-red-500'
-                  )}
-                  {...register('state')}
-                >
-                  {BRAZILIAN_STATES.map((st) => (
-                    <option key={st.uf} value={st.uf} className="bg-[#1E293B] text-white">
-                      {st.name} ({st.uf})
-                    </option>
-                  ))}
-                </select>
-                {errors.state && (
-                  <p className="text-xs text-red-400 font-medium">{errors.state.message}</p>
-                )}
+                <Select
+                  label="Estado (UF)"
+                  value={watch('state')}
+                  onChange={(val) => setValue('state', val, { shouldValidate: true })}
+                  options={BRAZILIAN_STATE_OPTIONS}
+                  error={errors.state?.message}
+                  menuClassName="max-h-56"
+                />
               </div>
 
               <Input
