@@ -102,6 +102,98 @@ export const StorefrontPage: React.FC = () => {
     })).filter((group) => group.services && group.services.length > 0);
   }, [company?.serviceGroups, searchTerm]);
 
+  // Working hours calculation in real-time
+  const todayIndex = new Date().getDay();
+
+  const openStatus = useMemo(() => {
+    if (!company?.workingHours || company.workingHours.length === 0) {
+      return {
+        isOpen: false,
+        statusText: 'Fechado',
+        infoText: '',
+      };
+    }
+
+    const now = new Date();
+    const currentDay = now.getDay();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const todayHours = company.workingHours.find((wh) => wh.dayOfWeek === currentDay);
+
+    const parseMinutes = (timeStr?: string | null) => {
+      if (!timeStr) return null;
+      const [h, m] = timeStr.split(':').map(Number);
+      return isNaN(h) || isNaN(m) ? null : h * 60 + m;
+    };
+
+    const getNextOpenInfo = (fromDayIndex: number) => {
+      const SHORT_DAYS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+      for (let offset = 1; offset <= 7; offset++) {
+        const nextIndex = (fromDayIndex + offset) % 7;
+        const nextWh = company.workingHours?.find((wh) => wh.dayOfWeek === nextIndex);
+        if (nextWh && !nextWh.isClosed && nextWh.startTime) {
+          if (offset === 1) {
+            return `Abre amanhã às ${nextWh.startTime}`;
+          }
+          return `Abre ${SHORT_DAYS[nextIndex]} às ${nextWh.startTime}`;
+        }
+      }
+      return null;
+    };
+
+    if (todayHours && !todayHours.isClosed && todayHours.startTime && todayHours.endTime) {
+      const startMinutes = parseMinutes(todayHours.startTime);
+      const endMinutes = parseMinutes(todayHours.endTime);
+      const lunchStart = parseMinutes(todayHours.lunchStartTime);
+      const lunchEnd = parseMinutes(todayHours.lunchEndTime);
+
+      if (startMinutes !== null && endMinutes !== null) {
+        // Antes de abrir hoje
+        if (currentMinutes < startMinutes) {
+          return {
+            isOpen: false,
+            statusText: 'Fechado',
+            infoText: `Abre às ${todayHours.startTime}`,
+          };
+        }
+
+        // Intervalo de almoço
+        if (lunchStart !== null && lunchEnd !== null && currentMinutes >= lunchStart && currentMinutes < lunchEnd) {
+          return {
+            isOpen: false,
+            statusText: 'Fechado',
+            infoText: `Abre às ${todayHours.lunchEndTime}`,
+          };
+        }
+
+        // Aberto no momento
+        if (currentMinutes >= startMinutes && currentMinutes < endMinutes) {
+          return {
+            isOpen: true,
+            statusText: 'Aberto agora',
+            infoText: `Fecha às ${todayHours.endTime}`,
+          };
+        }
+
+        // Já encerrou hoje
+        const nextOpen = getNextOpenInfo(currentDay);
+        return {
+          isOpen: false,
+          statusText: 'Fechado',
+          infoText: nextOpen || '',
+        };
+      }
+    }
+
+    // Hoje está fechado o dia todo
+    const nextOpen = getNextOpenInfo(currentDay);
+    return {
+      isOpen: false,
+      statusText: 'Fechado',
+      infoText: nextOpen || '',
+    };
+  }, [company?.workingHours]);
+
   if (isLoading) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 animate-pulse">
@@ -139,11 +231,6 @@ export const StorefrontPage: React.FC = () => {
       </div>
     );
   }
-
-  // Calculate if open today
-  const todayIndex = new Date().getDay();
-  const todayHours = company.workingHours?.find((wh) => wh.dayOfWeek === todayIndex);
-  const isOpenToday = todayHours && !todayHours.isClosed;
 
   const fullAddress = [company.street, company.number, company.district, company.city, company.state]
     .filter(Boolean)
@@ -205,14 +292,44 @@ export const StorefrontPage: React.FC = () => {
                   <MapPin className="w-3.5 h-3.5 text-teal-400 shrink-0" />
                   {company.city}, {company.state}
                 </span>
-                {isOpenToday ? (
-                  <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    Aberto Hoje ({todayHours.startTime} - {todayHours.endTime})
+
+                <span className="text-slate-600 hidden sm:inline">•</span>
+
+                <button
+                  type="button"
+                  onClick={() => setShowSchedule((prev) => !prev)}
+                  className="inline-flex items-center gap-1.5 hover:opacity-85 transition-opacity cursor-pointer group select-none text-left"
+                  title="Clique para ver os horários da semana"
+                >
+                  <span
+                    className={cn(
+                      'w-2 h-2 rounded-full shrink-0',
+                      openStatus.isOpen ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      'font-semibold',
+                      openStatus.isOpen ? 'text-emerald-400' : 'text-rose-400'
+                    )}
+                  >
+                    {openStatus.statusText}
                   </span>
-                ) : (
-                  <span className="text-slate-500 font-medium">Fechado Hoje</span>
-                )}
+                  {openStatus.infoText && (
+                    <>
+                      <span className="text-slate-500">·</span>
+                      <span className="text-slate-300 font-normal">
+                        {openStatus.infoText}
+                      </span>
+                    </>
+                  )}
+                  <ChevronDown
+                    className={cn(
+                      'w-3.5 h-3.5 text-slate-400 transition-transform duration-200 group-hover:text-slate-200',
+                      showSchedule && 'rotate-180'
+                    )}
+                  />
+                </button>
               </div>
             </div>
           </div>
