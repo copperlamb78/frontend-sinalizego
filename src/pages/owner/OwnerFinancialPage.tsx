@@ -263,10 +263,16 @@ export const OwnerFinancialPage: React.FC = () => {
               </div>
 
               <div className="space-y-3 text-xs">
-                <div className="p-3.5 rounded-xl bg-[#0B1120] border border-slate-800 space-y-1">
-                  <span className="text-[11px] text-slate-500 font-semibold uppercase">Wallet ID Asaas</span>
-                  <p className="font-mono font-bold text-teal-400">
-                    {balance?.walletId || company?.walletId || 'wal_homologada_ativa'}
+                <div className="p-3.5 rounded-xl bg-[#0B1120] border border-slate-800 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-slate-500 font-semibold uppercase">Wallet ID Protegido</span>
+                    <span className="text-[10px] text-teal-400 font-semibold bg-teal-500/10 px-2 py-0.5 rounded-full border border-teal-500/20">Criptografado</span>
+                  </div>
+                  <p className="font-mono font-bold text-teal-400 tracking-wider">
+                    {balance?.walletMask || (balance?.walletId && balance.walletId.length >= 8 ? `${balance.walletId.slice(0, 4)}••••••••${balance.walletId.slice(-4)}` : '••••••••••••••••')}
+                  </p>
+                  <p className="text-[10px] text-slate-500 pt-0.5">
+                    Identificador de custódia Asaas protegido contra sniffing e vazamento de contas.
                   </p>
                 </div>
 
