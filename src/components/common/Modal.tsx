@@ -64,13 +64,13 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Dialog box */}
       <div
         className={cn(
-          'relative w-full rounded-2xl bg-[#1E293B] border border-slate-700/80 shadow-2xl text-[#F8FAFC] z-10 overflow-hidden flex flex-col',
+          'relative w-full rounded-2xl bg-[#1E293B] border border-slate-700/80 shadow-2xl text-[#F8FAFC] z-10 overflow-hidden flex flex-col max-h-[90vh]',
           sizeClasses[size]
         )}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-start justify-between p-6 pb-4 border-b border-slate-800">
+          <div className="flex items-start justify-between p-6 pb-4 border-b border-slate-800 shrink-0">
             <div className="space-y-1 pr-6">
               {title && (
                 <h2 className="text-xl font-bold text-[#F8FAFC] tracking-tight">
@@ -96,7 +96,7 @@ export const Modal: React.FC<ModalProps> = ({
         )}
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
+        <div className="p-6 overflow-y-auto flex-1 space-y-4 overscroll-contain custom-scrollbar">
           {children}
         </div>
 
