@@ -23,10 +23,21 @@ import {
   AlertTriangle,
   Lock,
   Smartphone,
-  Download
+  Download,
+  CheckCircle2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { openPwaInstallModal } from '@/components/common/PwaInstallPrompt';
+
+// Helper formatador de CPF (000.000.000-00)
+const formatCpf = (val?: string | null): string => {
+  if (!val) return '';
+  const digits = val.replace(/\D/g, '').slice(0, 11);
+  return digits
+    .replace(/^(\d{3})(\d)/, '$1.$2')
+    .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+};
 
 // 1. Profile Schema
 const profileSchema = z.object({
@@ -57,6 +68,11 @@ export const ClientProfilePage: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Sincroniza dados atualizados do backend ao entrar na tela
+  useEffect(() => {
+    refreshProfile();
+  }, [refreshProfile]);
+
   // Profile Form
   const {
     register: registerProfile,
@@ -68,7 +84,7 @@ export const ClientProfilePage: React.FC = () => {
     defaultValues: {
       name: user?.name || '',
       phone: user?.phone || '',
-      cpf: user?.cpfCnpj || ''
+      cpf: formatCpf(user?.cpfCnpj)
     }
   });
 
@@ -87,7 +103,7 @@ export const ClientProfilePage: React.FC = () => {
       resetProfile({
         name: user.name || '',
         phone: user.phone || '',
-        cpf: user.cpfCnpj || ''
+        cpf: formatCpf(user.cpfCnpj)
       });
     }
   }, [user, resetProfile]);
@@ -96,10 +112,15 @@ export const ClientProfilePage: React.FC = () => {
     try {
       const cleanPhone = data.phone.replace(/\D/g, '');
       await authService.updateProfile({ name: data.name, phone: cleanPhone });
-      if (data.cpf && data.cpf.trim() !== '') {
+
+      // Só tenta cadastrar o CPF caso o usuário ainda não possua um cadastrado
+      if (!user?.cpfCnpj && data.cpf && data.cpf.trim() !== '') {
         const cleanCpf = data.cpf.replace(/\D/g, '');
-        await authService.updateCpf({ cpfCnpj: cleanCpf });
+        if (cleanCpf.length === 11) {
+          await authService.updateCpf({ cpfCnpj: cleanCpf });
+        }
       }
+
       await refreshProfile();
       toast.success('Dados cadastrais atualizados com sucesso!');
     } catch (err: any) {
@@ -144,66 +165,85 @@ export const ClientProfilePage: React.FC = () => {
     }
   };
 
+  const hasRegisteredCpf = !!user?.cpfCnpj;
+
   return (
     <div className="space-y-8 max-w-2xl mx-auto">
       {/* Header */}
       <div className="space-y-1">
-        <h1 className="text-2xl font-black text-white flex items-center gap-2">
+        <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
           <User className="w-6 h-6 text-teal-400" />
-          <span>Minha Conta</span>
+          <span>Meu Perfil</span>
         </h1>
         <p className="text-xs text-slate-400">
-          Gerencie seus dados pessoais, credenciais de acesso e privacidade.
+          Gerencie suas informações de contato, identificação e preferências de segurança.
         </p>
       </div>
 
-      {/* 1. Dados Pessoais & Cadastrais */}
+      {/* 1. Seção de Informações Pessoais */}
       <form onSubmit={handleSubmitProfile(onProfileSubmit)}>
         <Card className="p-6 bg-[#0F172A] border-slate-800 space-y-5 shadow-lg">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <User className="w-4 h-4 text-teal-400" />
-              <span>Dados Cadastrais</span>
-            </h2>
+          <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <User className="w-4 h-4 text-teal-400" />
+                <span>Dados de Identificação & Contato</span>
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Utilizados para comunicação e vouchers de agendamentos
+              </p>
+            </div>
             <Badge variant="teal" size="sm">
-              {user?.role === 'COMPANY_OWNER' ? 'PROPRIETÁRIO' : 'CLIENTE'}
+              {user?.role || 'CLIENTE'}
             </Badge>
           </div>
 
           <div className="space-y-4">
             <Input
               label="Nome Completo"
-              placeholder="Ex: Carlos Alberto"
+              placeholder="Seu nome completo"
               leftIcon={<User className="w-4 h-4" />}
               error={profileErrors.name?.message}
               {...registerProfile('name')}
             />
 
             <Input
-              label="E-mail de Acesso"
-              type="email"
+              label="E-mail Cadastrado"
               value={user?.email || ''}
               disabled
               leftIcon={<Mail className="w-4 h-4" />}
-              helperText="O e-mail é a chave primária da sua conta e não pode ser alterado."
+              helperText="O e-mail é a sua chave primária de acesso e não pode ser alterado diretamente."
             />
 
             <Input
-              label="Telefone / WhatsApp (com DDD)"
-              placeholder="Ex: 11999998888"
+              label="Telefone / WhatsApp"
+              placeholder="(00) 00000-0000"
               leftIcon={<Phone className="w-4 h-4" />}
               error={profileErrors.phone?.message}
               {...registerProfile('phone')}
             />
 
-            <Input
-              label="CPF do Titular"
-              placeholder="000.000.000-00"
-              leftIcon={<CreditCard className="w-4 h-4" />}
-              helperText="Utilizado para identificação e emissão dos pagamentos via Pix no checkout."
-              error={profileErrors.cpf?.message}
-              {...registerProfile('cpf')}
-            />
+            <div className="space-y-1">
+              <Input
+                label="CPF do Titular"
+                placeholder="000.000.000-00"
+                leftIcon={<CreditCard className="w-4 h-4" />}
+                helperText={
+                  hasRegisteredCpf
+                    ? "CPF vinculado com segurança à sua conta e utilizado para emissão dos pagamentos via Pix."
+                    : "Utilizado para identificação e emissão dos pagamentos via Pix no checkout."
+                }
+                disabled={hasRegisteredCpf}
+                error={profileErrors.cpf?.message}
+                {...registerProfile('cpf')}
+              />
+              {hasRegisteredCpf && (
+                <div className="flex items-center gap-1.5 text-xs text-teal-400 font-medium pt-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                  <span>CPF Validado e Vinculado à sua Conta</span>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="pt-2 flex justify-end border-t border-slate-800">
@@ -284,7 +324,7 @@ export const ClientProfilePage: React.FC = () => {
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <Smartphone className="w-5 h-5 text-teal-400" />
-              <h2 className="text-sm font-bold text-white">Aplicativo no Celular (PWA)</h2>
+              <h2 className="text-sm font-bold text-white">Aplicativo no Celular</h2>
             </div>
             <p className="text-xs text-slate-400">
               Instale o SinalizeGO na sua tela inicial para acesso instantâneo aos seus agendamentos, notificações e checkouts.
