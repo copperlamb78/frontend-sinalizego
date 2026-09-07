@@ -219,8 +219,19 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
-    // Se o usuário logado ainda não possui CPF cadastrado, abre a modal de CPF
-    if (user && !user.cpfCnpj) {
+    // Sincroniza dados com o servidor caso o state local não tenha o CPF
+    let currentUserCpf = user?.cpfCnpj;
+    if (user && !currentUserCpf) {
+      try {
+        const refreshed = await refreshProfile();
+        currentUserCpf = refreshed?.cpfCnpj;
+      } catch {
+        // segue com state local
+      }
+    }
+
+    // Se o usuário realmente não possuir CPF cadastrado, abre a modal
+    if (user && !currentUserCpf) {
       setIsCpfModalOpen(true);
       return;
     }
