@@ -23,6 +23,43 @@ export function formatPercent(value: number): string {
 }
 
 /**
+ * Safely formats any date input (YYYY-MM-DD, ISO string, or Date object)
+ * to Portuguese format (e.g. "25 de dezembro de 2026"), avoiding timezone shifts and Invalid Date errors.
+ */
+export function formatDateLong(dateInput: string | Date | undefined | null): string {
+  if (!dateInput) return 'Data não informada';
+  try {
+    let dateStr = typeof dateInput === 'string' ? dateInput.trim() : dateInput.toISOString();
+    if (dateStr.includes('T')) {
+      dateStr = dateStr.split('T')[0];
+    }
+    // Match YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const d = new Date(year, month - 1, day);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        });
+      }
+    }
+    const fallback = new Date(dateInput);
+    if (!isNaN(fallback.getTime())) {
+      return fallback.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+  } catch {
+    // fallback
+  }
+  return 'Data não identificada';
+}
+
+/**
  * Sanitizes technical server/gateway jargon into human-friendly Portuguese
  */
 function humanizeErrorText(text: string): string {
