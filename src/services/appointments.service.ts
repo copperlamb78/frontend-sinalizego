@@ -103,5 +103,14 @@ export const appointmentsService = {
   deactivateAppointment: async (id: string): Promise<{ id: string; status: string }> => {
     const response = await api.delete<{ id: string; status: string }>(`/appointments/${id}/deactivate`);
     return response.data;
+  },
+
+  /**
+   * Releases an appointment slot due to owner unavailability and credits the client
+   * POST /api/v1/appointments/:id/owner-unavailability
+   */
+  rescheduleByOwnerUnavailability: async (id: string): Promise<{ success: boolean; message: string; rescheduleUrl?: string; appointment: Appointment }> => {
+    const response = await api.post<{ success: boolean; message: string; rescheduleUrl?: string; appointment: Appointment }>(`/appointments/${id}/owner-unavailability`);
+    return response.data;
   }
 };
