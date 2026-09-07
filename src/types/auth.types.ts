@@ -1,5 +1,6 @@
 export enum Role {
   CLIENT = 'CLIENT',
+  PROVIDER = 'PROVIDER',
   COMPANY_OWNER = 'COMPANY_OWNER',
   EMPLOYEE = 'EMPLOYEE',
   ADMIN = 'ADMIN',
@@ -14,6 +15,7 @@ export interface User {
   phone?: string | null;
   cpfCnpj?: string | null;
   isActive: boolean;
+  mustChangePassword?: boolean;
   createdAt: string;
   updatedAt: string;
 }
