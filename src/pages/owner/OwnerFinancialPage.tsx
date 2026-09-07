@@ -13,10 +13,9 @@ import {
   Sparkles,
   ArrowUpRight,
   ShieldCheck,
-  ExternalLink,
   Clock,
   CheckCircle2,
-  HelpCircle,
+  CircleHelp,
   Building2,
   History,
   ArrowRight
@@ -216,7 +215,7 @@ export const OwnerFinancialPage: React.FC = () => {
                   Saldo em Custódia
                 </span>
                 <div className="group relative cursor-pointer" title="Valores de sinais retidos de agendamentos futuros. O valor é liberado após o atendimento ser concluído.">
-                  <HelpCircle className="w-3.5 h-3.5 text-slate-500 hover:text-slate-300" />
+                  <CircleHelp className="w-3.5 h-3.5 text-slate-500 hover:text-slate-300" />
                 </div>
               </div>
 
@@ -275,17 +274,6 @@ export const OwnerFinancialPage: React.FC = () => {
                   <span>Chave Pix / Telefone:</span>
                   <span className="font-mono text-white font-semibold">{company?.whatsapp || 'Cadastrada'}</span>
                 </div>
-              </div>
-
-              <div className="pt-2">
-                <a
-                  href="https://sandbox.asaas.com"
-                  target="_blank" rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#1E293B] hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700 transition-colors"
-                >
-                  <span>Acessar Portal Oficial Asaas</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                </a>
               </div>
             </Card>
 
