@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { appointmentsService } from '@/services/appointments.service';
+import { clientCreditsService } from '@/services/client-credits.service';
 import { useAuth } from '@/contexts/auth.context';
 import { Card } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
@@ -91,6 +92,57 @@ export const ClientAppointmentsPage: React.FC = () => {
           Acompanhe seus horários marcados, comprovantes digitais e histórico completo.
         </p>
       </div>
+
+      {/* Banner de Créditos Disponíveis do Cliente */}
+      {availableCredits.length > 0 && (
+        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-500/20 via-emerald-500/10 to-teal-950/30 border border-teal-500/40 shadow-lg space-y-3 animate-in fade-in duration-200">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-teal-400 shrink-0">
+                <Ticket className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold tracking-wider uppercase text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded-full border border-teal-500/20">
+                  Meus Créditos em Barbearias
+                </span>
+                <h2 className="text-base font-black text-white pt-0.5">
+                  Você possui {formatCurrency(totalCreditAmount)} em créditos disponíveis
+                </h2>
+              </div>
+            </div>
+            <Link to="/minha-conta">
+              <Button variant="outline" size="sm" className="text-xs border-teal-500/40 text-teal-300 hover:bg-teal-500/10">
+                Ver na Minha Conta
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            {availableCredits.map((credit) => (
+              <div
+                key={credit.id}
+                className="p-3 rounded-xl bg-[#0B1120] border border-slate-800 flex items-center justify-between gap-2 text-xs"
+              >
+                <div className="space-y-0.5 min-w-0">
+                  <p className="font-bold text-white truncate">
+                    {credit.company?.businessName || 'Barbearia'}
+                  </p>
+                  <p className="text-[11px] text-teal-400 font-semibold font-mono">
+                    {formatCurrency(credit.amount)} • Válido por 90 dias
+                  </p>
+                </div>
+
+                <Link to={`/empresa/${credit.company?.slug || credit.companyId}?creditApplied=true`}>
+                  <Button size="sm" variant="teal" className="h-8 text-xs font-bold gap-1 px-2.5">
+                    <span>Usar Crédito</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
