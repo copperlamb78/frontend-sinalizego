@@ -16,7 +16,11 @@ import {
   Calendar,
   RotateCcw,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  Copy,
+  ClipboardPaste,
+  CopyCheck,
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -55,6 +59,16 @@ export const OwnerWorkingHoursPage: React.FC = () => {
   const [schedule, setSchedule] = useState<WorkingHour[]>([]);
   const [isExceptionModalOpen, setIsExceptionModalOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Estado para copiar e colar horários entre dias
+  const [copiedSchedule, setCopiedSchedule] = useState<{
+    sourceDayOfWeek: number;
+    sourceDayName: string;
+    startTime: string;
+    endTime: string;
+    lunchStartTime: string | null;
+    lunchEndTime: string | null;
+  } | null>(null);
 
   // Exception form state
   const [excDate, setExcDate] = useState('');
@@ -175,6 +189,108 @@ export const OwnerWorkingHoursPage: React.FC = () => {
     setHasUnsavedChanges(true);
   };
 
+    const handleCopyDay = (item: WorkingHour) => {
+    const dayName = DAY_NAMES[item.dayOfWeek] || 'Dia selecionado';
+    setCopiedSchedule({
+      sourceDayOfWeek: item.dayOfWeek,
+      sourceDayName: dayName,
+      startTime: item.startTime || '09:00',
+      endTime: item.endTime || '19:00',
+      lunchStartTime: item.lunchStartTime ?? null,
+      lunchEndTime: item.lunchEndTime ?? null
+    });
+    toast.info(`Horário de ${dayName} copiado! Clique em "Colar" em outro dia ou "Colar para Todos".`);
+  };
+
+  const handlePasteToDay = (targetDayOfWeek: number) => {
+    if (!copiedSchedule) return;
+    const targetName = DAY_NAMES[targetDayOfWeek] || 'Dia';
+    setSchedule((prev) =>
+      prev.map((item) => {
+        if (item.dayOfWeek === targetDayOfWeek) {
+          return {
+            ...item,
+            isClosed: false,
+            startTime: copiedSchedule.startTime,
+            endTime: copiedSchedule.endTime,
+            lunchStartTime: copiedSchedule.lunchStartTime,
+            lunchEndTime: copiedSchedule.lunchEndTime
+          };
+        }
+        return item;
+      })
+    );
+    setHasUnsavedChanges(true);
+    toast.success(`Horário de ${copiedSchedule.sourceDayName} colado em ${targetName}!`);
+  };
+
+  const handlePasteToAllDays = () => {
+    if (!copiedSchedule) return;
+    setSchedule((prev) =>
+      prev.map((item) => ({
+        ...item,
+        isClosed: false,
+        startTime: copiedSchedule.startTime,
+        endTime: copiedSchedule.endTime,
+        lunchStartTime: copiedSchedule.lunchStartTime,
+        lunchEndTime: copiedSchedule.lunchEndTime
+      }))
+    );
+    setHasUnsavedChanges(true);
+    toast.success(`Horário de ${copiedSchedule.sourceDayName} aplicado para todos os dias da semana!`);
+  };
+
+  const handlePasteToWeekdays = () => {
+    if (!copiedSchedule) return;
+    setSchedule((prev) =>
+      prev.map((item) => {
+        if (item.dayOfWeek >= 1 && item.dayOfWeek <= 5) {
+          return {
+            ...item,
+            isClosed: false,
+            startTime: copiedSchedule.startTime,
+            endTime: copiedSchedule.endTime,
+            lunchStartTime: copiedSchedule.lunchStartTime,
+            lunchEndTime: copiedSchedule.lunchEndTime
+          };
+        }
+        return item;
+      })
+    );
+    setHasUnsavedChanges(true);
+    toast.success(`Horário de ${copiedSchedule.sourceDayName} aplicado de Segunda a Sexta!`);
+  };
+
+  const handleReplicateDayToAll = (item: WorkingHour) => {
+    const dayName = DAY_NAMES[item.dayOfWeek] || 'Dia';
+    const sTime = item.startTime || '09:00';
+    const eTime = item.endTime || '19:00';
+    const lStart = item.lunchStartTime;
+    const lEnd = item.lunchEndTime;
+
+    setCopiedSchedule({
+      sourceDayOfWeek: item.dayOfWeek,
+      sourceDayName: dayName,
+      startTime: sTime,
+      endTime: eTime,
+      lunchStartTime: lStart ?? null,
+      lunchEndTime: lEnd ?? null
+    });
+
+    setSchedule((prev) =>
+      prev.map((day) => ({
+        ...day,
+        isClosed: false,
+        startTime: sTime,
+        endTime: eTime,
+        lunchStartTime: lStart ?? null,
+        lunchEndTime: lEnd ?? null
+      }))
+    );
+    setHasUnsavedChanges(true);
+    toast.success(`Horário de ${dayName} copiado e aplicado para todos os dias da semana!`);
+  };
+
   const handleResetToDefaultSchedule = () => {
     setSchedule(DEFAULT_WEEKLY_SCHEDULE);
     setHasUnsavedChanges(true);
@@ -276,6 +392,66 @@ export const OwnerWorkingHoursPage: React.FC = () => {
             </Button>
           </div>
         </div>
+
+                {/* Active Copied Schedule Banner */}
+        {copiedSchedule && (
+          <div className="bg-gradient-to-r from-teal-950/70 via-slate-900 to-slate-900 border border-teal-500/40 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs shadow-lg animate-in fade-in duration-200">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-teal-500/20 text-teal-300 rounded-xl shrink-0 border border-teal-500/30">
+                <Copy className="w-4 h-4" />
+              </div>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-white text-sm">
+                    Horário copiado de: <span className="text-teal-400 font-black">{copiedSchedule.sourceDayName}</span>
+                  </span>
+                  <Badge variant="teal" size="sm" className="text-[10px]">
+                    Pronto para colar
+                  </Badge>
+                </div>
+                <p className="text-slate-300 text-xs">
+                  Expediente: <strong className="text-white">{copiedSchedule.startTime} às {copiedSchedule.endTime}</strong>
+                  {copiedSchedule.lunchStartTime && copiedSchedule.lunchEndTime ? (
+                    <span> • Almoço: <strong className="text-white">{copiedSchedule.lunchStartTime} às {copiedSchedule.lunchEndTime}</strong></span>
+                  ) : (
+                    <span> • Sem intervalo de almoço</span>
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                onClick={handlePasteToAllDays}
+                className="text-xs bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold cursor-pointer h-9 shadow-md shadow-teal-500/20"
+                leftIcon={<CopyCheck className="w-3.5 h-3.5" />}
+              >
+                Colar para Todos os Dias
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handlePasteToWeekdays}
+                className="text-xs text-slate-300 border-slate-700 hover:bg-slate-800 cursor-pointer h-9"
+              >
+                Colar Seg a Sex
+              </Button>
+
+              <button
+                type="button"
+                onClick={() => setCopiedSchedule(null)}
+                className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer ml-1"
+                title="Limpar seleção de cópia"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Days List */}
         {schedule.length > 0 ? (
@@ -417,6 +593,44 @@ export const OwnerWorkingHoursPage: React.FC = () => {
                       Agenda fechada para agendamentos neste dia.
                     </span>
                   )}
+
+                  {/* Actions: Copiar / Colar / Colar para Todos */}
+                  <div className="flex items-center gap-1.5 shrink-0 self-end md:self-center pt-2 md:pt-0">
+                    {/* Botão Copiar */}
+                    <button
+                      type="button"
+                      onClick={() => handleCopyDay(item)}
+                      title={`Copiar horários de ${DAY_NAMES[item.dayOfWeek]}`}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 transition-all cursor-pointer shadow-sm active:scale-95"
+                    >
+                      <Copy className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Copiar</span>
+                    </button>
+
+                    {/* Botão Colar (habilitado se houver cópia) */}
+                    {copiedSchedule && (
+                      <button
+                        type="button"
+                        onClick={() => handlePasteToDay(item.dayOfWeek)}
+                        title={`Colar horário de ${copiedSchedule.sourceDayName} em ${DAY_NAMES[item.dayOfWeek]}`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/50 hover:border-teal-400 transition-all cursor-pointer shadow-sm active:scale-95 animate-in fade-in"
+                      >
+                        <ClipboardPaste className="w-3.5 h-3.5 text-teal-400" />
+                        <span>Colar</span>
+                      </button>
+                    )}
+
+                    {/* Botão Colar p/ Todos direto deste dia */}
+                    <button
+                      type="button"
+                      onClick={() => handleReplicateDayToAll(item)}
+                      title={`Replicar horários de ${DAY_NAMES[item.dayOfWeek]} para todos os dias da semana`}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800/80 hover:bg-teal-950/40 text-slate-300 hover:text-teal-300 border border-slate-700/80 hover:border-teal-500/40 transition-all cursor-pointer shadow-sm active:scale-95"
+                    >
+                      <CopyCheck className="w-3.5 h-3.5 text-teal-400" />
+                      <span>Colar p/ Todos</span>
+                    </button>
+                  </div>
                 </div>
               );
             })}
