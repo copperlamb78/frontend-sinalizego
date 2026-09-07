@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { servicesService } from '@/services/services.service';
 import { companyService } from '@/services/company.service';
@@ -54,7 +54,7 @@ export const OwnerServicesPage: React.FC = () => {
   const [groupCapacity, setGroupCapacity] = useState<number>(1);
 
   // 1. Fetch Company Profile (to verify subaccount)
-  const { data: company } = useQuery({
+  const { data: company, isLoading: isLoadingCompany } = useQuery({
     queryKey: ['owner-company-profile'],
     queryFn: () => companyService.getCompanyByUserId(),
     staleTime: 1000 * 60 * 5
@@ -68,11 +68,35 @@ export const OwnerServicesPage: React.FC = () => {
   );
 
   // 2. Fetch Service Groups
-  const { data: groups, isLoading } = useQuery({
+  const { data: rawGroups, isLoading: isLoadingGroups } = useQuery({
     queryKey: ['service-groups'],
     queryFn: () => servicesService.getServiceGroups(),
     staleTime: 1000 * 60 * 5 // 5 minutes
   });
+
+  // 2.1 Fetch Company Services
+  const { data: companyServices, isLoading: isLoadingServices } = useQuery({
+    queryKey: ['company-services'],
+    queryFn: () => servicesService.getCompanyServices(),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+  });
+
+  const isLoading = isLoadingCompany || isLoadingGroups || isLoadingServices;
+
+  // Enriquecer grupos com serviços e garantir que group.services seja sempre um array
+  const groups = useMemo(() => {
+    if (!rawGroups) return [];
+    return rawGroups.map((group) => {
+      const existingServices = group.services && Array.isArray(group.services) ? group.services : [];
+      const matchedServices = (companyServices || []).filter(
+        (s) => s.serviceGroupId === group.id
+      );
+      return {
+        ...group,
+        services: existingServices.length > 0 ? existingServices : matchedServices
+      };
+    });
+  }, [rawGroups, companyServices]);
 
   // Keep svcGroupId synchronized when groups load
   useEffect(() => {
@@ -128,6 +152,7 @@ export const OwnerServicesPage: React.FC = () => {
     onSuccess: () => {
       toast.success(editingService ? 'Serviço atualizado com sucesso!' : 'Serviço cadastrado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['service-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['company-services'] });
       setIsServiceModalOpen(false);
       resetServiceForm();
     },
@@ -141,6 +166,7 @@ export const OwnerServicesPage: React.FC = () => {
     onSuccess: () => {
       toast.success('Serviço removido com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['service-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['company-services'] });
       setServiceToDelete(null);
     },
     onError: (err: any) => toast.error(extractErrorMessage(err, 'Não foi possível excluir o serviço.'))
@@ -163,6 +189,7 @@ export const OwnerServicesPage: React.FC = () => {
     onSuccess: () => {
       toast.success(editingGroup ? 'Cadeira/Equipe atualizada!' : 'Cadeira/Equipe criada com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['service-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['company-services'] });
       setIsGroupModalOpen(false);
       setGroupName('');
       setEditingGroup(null);
@@ -175,6 +202,7 @@ export const OwnerServicesPage: React.FC = () => {
     onSuccess: () => {
       toast.success('Cadeira/Equipe removida com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['service-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['company-services'] });
     },
     onError: (err: any) => toast.error(extractErrorMessage(err, 'Não foi possível excluir a cadeira/equipe.'))
   });
@@ -370,7 +398,7 @@ export const OwnerServicesPage: React.FC = () => {
                         {group.capacity === 1 ? '1 Cadeira / Profissional' : `${group.capacity} Vagas Simultâneas`}
                       </Badge>
                       <Badge variant="neutral" size="sm">
-                        {group.services.length} {group.services.length === 1 ? 'serviço' : 'serviços'}
+                        {(group.services?.length || 0)} {(group.services?.length || 0) === 1 ? 'serviço' : 'serviços'}
                       </Badge>
                     </div>
                     <span className="text-[11px] text-slate-500 block pt-0.5">
