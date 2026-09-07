@@ -20,9 +20,12 @@ import {
   Store,
   ShieldCheck,
   Flame,
-  TrendingUp
+  TrendingUp,
+  Share2,
+  Check
 } from 'lucide-react';
 import { formatCurrency, cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const DAYS_OF_WEEK = [
   'Domingo',
@@ -38,6 +41,36 @@ export const StorefrontPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [showSchedule, setShowSchedule] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleShare = async () => {
+    if (!company) return;
+    const shareUrl = window.location.href;
+    const shareTitle = company.businessName;
+    const shareText = `Agende seu horário na ${company.businessName} pelo SinalizeGO!`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl
+        });
+        return;
+      } catch (err: any) {
+        if (err?.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setIsCopied(true);
+      toast.success('Link da barbearia copiado com sucesso!');
+      setTimeout(() => setIsCopied(false), 2500);
+    } catch {
+      toast.info(`Compartilhe este link: ${shareUrl}`);
+    }
+  };
 
   const {
     data: company,
@@ -185,7 +218,7 @@ export const StorefrontPage: React.FC = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          <div className="flex items-center gap-2.5 w-full sm:w-auto flex-wrap sm:flex-nowrap">
             {company.whatsapp && (
               <a
                 href={`https://wa.me/55${company.whatsapp.replace(/\D/g, '')}`}
@@ -197,6 +230,23 @@ export const StorefrontPage: React.FC = () => {
                 </Button>
               </a>
             )}
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleShare}
+              className="flex-1 sm:flex-none text-slate-200 border-slate-700 hover:border-teal-500/50 hover:bg-slate-800 transition-colors"
+              leftIcon={
+                isCopied ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                ) : (
+                  <Share2 className="w-3.5 h-3.5 text-teal-400" />
+                )
+              }
+            >
+              {isCopied ? 'Copiado!' : 'Compartilhar'}
+            </Button>
 
             <a
               href={googleMapsUrl}
