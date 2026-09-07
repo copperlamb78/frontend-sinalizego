@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { appointmentsService } from '@/services/appointments.service';
+import { api } from '@/config/api.config';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
@@ -24,7 +25,12 @@ import {
   Download
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
-import { downloadIcsFile, getGoogleCalendarUrl, IcsEventOptions } from '@/lib/calendar';
+import {
+  downloadIcsFile,
+  getGoogleCalendarUrl,
+  getIcsDataUri,
+  IcsEventOptions
+} from '@/lib/calendar';
 import { toast } from 'sonner';
 import { triggerCelebrationConfetti } from '@/lib/confetti';
 import { triggerHaptic } from '@/lib/haptics';
@@ -84,13 +90,15 @@ export const BookingSuccessPage: React.FC = () => {
     toast.success('Abrindo evento no Google Agenda...');
   };
 
-  const handleDownloadAppleCalendar = () => {
+  const handleDownloadAppleCalendar = (e: React.MouseEvent) => {
     const options = getCalendarEventOptions();
     if (!options) return;
 
-    downloadIcsFile(options);
+    // Se estiver em dispositivo iOS ou Safari móvel, a navegação pelo link href (GET /appointments/:id/ics)
+    // com cabeçalho text/calendar abre nativamente o sheet do Calendário do iPhone.
+    // Como garantia adicional em caso de clique programático:
     setIsCalendarModalOpen(false);
-    toast.success('Arquivo aberto! Toque nele para adicionar ao Calendário do iPhone/Mac.');
+    toast.success('Abrindo no Calendário do iPhone/Mac...');
   };
 
   const handleDownloadIcsFile = () => {
@@ -141,6 +149,10 @@ export const BookingSuccessPage: React.FC = () => {
   const totalPrice = appointment?.servicePrice || 0;
   const downPayment = appointment?.downPaymentAmount || 0;
   const remainingPrice = Math.max(0, totalPrice - downPayment);
+
+  // URL do endpoint de ICS do backend (Abordagem 2: Recomendada pela Apple para iOS)
+  const apiBaseUrl = api.defaults.baseURL || '/api/v1';
+  const backendIcsUrl = `${apiBaseUrl}/appointments/${appointmentId}/ics`;
 
   return (
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-8 space-y-6">
@@ -316,29 +328,33 @@ export const BookingSuccessPage: React.FC = () => {
             <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-teal-400 transition-colors" />
           </button>
 
-          {/* Opção 2: Apple Agenda / iPhone */}
-          <button
-            type="button"
+          {/* Opção 2: Apple Agenda / iPhone (Link Direto via Endpoint Backend com Content-Type text/calendar) */}
+          <a
+            href={backendIcsUrl}
             onClick={handleDownloadAppleCalendar}
-            className="w-full flex items-center justify-between p-3.5 rounded-xl bg-[#0F172A] border border-slate-800 hover:border-teal-500/50 hover:bg-slate-800/60 transition-all text-left group"
+            download={`agendamento-${appointmentId?.slice(0, 8)}.ics`}
+            className="w-full flex items-center justify-between p-3.5 rounded-xl bg-[#0F172A] border border-slate-800 hover:border-teal-500/50 hover:bg-slate-800/60 transition-all text-left group cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-slate-500/10 border border-slate-500/20 flex items-center justify-center text-slate-300 shrink-0">
                 <Smartphone className="w-5 h-5 text-slate-300" />
               </div>
               <div>
-                <span className="text-sm font-bold text-white group-hover:text-teal-400 transition-colors block">
-                  Apple Agenda (iPhone / Mac)
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-bold text-white group-hover:text-teal-400 transition-colors">
+                    Apple Agenda (iPhone / Mac)
+                  </span>
+                  <Badge variant="teal" size="sm">iOS Nativo</Badge>
+                </div>
                 <span className="text-[11px] text-slate-400 block">
-                  Sincroniza com o app nativo do iOS / macOS
+                  Abre nativamente no app Calendário do iOS
                 </span>
               </div>
             </div>
-            <Download className="w-4 h-4 text-slate-500 group-hover:text-teal-400 transition-colors" />
-          </button>
+            <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-teal-400 transition-colors" />
+          </a>
 
-          {/* Opção 3: Outlook / Outros (.ics) */}
+          {/* Opção 3: Outlook / Outros (.ics Universal) */}
           <button
             type="button"
             onClick={handleDownloadIcsFile}
