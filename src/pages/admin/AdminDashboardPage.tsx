@@ -1,206 +1,384 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { adminService } from '@/services/admin.service';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/common/Card';
-import { Badge } from '@/components/common/Badge';
-import { Skeleton } from '@/components/common/Skeleton';
-import { formatCurrency } from '@/lib/utils';
 import {
-  TrendingUp,
   DollarSign,
-  Building2,
-  Activity,
-  ShieldCheck,
-  Server,
+  TrendingUp,
+  Store,
   Users,
   CalendarCheck,
-  Store,
-  Award
+  Award,
+  Activity,
+  Server,
+  ShieldCheck,
+  Calendar,
+  ShieldAlert,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  AlertCircle
 } from 'lucide-react';
+import { adminService } from '@/services/admin.service';
+import type { AdminDashboardMetrics } from '@/types/admin.types';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/common/Card';
+import { Badge } from '@/components/common/Badge';
+import { Input } from '@/components/common/Input';
+import { Skeleton } from '@/components/common/Skeleton';
+import { formatCurrency } from '@/lib/utils';
 
 export const AdminDashboardPage: React.FC = () => {
-  const { data: metrics, isLoading } = useQuery({
-    queryKey: ['admin-dashboard-metrics'],
-    queryFn: () => adminService.getDashboardMetrics()
+  // Date filters
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
   });
+  const [endDate, setEndDate] = useState(() => {
+    return new Date().toISOString().split('T')[0];
+  });
+
+  const { data: metrics, isLoading } = useQuery<AdminDashboardMetrics>({
+    queryKey: ['admin-dashboard-metrics', startDate, endDate],
+    queryFn: () => adminService.getDashboardMetrics({ startDate, endDate })
+  });
+
+  // Date Presets
+  const setPreset = (preset: 'THIS_MONTH' | 'LAST_30_DAYS' | 'ALL_TIME') => {
+    const now = new Date();
+    if (preset === 'THIS_MONTH') {
+      setStartDate(new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]);
+      setEndDate(now.toISOString().split('T')[0]);
+    } else if (preset === 'LAST_30_DAYS') {
+      const past30 = new Date();
+      past30.setDate(now.getDate() - 30);
+      setStartDate(past30.toISOString().split('T')[0]);
+      setEndDate(now.toISOString().split('T')[0]);
+    } else {
+      setStartDate('');
+      setEndDate('');
+    }
+  };
+
+  // Safe KPI calculations
+  const platformGross =
+    metrics?.financial?.platformGrossRevenue ?? metrics?.platformGrossRevenue ?? 0;
+  const asaasCosts =
+    metrics?.financial?.totalAsaasPixCosts ?? metrics?.totalAsaasPixCosts ?? 0;
+  const netProfit =
+    metrics?.financial?.platformNetProfit ?? metrics?.platformNetProfit ?? 0;
+  const gmv = metrics?.financial?.gmv ?? metrics?.gmv ?? 0;
+  const escrowFee = metrics?.financial?.platformFeeInEscrow ?? 0;
+
+  // Growth calculations
+  const totalCompanies =
+    metrics?.growth?.companies?.total ?? metrics?.growth?.totalCompanies ?? 0;
+  const activeCompanies =
+    metrics?.growth?.companies?.active ?? metrics?.growth?.activeCompanies ?? 0;
+  const inactiveCompanies =
+    metrics?.growth?.companies?.inactive ?? metrics?.growth?.inactiveCompanies ?? 0;
+
+  const totalUsers =
+    metrics?.growth?.users?.total ?? metrics?.growth?.totalUsers ?? 0;
+  const clientsCount =
+    metrics?.growth?.users?.clients ?? metrics?.growth?.clients ?? 0;
+  const ownersCount =
+    metrics?.growth?.users?.owners ?? metrics?.growth?.companyOwners ?? 0;
+
+  const totalAppointments = metrics?.growth?.appointments?.total ?? 0;
+  const completedAppointments = metrics?.growth?.appointments?.completed ?? 0;
+  const confirmedAppointments = metrics?.growth?.appointments?.confirmed ?? 0;
+  const canceledAppointments = metrics?.growth?.appointments?.canceled ?? 0;
+  const noShowAppointments = metrics?.growth?.appointments?.noShow ?? 0;
+  const pendingPaymentAppointments = metrics?.growth?.appointments?.pendingPayment ?? 0;
+
+  const lossPrevented = metrics?.lossPrevented;
+
+  const kpis = [
+    {
+      title: 'GMV Transacionado',
+      value: formatCurrency(gmv),
+      detail: 'Volume financeiro bruto movimentado no período',
+      icon: TrendingUp,
+      color: 'text-sky-400',
+      bg: 'bg-sky-500/10'
+    },
+    {
+      title: 'Receita Bruta do SaaS',
+      value: formatCurrency(platformGross),
+      detail: `Taxas de serviço auferidas (+ ${formatCurrency(escrowFee)} em custódia)`,
+      icon: DollarSign,
+      color: 'text-teal-400',
+      bg: 'bg-teal-500/10'
+    },
+    {
+      title: 'Lucro Líquido Plataforma',
+      value: formatCurrency(netProfit),
+      detail: `Margem livre após dedução de ${formatCurrency(asaasCosts)} em custos Pix`,
+      icon: ShieldCheck,
+      color: 'text-emerald-400',
+      bg: 'bg-emerald-500/10'
+    },
+    {
+      title: 'Custos Gateway Asaas',
+      value: formatCurrency(asaasCosts),
+      detail: 'Tarifas de Pix absorvidas pela plataforma',
+      icon: Activity,
+      color: 'text-amber-400',
+      bg: 'bg-amber-500/10'
+    }
+  ];
 
   if (isLoading) {
     return (
-      <div className="space-y-8 animate-pulse">
-        <div className="h-16 bg-slate-800/40 rounded-2xl w-1/3" />
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-8 w-64 rounded-xl" />
+          <Skeleton className="h-10 w-48 rounded-xl" />
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-2xl" />
+            <Skeleton key={i} className="h-36 rounded-2xl" />
           ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-72 rounded-2xl" />
-          <Skeleton className="h-72 rounded-2xl" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-44 rounded-2xl" />
+          ))}
         </div>
       </div>
     );
   }
 
-  const grossRevenue = metrics?.financial?.platformGrossRevenue ?? metrics?.platformGrossRevenue ?? 0;
-  const asaasCosts = metrics?.financial?.totalAsaasPixCosts ?? metrics?.totalAsaasPixCosts ?? 0;
-  const netProfit = metrics?.financial?.platformNetProfit ?? metrics?.platformNetProfit ?? 0;
-  const gmv = metrics?.financial?.gmv ?? metrics?.gmv ?? 0;
-
-  const totalCompanies = metrics?.growth?.companies?.total ?? metrics?.growth?.totalCompanies ?? 0;
-  const activeCompanies = metrics?.growth?.companies?.active ?? metrics?.growth?.activeCompanies ?? 0;
-  const inactiveCompanies = metrics?.growth?.companies?.inactive ?? metrics?.growth?.inactiveCompanies ?? 0;
-
-  const totalUsers = metrics?.growth?.users?.total ?? metrics?.growth?.totalUsers ?? 0;
-  const clientsCount = metrics?.growth?.users?.clients ?? metrics?.growth?.clients ?? 0;
-  const ownersCount = metrics?.growth?.users?.owners ?? metrics?.growth?.companyOwners ?? 0;
-
-  const completedAppointments =
-    metrics?.growth?.appointments?.completed ??
-    metrics?.growth?.appointmentsByStatus?.COMPLETED ??
-    0;
-  const confirmedAppointments =
-    metrics?.growth?.appointments?.confirmed ??
-    metrics?.growth?.appointmentsByStatus?.CONFIRMED ??
-    0;
-  const canceledAppointments =
-    metrics?.growth?.appointments?.canceled ??
-    metrics?.growth?.appointmentsByStatus?.CANCELED ??
-    0;
-
-  const kpis = [
-    {
-      title: 'Receita Bruta da Plataforma',
-      value: formatCurrency(grossRevenue),
-      detail: 'Comissões SaaS acumuladas',
-      icon: DollarSign,
-      color: 'text-emerald-400',
-      bg: 'bg-emerald-500/10'
-    },
-    {
-      title: 'Custos Gateway Asaas Pix',
-      value: formatCurrency(asaasCosts),
-      detail: 'Taxas de split e transferências',
-      icon: Activity,
-      color: 'text-amber-400',
-      bg: 'bg-amber-500/10'
-    },
-    {
-      title: 'Lucro Líquido Plataforma',
-      value: formatCurrency(netProfit),
-      detail: 'Margem operacional retida',
-      icon: TrendingUp,
-      color: 'text-teal-400',
-      bg: 'bg-teal-500/10'
-    },
-    {
-      title: 'GMV Transacionado Total',
-      value: formatCurrency(gmv),
-      detail: 'Volume bruto de reservas',
-      icon: Building2,
-      color: 'text-sky-400',
-      bg: 'bg-sky-500/10'
-    }
-  ];
-
   return (
-    <div className="space-y-8">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6">
+      {/* Header & Date Range Filter Toolbar */}
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-[#F8FAFC]">
-            Platform Intelligence & Governança
+          <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+            <TrendingUp className="w-6 h-6 text-teal-400" />
+            <span>Platform Intelligence & Métricas</span>
           </h1>
-          <p className="text-sm text-[#94A3B8]">
-            Monitoramento executivo de receita SaaS, custos de split Pix e estabelecimentos
+          <p className="text-sm text-slate-400">
+            Visão consolidada de receita, volume GMV, adesão de estabelecimentos e infraestrutura
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Badge variant="teal" dot>
-            API NestJS Conectada
-          </Badge>
+        {/* Date Filter Bar */}
+        <div className="flex flex-wrap items-center gap-2 bg-[#0F172A] p-2 rounded-2xl border border-slate-800 w-full lg:w-auto">
+          <div className="flex items-center gap-1.5 text-xs text-slate-400 px-2">
+            <Calendar className="w-4 h-4 text-teal-400" />
+            <span className="font-semibold hidden sm:inline">Período:</span>
+          </div>
+
+          <Input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            containerClassName="w-auto"
+            className="h-8 text-xs w-36 bg-slate-900 border-slate-700 text-white font-medium px-2.5"
+          />
+          <span className="text-slate-400 text-xs font-medium px-0.5">até</span>
+          <Input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            containerClassName="w-auto"
+            className="h-8 text-xs w-36 bg-slate-900 border-slate-700 text-white font-medium px-2.5"
+          />
+
+          <div className="flex items-center gap-1 pl-1">
+            <button
+              type="button"
+              onClick={() => setPreset('THIS_MONTH')}
+              className="px-2.5 py-1 text-[11px] rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors cursor-pointer"
+            >
+              Este Mês
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreset('LAST_30_DAYS')}
+              className="px-2.5 py-1 text-[11px] rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors cursor-pointer"
+            >
+              30 Dias
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreset('ALL_TIME')}
+              className="px-2.5 py-1 text-[11px] rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors cursor-pointer"
+            >
+              Geral
+            </button>
+          </div>
         </div>
       </div>
 
       {/* 1. Global SaaS Financial KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {kpis.map((k) => (
           <Card key={k.title} hoverEffect className="bg-[#0F172A] border-slate-800">
-            <CardContent className="p-6 space-y-3">
+            <CardContent className="p-5 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-400">{k.title}</span>
                 <div className={`p-2 rounded-xl ${k.bg}`}>
-                  <k.icon className={`w-5 h-5 ${k.color}`} />
+                  <k.icon className={`w-4 h-4 ${k.color}`} />
                 </div>
               </div>
               <p className="text-2xl sm:text-3xl font-black text-white">{k.value}</p>
-              <p className="text-xs text-slate-400 font-medium">{k.detail}</p>
+              <p className="text-[11px] text-slate-400 leading-tight">{k.detail}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
       {/* 2. Platform Growth & Volume Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <Card className="bg-[#0F172A] border-slate-800 p-6 space-y-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        {/* Companies Card */}
+        <Card className="bg-[#0F172A] border-slate-800 p-5 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Estabelecimentos</span>
             <Store className="w-5 h-5 text-teal-400" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-black text-white">{totalCompanies}</span>
-            <span className="text-xs text-teal-400 font-semibold">({activeCompanies} ativos)</span>
+            <span className="text-xs text-teal-400 font-bold">({activeCompanies} ativos)</span>
           </div>
           <p className="text-xs text-slate-500">
-            {inactiveCompanies} estabelecimentos inativos ou em moderação
+            {inactiveCompanies} estabelecimentos suspensos ou em moderação
           </p>
         </Card>
 
-        <Card className="bg-[#0F172A] border-slate-800 p-6 space-y-3">
+        {/* Users Card */}
+        <Card className="bg-[#0F172A] border-slate-800 p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Total de Usuários</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Usuários Ativos</span>
             <Users className="w-5 h-5 text-sky-400" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-black text-white">{totalUsers}</span>
-            <span className="text-xs text-sky-400 font-semibold">({clientsCount} clientes)</span>
+            <span className="text-xs text-sky-400 font-bold">({clientsCount} clientes)</span>
           </div>
           <p className="text-xs text-slate-500">
             {ownersCount} proprietários de barbearias e salões
           </p>
         </Card>
 
-        <Card className="bg-[#0F172A] border-slate-800 p-6 space-y-3">
+        {/* Appointments Card */}
+        <Card className="bg-[#0F172A] border-slate-800 p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Atendimentos Concluídos</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Volume de Atendimentos</span>
             <CalendarCheck className="w-5 h-5 text-emerald-400" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-white">
-              {completedAppointments}
-            </span>
-            <span className="text-xs text-emerald-400 font-semibold">concluídos</span>
+            <span className="text-3xl font-black text-white">{totalAppointments}</span>
+            <span className="text-xs text-emerald-400 font-bold">({completedAppointments} concluídos)</span>
           </div>
           <p className="text-xs text-slate-500">
-            {confirmedAppointments} agendados | {canceledAppointments} cancelados
+            {confirmedAppointments} confirmados • {canceledAppointments} cancelados
           </p>
         </Card>
       </div>
 
-      {/* 3. Top Tenants Ranking & Infrastructure Health */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* 3. Detailed Appointment Breakdown & Loss Prevention */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Status Breakdown */}
+        <Card className="bg-[#0F172A] border-slate-800">
+          <CardHeader>
+            <CardTitle className="text-base font-bold text-white flex items-center gap-2">
+              <CalendarCheck className="w-5 h-5 text-teal-400" />
+              <span>Distribuição por Status de Agendamento</span>
+            </CardTitle>
+            <CardDescription>Detalhamento de volume e taxas no funil de atendimento</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Concluídos
+                </div>
+                <span className="text-2xl font-black text-white">{completedAppointments}</span>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div className="flex items-center gap-1.5 text-teal-400 text-xs font-bold">
+                  <Clock className="w-3.5 h-3.5" />
+                  Confirmados
+                </div>
+                <span className="text-2xl font-black text-white">{confirmedAppointments}</span>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold">
+                  <Clock className="w-3.5 h-3.5" />
+                  Pendentes Pix
+                </div>
+                <span className="text-2xl font-black text-white">{pendingPaymentAppointments}</span>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div className="flex items-center gap-1.5 text-rose-400 text-xs font-bold">
+                  <XCircle className="w-3.5 h-3.5" />
+                  Cancelados
+                </div>
+                <span className="text-2xl font-black text-white">{canceledAppointments}</span>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div className="flex items-center gap-1.5 text-purple-400 text-xs font-bold">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  No-Show
+                </div>
+                <span className="text-2xl font-black text-white">{noShowAppointments}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Anti-No-Show Loss Prevention (Platform Value Shield) */}
+        <Card className="bg-[#0F172A] border-slate-800">
+          <CardHeader>
+            <CardTitle className="text-base font-bold text-white flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-amber-400" />
+              <span>Proteção Contra Faltas (Anti-No-Show)</span>
+            </CardTitle>
+            <CardDescription>Prevenção de perdas e retenção de sinal para estabelecimentos</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-amber-300">Receita Salva / Retida</span>
+                <p className="text-xl font-black text-white">
+                  {formatCurrency(lossPrevented?.totalLossPrevented || 0)}
+                </p>
+                <p className="text-[10px] text-amber-300">
+                  {lossPrevented?.retainedAppointmentsCount || 0} agendamentos protegidos
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400">Taxa de Eficiência</span>
+                <p className="text-xl font-black text-teal-400">
+                  {lossPrevented?.protectionEfficiencyRate || 0}%
+                </p>
+                <p className="text-[10px] text-slate-400">Retenção de sinal mitigadora</p>
+              </div>
+            </div>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              O modelo de sinal pré-pago garante que faltas sem aviso prévio e cancelamentos tardios (inferiores a 2h)
+              convertam 100% do sinal em indenização direta para a cadeira da barbearia.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 4. Top Tenants Ranking & Infrastructure Health */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Top Tenants */}
         <Card className="bg-[#0F172A] border-slate-800">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-base font-bold text-white flex items-center gap-2">
-                  <Award className="w-5 h-5 text-amber-400" />
-                  <span>Top Estabelecimentos (Volume)</span>
-                </CardTitle>
-                <CardDescription>Parceiros com maior geração de receita e agendamentos</CardDescription>
-              </div>
-            </div>
+            <CardTitle className="text-base font-bold text-white flex items-center gap-2">
+              <Award className="w-5 h-5 text-amber-400" />
+              <span>Top Estabelecimentos (Volume)</span>
+            </CardTitle>
+            <CardDescription>Parceiros com maior geração de receita e agendamentos</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {metrics?.topTenants && metrics.topTenants.length > 0 ? (
@@ -236,7 +414,7 @@ export const AdminDashboardPage: React.FC = () => {
                 );
               })
             ) : (
-              <p className="text-xs text-slate-500 text-center py-4">Nenhum dado registrado.</p>
+              <p className="text-xs text-slate-500 text-center py-6">Nenhum dado registrado para o período.</p>
             )}
           </CardContent>
         </Card>
@@ -289,3 +467,4 @@ export const AdminDashboardPage: React.FC = () => {
     </div>
   );
 };
+export default AdminDashboardPage;
