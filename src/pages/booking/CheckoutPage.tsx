@@ -51,6 +51,20 @@ export const CheckoutPage: React.FC = () => {
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Estados e formatador da Modal de CPF para emissão de Pix
+  const [isCpfModalOpen, setIsCpfModalOpen] = useState(false);
+  const [cpfInput, setCpfInput] = useState('');
+  const [isSavingCpf, setIsSavingCpf] = useState(false);
+
+  const formatCpf = (val: string) => {
+    return val
+      .replace(/\D/g, '')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+      .replace(/(-\d{2})\d+?$/, '$1');
+  };
+
   // Fetch company data to extract service details and working hours
   const { data: company, isLoading: isLoadingCompany } = useQuery<CompanyStorefront>({
     queryKey: ['company-checkout', companyId],
