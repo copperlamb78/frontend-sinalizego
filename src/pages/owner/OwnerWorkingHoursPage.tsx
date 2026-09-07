@@ -22,7 +22,7 @@ import {
   CopyCheck,
   X
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, formatDateLong } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { WorkingHour } from '@/types/company.types';
 
@@ -683,11 +683,7 @@ export const OwnerWorkingHoursPage: React.FC = () => {
         {exceptions && exceptions.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {exceptions.map((exc) => {
-              const formattedDate = new Date(`${exc.date}T00:00:00`).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric'
-              });
+              const formattedDate = formatDateLong(exc.date);
 
               return (
                 <div
