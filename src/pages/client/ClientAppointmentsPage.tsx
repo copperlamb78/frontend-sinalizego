@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { appointmentsService } from '@/services/appointments.service';
+import { useAuth } from '@/contexts/auth.context';
 import { Card } from '@/components/common/Card';
 import { Badge } from '@/components/common/Badge';
 import { Button } from '@/components/common/Button';
@@ -26,15 +27,17 @@ import { formatCurrency, cn } from '@/lib/utils';
 import type { Appointment } from '@/types/appointment.types';
 
 export const ClientAppointmentsPage: React.FC = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'UPCOMING' | 'HISTORY'>('UPCOMING');
   const [appointmentToCancel, setAppointmentToCancel] = useState<Appointment | null>(null);
   const [voucherAppointment, setVoucherAppointment] = useState<Appointment | null>(null);
 
   // 1. Fetch User Appointments (shared cache with Explore page)
   const { data: appointments, isLoading } = useQuery({
-    queryKey: ['user-appointments'],
+    queryKey: ['user-appointments', user?.id],
     queryFn: () => appointmentsService.getUserAppointments(),
-    staleTime: 1000 * 60 * 3, // 3 minutes
+    enabled: !!user?.id,
+    staleTime: 1000 * 30, // 3 minutes
     refetchInterval: (query) => {
       const hasPending = query.state.data?.some(
         (apt) => apt.status === 'PENDING_PAYMENT'
