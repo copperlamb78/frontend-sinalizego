@@ -115,7 +115,7 @@ export const ProtectedLossModal: React.FC<ProtectedLossModalProps> = ({
                           variant={item.reason === 'NO_SHOW' ? 'warning' : 'neutral'}
                           size="sm"
                         >
-                          {item.reason === 'NO_SHOW' ? 'Falta (No-Show)' : 'Cancelamento < 24h'}
+                          {item.reason === 'NO_SHOW' ? 'Falta (No-Show)' : 'Cancelamento com menos de 2h'}
                         </Badge>
                       </div>
 
