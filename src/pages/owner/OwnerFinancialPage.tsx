@@ -7,6 +7,7 @@ import { Button } from '@/components/common/Button';
 import { Skeleton } from '@/components/common/Skeleton';
 import { WithdrawalModal } from '@/components/dashboard/WithdrawalModal';
 import { FinancialProfileModal } from '@/components/dashboard/FinancialProfileModal';
+import { PixKeysManager } from '@/components/dashboard/PixKeysManager';
 import {
   Wallet,
   Lock,
@@ -276,9 +277,8 @@ export const OwnerFinancialPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-xl bg-[#0B1120] border border-slate-800 text-slate-400">
-                  <span>Chave Pix / Telefone:</span>
-                  <span className="font-mono text-white font-semibold">{company?.whatsapp || 'Cadastrada'}</span>
+                <div className="pt-2 border-t border-slate-800/80">
+                  <PixKeysManager />
                 </div>
               </div>
             </Card>
