@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 980" width="430" height="980" style="background-color: #0B1120; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;">
+  <defs>
+    <linearGradient id="bgGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0B1120" />
+      <stop offset="100%" stop-color="#070C16" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="430" height="980" fill="url(#bgGlow)" />
+
+  <!-- TOP HEADER / NAVBAR DO CHECKOUT -->
+  <g transform="translate(20, 20)">
+    <!-- Botão Voltar -->
+    <rect x="0" y="0" width="36" height="36" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1.5" />
+    <path d="M22 18 L14 18 M18 14 L14 18 L18 22" stroke="#F8FAFC" stroke-width="2" stroke-linecap="square" />
+
+    <!-- Título do Topo -->
+    <text x="48" y="16" fill="#F8FAFC" font-size="15" font-weight="800" letter-spacing="-0.3">Garantia de Reserva Pix</text>
+    <text x="48" y="30" fill="#64748B" font-size="11" font-weight="600">Passo 3 de 3 • Barber's Club</text>
+
+    <!-- Indicador de Passos 3/3 -->
+    <g transform="translate(340, 14)">
+      <rect x="0" y="0" width="12" height="4" rx="1" fill="#14B8A6" />
+      <rect x="15" y="0" width="12" height="4" rx="1" fill="#14B8A6" />
+      <rect x="30" y="0" width="12" height="4" rx="1" fill="#14B8A6" />
+    </g>
+  </g>
+
+  <!-- CARD 1: CONTADOR REGRESSIVO DE 15 MINUTOS -->
+  <g transform="translate(20, 75)">
+    <rect x="0" y="0" width="390" height="72" rx="4" fill="#0F172A" stroke="#E11D48" stroke-width="1.5" />
+    <!-- Ícone Relógio -->
+    <circle cx="28" cy="36" r="14" fill="#1E293B" stroke="#E11D48" stroke-width="1.5" />
+    <path d="M28 28 L28 36 L34 38" stroke="#FB7185" stroke-width="2" stroke-linecap="round" />
+    
+    <!-- Texto do Contador -->
+    <text x="52" y="28" fill="#F8FAFC" font-size="12" font-weight="700">Horário reservado exclusivamente</text>
+    <text x="52" y="44" fill="#94A3B8" font-size="11" font-weight="500">Conclua o Pix em até</text>
+    <text x="175" y="45" fill="#FB7185" font-size="14" font-weight="800" font-family="monospace">14:59</text>
+    <text x="220" y="44" fill="#94A3B8" font-size="11" font-weight="500">para garantir sua cadeira</text>
+
+    <!-- Barra de Progresso do Tempo -->
+    <rect x="52" y="54" width="318" height="4" rx="1" fill="#1E293B" />
+    <rect x="52" y="54" width="280" height="4" rx="1" fill="#E11D48" />
+  </g>
+
+  <!-- CARD 2: RESUMO DO AGENDAMENTO SELECIONADO -->
+  <g transform="translate(20, 160)">
+    <rect x="0" y="0" width="390" height="84" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1.5" />
+    
+    <text x="16" y="22" fill="#64748B" font-size="10" font-weight="800" letter-spacing="0.5">RESUMO DO ATENDIMENTO</text>
+    
+    <text x="16" y="42" fill="#F8FAFC" font-size="14" font-weight="700">Corte Degradê &amp; Barboterapia</text>
+    <text x="16" y="60" fill="#94A3B8" font-size="12" font-weight="500">Hoje, 06 de Outubro • 10:30 (45 min)</text>
+    
+    <rect x="290" y="24" width="84" height="24" rx="3" fill="#14B8A6" fill-opacity="0.1" stroke="#14B8A6" stroke-width="1" />
+    <text x="332" y="40" fill="#14B8A6" font-size="11" font-weight="700" text-anchor="middle">Sinal: R$ 30,00</text>
+  </g>
+
+  <!-- CARD 3: QR CODE PIX & CHAVE COPIA E COLA -->
+  <g transform="translate(20, 260)">
+    <rect x="0" y="0" width="390" height="390" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1.5" />
+
+    <!-- Título do Bloco Pix -->
+    <text x="195" y="30" fill="#F8FAFC" font-size="14" font-weight="700" text-anchor="middle">Pague via Pix para confirmar</text>
+    <text x="195" y="46" fill="#64748B" font-size="11" font-weight="500" text-anchor="middle">Abra seu aplicativo de banco e escaneie ou copie o código</text>
+
+    <!-- Moldura QR Code -->
+    <rect x="110" y="65" width="170" height="170" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" />
+    
+    <!-- Representação Visual do QR Code Mecânico -->
+    <!-- Marcadores de canto -->
+    <rect x="122" y="77" width="36" height="36" fill="#0F172A" />
+    <rect x="128" y="83" width="24" height="24" fill="#FFFFFF" />
+    <rect x="134" y="89" width="12" height="12" fill="#0F172A" />
+
+    <rect x="232" y="77" width="36" height="36" fill="#0F172A" />
+    <rect x="238" y="83" width="24" height="24" fill="#FFFFFF" />
+    <rect x="244" y="89" width="12" height="12" fill="#0F172A" />
+
+    <rect x="122" y="187" width="36" height="36" fill="#0F172A" />
+    <rect x="128" y="193" width="24" height="24" fill="#FFFFFF" />
+    <rect x="134" y="199" width="12" height="12" fill="#0F172A" />
+
+    <!-- Padrões internos do QR Code -->
+    <rect x="168" y="80" width="8" height="16" fill="#0F172A" />
+    <rect x="184" y="77" width="12" height="8" fill="#0F172A" />
+    <rect x="204" y="80" width="8" height="20" fill="#0F172A" />
+    <rect x="165" y="105" width="20" height="8" fill="#0F172A" />
+    <rect x="195" y="115" width="12" height="12" fill="#0F172A" />
+    <rect x="175" y="130" width="40" height="8" fill="#0F172A" />
+    <rect x="165" y="145" width="12" height="20" fill="#0F172A" />
+    <rect x="190" y="145" width="24" height="12" fill="#0F172A" />
+    <rect x="225" y="140" width="15" height="15" fill="#0F172A" />
+    <rect x="170" y="175" width="24" height="10" fill="#0F172A" />
+    <rect x="200" y="170" width="12" height="20" fill="#0F172A" />
+    <rect x="225" y="180" width="20" height="10" fill="#0F172A" />
+    <rect x="220" y="200" width="30" height="15" fill="#0F172A" />
+
+    <!-- Campo Código Pix Copia e Cola -->
+    <g transform="translate(20, 250)">
+      <rect x="0" y="0" width="350" height="42" rx="3" fill="#070C16" stroke="#1E293B" stroke-width="1" />
+      <text x="14" y="26" fill="#64748B" font-size="11" font-family="monospace">00020126580014BR.GOV.BCB.PIX0136a1b2c3...</text>
+      
+      <!-- Botão Copiar Código (OFICIAL DESIGN SYSTEM VARIANT="PRIMARY") -->
+      <g transform="translate(0, 56)">
+        <rect x="0" y="0" width="350" height="46" rx="3" fill="#0D9488" stroke="#14B8A6" stroke-width="1.5" />
+        <text x="175" y="28" fill="#FFFFFF" font-size="12" font-weight="800" text-anchor="middle" letter-spacing="0.5">COPIAR CÓDIGO PIX</text>
+      </g>
+    </g>
+
+    <!-- Indicador de Polling / Atualização Automática -->
+    <g transform="translate(0, 365)">
+      <circle cx="115" cy="5" r="4" fill="#14B8A6" />
+      <text x="128" y="9" fill="#94A3B8" font-size="11" font-weight="500">Atualizando status do pagamento automaticamente...</text>
+    </g>
+  </g>
+
+  <!-- CARD 4: DETALHAMENTO DE VALORES & ZERO TRUST -->
+  <g transform="translate(20, 665)">
+    <rect x="0" y="0" width="390" height="150" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1.5" />
+    
+    <text x="16" y="24" fill="#64748B" font-size="10" font-weight="800" letter-spacing="0.5">DISCRIMINAÇÃO DO VALOR</text>
+
+    <!-- Linha 1: Sinal de Reserva -->
+    <text x="16" y="50" fill="#E2E8F0" font-size="13" font-weight="500">Sinal de Reserva (50%)</text>
+    <text x="374" y="50" fill="#F8FAFC" font-size="13" font-weight="700" text-anchor="end">R$ 30,00</text>
+
+    <!-- Linha 2: Taxa de Conveniência -->
+    <text x="16" y="74" fill="#E2E8F0" font-size="13" font-weight="500">Taxa de Conveniência</text>
+    <text x="374" y="74" fill="#F8FAFC" font-size="13" font-weight="700" text-anchor="end">R$ 2,00</text>
+
+    <!-- Divisória sutil -->
+    <line x1="16" y1="88" x2="374" y2="88" stroke="#1E293B" stroke-width="1" />
+
+    <!-- Total a Pagar Agora -->
+    <text x="16" y="108" fill="#F8FAFC" font-size="14" font-weight="800">Total a pagar agora via Pix</text>
+    <text x="374" y="108" fill="#14B8A6" font-size="16" font-weight="800" text-anchor="end">R$ 32,00</text>
+
+    <!-- Restante na cadeira -->
+    <rect x="16" y="120" width="358" height="22" rx="2" fill="#1E293B" />
+    <text x="195" y="135" fill="#94A3B8" font-size="10.5" font-weight="600" text-anchor="middle">Restante a pagar diretamente na cadeira: R$ 30,00</text>
+  </g>
+
+  <!-- CARD 5: GARANTIA DE PROTEÇÃO ANTI-JARGÃO -->
+  <g transform="translate(20, 830)">
+    <rect x="0" y="0" width="390" height="60" rx="4" fill="#070C16" stroke="#1E293B" stroke-width="1.5" />
+    <circle cx="28" cy="30" r="12" fill="#1E293B" stroke="#14B8A6" stroke-width="1.5" />
+    <path d="M24 30 L27 33 L33 26" stroke="#14B8A6" stroke-width="2" stroke-linecap="square" />
+    
+    <text x="48" y="26" fill="#F8FAFC" font-size="11" font-weight="700">Pagamento 100% Protegido</text>
+    <text x="48" y="42" fill="#64748B" font-size="10.5" font-weight="500">Seu pagamento fica protegido até a conclusão do atendimento.</text>
+  </g>
+
+  <!-- RODAPÉ FIXO DE AJUDA -->
+  <g transform="translate(20, 910)">
+    <text x="195" y="20" fill="#64748B" font-size="11" font-weight="500" text-anchor="middle">Dúvidas? Fale com o estabelecimento via WhatsApp</text>
+    <text x="195" y="38" fill="#14B8A6" font-size="11" font-weight="700" text-anchor="middle">Barber's Club • (11) 98765-4321</text>
+  </g>
+</svg>
