@@ -52,6 +52,9 @@ Antes de solicitar revisão:
 - [ ] DoR verificado em `docs/specs/`
 - [ ] Código modular dentro de `src/features/<modulo>/` com barreira pública em `index.ts`
 - [ ] Componentes consomem `src/design-system/ui/` (Zero elementos HTML ad-hoc)
+- [ ] Cores 100% em tokens semânticos de variáveis (`bg-surface`, `text-primary`, `bg-primary`) — ZERO cores cruas (`#hex`)
+- [ ] Responsividade mobile-first garantida (360px a 430px) com touch targets >= 44x44px
+- [ ] Otimização de requisições com TanStack React Query (cache, staleTime e cleanup de polling)
 - [ ] Ações principais com `Button variant="primary"`
 - [ ] Tipagem TypeScript 100% estrita sem `any`
 - [ ] Elementos interativos possuem `data-testid` para testes E2E
