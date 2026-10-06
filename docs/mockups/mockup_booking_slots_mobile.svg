@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 820" width="100%" height="100%" style="background-color: #030712; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;">
+  <defs>
+    <!-- Sombra mecânica suave do design system -->
+    <filter id="shadow-card" x="0" y="0" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="0" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+    <filter id="sticky-bar-shadow" x="0" y="-8" width="100%" height="120%">
+      <feDropShadow dx="0" dy="-4" stdDeviation="6" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Frame do Celular (Viewport 390x790 centralizado) -->
+  <rect x="15" y="15" width="390" height="790" rx="36" fill="#0B1120" stroke="#334155" stroke-width="2"/>
+
+  <!-- Dynamic Island -->
+  <rect x="150" y="24" width="120" height="22" rx="11" fill="#000000"/>
+  <circle cx="250" cy="35" r="4.5" fill="#1E293B"/>
+
+  <!-- Status Bar (09:41, wifi, bateria) -->
+  <text x="44" y="39" fill="#94A3B8" font-size="12" font-weight="600" letter-spacing="-0.2">09:41</text>
+  <rect x="328" y="32" width="3" height="5" rx="0.5" fill="#94A3B8"/>
+  <rect x="333" y="30" width="3" height="7" rx="0.5" fill="#94A3B8"/>
+  <rect x="338" y="27" width="3" height="10" rx="0.5" fill="#94A3B8"/>
+  <rect x="343" y="25" width="3" height="12" rx="0.5" fill="#94A3B8"/>
+  <rect x="353" y="27" width="18" height="9" rx="2" fill="none" stroke="#94A3B8" stroke-width="1.5"/>
+  <rect x="355" y="29" width="12" height="5" rx="1" fill="#94A3B8"/>
+  <rect x="372" y="30" width="1.5" height="3" rx="0.5" fill="#94A3B8"/>
+
+  <!-- TOP BAR: NAVEGAÇÃO DE VOLTA & INDICADOR DE ETAPA -->
+  <g id="top-nav">
+    <rect x="17" y="52" width="386" height="50" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+    
+    <!-- Botão Voltar (Voltar para a vitrine) -->
+    <rect x="30" y="61" width="32" height="32" rx="4" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+    <path d="M49 77 L42 77 M42 77 L46 73 M42 77 L46 81" stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Título da Etapa -->
+    <text x="72" y="74" fill="#F8FAFC" font-size="13" font-weight="700">Escolha da Data e Horário</text>
+    <text x="72" y="87" fill="#94A3B8" font-size="11" font-weight="500">Passo 2 de 3 • Barber's Club</text>
+
+    <!-- Indicador Visual de Progresso (Passo 2 ativo) -->
+    <rect x="320" y="72" width="20" height="4" rx="2" fill="#0D9488"/>
+    <rect x="344" y="72" width="20" height="4" rx="2" fill="#0D9488"/>
+    <rect x="368" y="72" width="20" height="4" rx="2" fill="#334155"/>
+  </g>
+
+  <!-- 1. RESUMO DO SERVIÇO SELECIONADO -->
+  <g id="selected-service-banner">
+    <rect x="30" y="112" width="360" height="64" rx="6" fill="#0F172A" stroke="#1E293B" stroke-width="1" filter="url(#shadow-card)"/>
+    
+    <text x="44" y="132" fill="#94A3B8" font-size="10" font-weight="700" text-transform="uppercase" letter-spacing="0.5">Serviço Selecionado</text>
+    <text x="44" y="150" fill="#F8FAFC" font-size="13" font-weight="700">Corte Degradê &amp; Barboterapia</text>
+    <text x="44" y="164" fill="#94A3B8" font-size="11" font-weight="500">⏱ 45 min • Total: R$ 60,00</text>
+
+    <!-- Badge Sinal Oficial -->
+    <rect x="256" y="126" width="120" height="20" rx="4" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+    <circle cx="266" cy="136" r="2.5" fill="#14B8A6"/>
+    <text x="274" y="140" fill="#CBD5E1" font-size="10" font-weight="600">Sinal: R$ 30,00</text>
+    
+    <!-- Link "Alterar" -->
+    <text x="344" y="162" fill="#14B8A6" font-size="11" font-weight="600">Alterar</text>
+  </g>
+
+  <!-- 2. SELETOR DE DATAS HORIZONTAL -->
+  <g id="date-picker-section">
+    <text x="30" y="196" fill="#F8FAFC" font-size="13" font-weight="700">1. Escolha o dia do atendimento</text>
+
+    <!-- Chip 1: HOJE (Esgotado) -->
+    <rect x="30" y="206" width="70" height="58" rx="6" fill="#0F172A" stroke="#1E293B" stroke-width="1" opacity="0.6"/>
+    <text x="50" y="224" fill="#64748B" font-size="10" font-weight="600">HOJE</text>
+    <text x="54" y="244" fill="#64748B" font-size="15" font-weight="700">24</text>
+    <text x="42" y="257" fill="#EF4444" font-size="9" font-weight="600">Esgotado</text>
+
+    <!-- Chip 2: AMANHÃ (SELECIONADO) -->
+    <rect x="108" y="206" width="78" height="58" rx="6" fill="#0F172A" stroke="#0D9488" stroke-width="1.5" filter="url(#shadow-card)"/>
+    <rect x="108" y="206" width="78" height="16" rx="6" fill="#0D9488"/>
+    <text x="126" y="218" fill="#FFFFFF" font-size="9" font-weight="700" letter-spacing="0.5">AMANHÃ</text>
+    <text x="136" y="244" fill="#F8FAFC" font-size="16" font-weight="800">25</text>
+    <text x="122" y="257" fill="#14B8A6" font-size="10" font-weight="600">8 horários</text>
+
+    <!-- Chip 3: SÁB 26 -->
+    <rect x="194" y="206" width="78" height="58" rx="6" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+    <text x="222" y="224" fill="#94A3B8" font-size="10" font-weight="600">SÁB</text>
+    <text x="226" y="244" fill="#F8FAFC" font-size="15" font-weight="700">26</text>
+    <text x="212" y="257" fill="#10B981" font-size="9" font-weight="600">12 horários</text>
+
+    <!-- Chip 4: SEG 28 -->
+    <rect x="280" y="206" width="78" height="58" rx="6" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+    <text x="308" y="224" fill="#94A3B8" font-size="10" font-weight="600">SEG</text>
+    <text x="312" y="244" fill="#F8FAFC" font-size="15" font-weight="700">28</text>
+    <text x="298" y="257" fill="#10B981" font-size="9" font-weight="600">15 horários</text>
+  </g>
+
+  <!-- 3. GRADE DE HORÁRIOS DISPONÍVEIS (GET /appointments/available-slots) -->
+  <g id="slots-grid-section">
+    <text x="30" y="286" fill="#F8FAFC" font-size="13" font-weight="700">2. Escolha o horário para 25/10</text>
+
+    <!-- SEÇÃO MANHÃ -->
+    <g id="morning-slots">
+      <rect x="30" y="296" width="82" height="18" rx="3" fill="#1E293B"/>
+      <text x="38" y="309" fill="#94A3B8" font-size="9" font-weight="700" letter-spacing="0.5">TURNO MANHÃ</text>
+
+      <!-- Slot 09:00 (Disponível) -->
+      <rect x="30" y="320" width="82" height="36" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <text x="54" y="343" fill="#F8FAFC" font-size="13" font-weight="600">09:00</text>
+
+      <!-- Slot 09:45 (Disponível) -->
+      <rect x="122" y="320" width="82" height="36" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <text x="146" y="343" fill="#F8FAFC" font-size="13" font-weight="600">09:45</text>
+
+      <!-- Slot 10:30 (SELECIONADO - Oficial Design System: Teal sólido + Letra Branca) -->
+      <rect x="214" y="320" width="84" height="36" rx="4" fill="#0D9488" stroke="#0F766E" stroke-width="1.5" filter="url(#shadow-card)"/>
+      <text x="238" y="343" fill="#FFFFFF" font-size="13" font-weight="800">10:30</text>
+
+      <!-- Slot 11:15 (Ocupado / Indisponível) -->
+      <rect x="308" y="320" width="82" height="36" rx="4" fill="#0B1120" stroke="#1E293B" stroke-width="1" opacity="0.35"/>
+      <text x="332" y="343" fill="#64748B" font-size="13" font-weight="500">11:15</text>
+    </g>
+
+    <!-- SEÇÃO TARDE -->
+    <g id="afternoon-slots">
+      <rect x="30" y="368" width="76" height="18" rx="3" fill="#1E293B"/>
+      <text x="38" y="381" fill="#94A3B8" font-size="9" font-weight="700" letter-spacing="0.5">TURNO TARDE</text>
+
+      <!-- Linha 1 -->
+      <rect x="30" y="392" width="82" height="36" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <text x="54" y="415" fill="#F8FAFC" font-size="13" font-weight="600">14:00</text>
+
+      <rect x="122" y="392" width="82" height="36" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <text x="146" y="415" fill="#F8FAFC" font-size="13" font-weight="600">14:45</text>
+
+      <rect x="214" y="392" width="84" height="36" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <text x="238" y="415" fill="#F8FAFC" font-size="13" font-weight="600">15:30</text>
+
+      <rect x="308" y="392" width="82" height="36" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <text x="332" y="415" fill="#F8FAFC" font-size="13" font-weight="600">16:15</text>
+
+      <!-- Linha 2 -->
+      <rect x="30" y="434" width="82" height="36" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <text x="54" y="457" fill="#F8FAFC" font-size="13" font-weight="600">17:00</text>
+
+      <rect x="122" y="434" width="82" height="36" rx="4" fill="#0B1120" stroke="#1E293B" stroke-width="1" opacity="0.35"/>
+      <text x="146" y="457" fill="#64748B" font-size="13" font-weight="500">17:45</text>
+
+      <rect x="214" y="434" width="84" height="36" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <text x="238" y="457" fill="#F8FAFC" font-size="13" font-weight="600">18:30</text>
+    </g>
+  </g>
+
+  <!-- 4. BOX DE GARANTIA E SEGURANÇA (Anti-Jargão) -->
+  <g id="guarantee-box">
+    <rect x="30" y="488" width="360" height="58" rx="6" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+    <circle cx="50" cy="517" r="9" fill="#1E293B"/>
+    <path d="M46 517 L49 520 L55 514" fill="none" stroke="#10B981" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <text x="68" y="512" fill="#F8FAFC" font-size="11" font-weight="700">Seu horário fica 100% garantido</text>
+    <text x="68" y="526" fill="#94A3B8" font-size="10" font-weight="400">Reserva de 15 minutos assegurada para conclusão do Pix.</text>
+    <text x="68" y="538" fill="#94A3B8" font-size="10" font-weight="400">Sem filas e sem atrasos no atendimento.</text>
+  </g>
+
+  <!-- 5. BARRA FLUTUANTE FIXA INFERIOR (Sticky Bottom Booking Bar) -->
+  <g id="bottom-bar">
+    <rect x="17" y="566" width="386" height="206" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+    
+    <!-- Resumo dos Valores Selecionados -->
+    <text x="32" y="594" fill="#94A3B8" font-size="11" font-weight="500">Horário escolhido:</text>
+    <text x="32" y="612" fill="#F8FAFC" font-size="14" font-weight="800">Amanhã, 25 de Outubro às 10:30</text>
+    
+    <rect x="32" y="626" width="356" height="30" rx="4" fill="#1E293B"/>
+    <text x="44" y="645" fill="#CBD5E1" font-size="11" font-weight="600">Sinal a pagar agora via Pix: <tspan fill="#F8FAFC" font-weight="800">R$ 30,00</tspan></text>
+    <text x="250" y="645" fill="#64748B" font-size="10" font-weight="500">Restante: R$ 30,00</text>
+
+    <!-- BOTÃO PRIMÁRIO OFICIAL DO DESIGN SYSTEM (variant="primary", bg-primary, text-white, uppercase) -->
+    <rect x="30" y="670" width="360" height="46" rx="4" fill="#0D9488" stroke="#0F766E" stroke-width="1" filter="url(#shadow-card)"/>
+    <text x="88" y="699" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.8">AVANÇAR PARA PAGAMENTO DO SINAL →</text>
+  </g>
+
+  <!-- Barra de Gestos do Celular (Home Indicator) -->
+  <rect x="145" y="786" width="130" height="4" rx="2" fill="#64748B"/>
+</svg>
