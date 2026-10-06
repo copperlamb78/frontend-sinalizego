@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 890" width="100%" height="100%" style="background-color: #030712; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;">
+  <defs>
+    <!-- Filtros de sombra tátil limpa e seca -->
+    <filter id="hard-shadow" x="0" y="0" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="0" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+    <!-- Gradiente de iluminação suave do banner do local -->
+    <linearGradient id="venue-banner-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="60%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#0B1120"/>
+    </linearGradient>
+    <pattern id="banner-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 20 M 0 0 L 20 20" fill="none" stroke="#334155" stroke-width="0.5" stroke-opacity="0.2"/>
+    </pattern>
+  </defs>
+
+  <!-- Frame do Smartphone (Borda) -->
+  <rect x="15" y="15" width="390" height="860" rx="36" fill="#0B1120" stroke="#334155" stroke-width="2"/>
+
+  <!-- Dynamic Island -->
+  <rect x="150" y="24" width="120" height="22" rx="11" fill="#000000"/>
+  <circle cx="250" cy="35" r="4.5" fill="#1E293B"/>
+
+  <!-- Status Bar (09:41, wifi, bateria) -->
+  <text x="44" y="39" fill="#94A3B8" font-size="12" font-weight="600" letter-spacing="-0.2">09:41</text>
+  <rect x="328" y="32" width="3" height="5" rx="0.5" fill="#94A3B8"/>
+  <rect x="333" y="30" width="3" height="7" rx="0.5" fill="#94A3B8"/>
+  <rect x="338" y="27" width="3" height="10" rx="0.5" fill="#94A3B8"/>
+  <rect x="343" y="25" width="3" height="12" rx="0.5" fill="#94A3B8"/>
+  <rect x="353" y="27" width="18" height="9" rx="2" fill="none" stroke="#94A3B8" stroke-width="1.5"/>
+  <rect x="355" y="29" width="12" height="5" rx="1" fill="#94A3B8"/>
+  <rect x="372" y="30" width="1.5" height="3" rx="0.5" fill="#94A3B8"/>
+
+  <!-- 1. BANNER COM FOTO DO LOCAL DO ESTABELECIMENTO -->
+  <g id="venue-banner">
+    <rect x="17" y="52" width="386" height="150" fill="url(#venue-banner-grad)"/>
+    <rect x="17" y="52" width="386" height="150" fill="url(#banner-pattern)"/>
+    
+    <!-- Silhueta estilizada da arquitetura do local / barbearia -->
+    <path d="M17 170 L90 120 L160 160 L240 100 L320 145 L403 95 L403 202 L17 202 Z" fill="#0F172A" fill-opacity="0.6"/>
+    <path d="M17 190 L120 150 L200 180 L280 140 L403 175 L403 202 L17 202 Z" fill="#0B1120" fill-opacity="0.9"/>
+    
+    <!-- Etiqueta sobre o banner: "Espaço & Atendimento" -->
+    <rect x="32" y="66" width="124" height="22" rx="4" fill="#0B1120" fill-opacity="0.75" stroke="#334155" stroke-width="1"/>
+    <circle cx="42" cy="77" r="2.5" fill="#14B8A6"/>
+    <text x="50" y="81" fill="#CBD5E1" font-size="10" font-weight="600">Espaço do Estabelecimento</text>
+
+    <!-- Botão de Compartilhar perfil -->
+    <rect x="342" y="66" width="32" height="32" rx="6" fill="#0B1120" fill-opacity="0.75" stroke="#334155" stroke-width="1"/>
+    <circle cx="358" cy="77" r="2" fill="#F8FAFC"/>
+    <circle cx="353" cy="84" r="2" fill="#F8FAFC"/>
+    <circle cx="363" cy="84" r="2" fill="#F8FAFC"/>
+    <line x1="354" y1="83" x2="356" y2="79" stroke="#F8FAFC" stroke-width="1.2"/>
+    <line x1="362" y1="83" x2="360" y2="79" stroke="#F8FAFC" stroke-width="1.2"/>
+  </g>
+
+  <!-- 2. IDENTIDADE: LOGO, NOME, ENDEREÇO E HORÁRIO -->
+  <g id="venue-identity">
+    <!-- Foto / Logo do Estabelecimento com destaque e corte sólido -->
+    <rect x="32" y="166" width="64" height="64" rx="8" fill="#0F172A" stroke="#334155" stroke-width="1.5" filter="url(#hard-shadow)"/>
+    <rect x="37" y="171" width="54" height="54" rx="6" fill="#1E293B"/>
+    <!-- Ícone de Navalha / Barbearia estilizada -->
+    <path d="M50 208 L64 182 L78 208 Z" fill="none" stroke="#14B8A6" stroke-width="2.2" stroke-linejoin="round"/>
+    <circle cx="64" cy="193" r="3" fill="#14B8A6"/>
+
+    <!-- Nome e Categoria -->
+    <text x="108" y="191" fill="#F8FAFC" font-size="18" font-weight="700">Barber's Club</text>
+    <text x="108" y="208" fill="#94A3B8" font-size="12" font-weight="500">Barbearia &amp; Estética Masculina</text>
+
+    <!-- Linha de Metadados: Status Funcionamento + Endereço -->
+    <g id="meta-badges">
+      <!-- Status Aberto Hoje -->
+      <rect x="32" y="242" width="134" height="24" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <circle cx="44" cy="254" r="3" fill="#10B981"/>
+      <text x="53" y="258" fill="#E2E8F0" font-size="11" font-weight="600">Aberto • 09:00 - 19:00</text>
+
+      <!-- Localização -->
+      <rect x="172" y="242" width="186" height="24" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <circle cx="183" cy="253" r="2" fill="none" stroke="#94A3B8" stroke-width="1.2"/>
+      <path d="M183 255 L183 257" stroke="#94A3B8" stroke-width="1.2"/>
+      <text x="190" y="258" fill="#94A3B8" font-size="11" font-weight="500">Bairro SIM • Feira de Santana</text>
+
+      <!-- Botão WhatsApp de Contato Rápido -->
+      <rect x="364" y="242" width="24" height="24" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <!-- Ícone WhatsApp sutil -->
+      <circle cx="376" cy="254" r="5" fill="none" stroke="#10B981" stroke-width="1.2"/>
+      <circle cx="376" cy="254" r="2" fill="#10B981"/>
+    </g>
+  </g>
+
+  <!-- Divisória suave -->
+  <line x1="32" y1="280" x2="388" y2="280" stroke="#1E293B" stroke-width="1"/>
+
+  <!-- 3. CABEÇALHO DO CATÁLOGO DE SERVIÇOS -->
+  <g id="services-header">
+    <text x="32" y="304" fill="#F8FAFC" font-size="15" font-weight="700">Serviços Disponíveis</text>
+    <text x="32" y="320" fill="#94A3B8" font-size="12" font-weight="400">Escolha o serviço desejado para ver os horários livres</text>
+  </g>
+
+  <!-- Categorias de Serviço (Grupos de Serviço da API) - Conforme Design System -->
+  <g id="service-group-chips">
+    <rect x="32" y="334" width="64" height="28" rx="4" fill="#0D9488" stroke="#0F766E" stroke-width="1"/>
+    <text x="44" y="352" fill="#FFFFFF" font-size="11" font-weight="700" letter-spacing="0.5">TODOS</text>
+
+    <rect x="102" y="334" width="116" height="28" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+    <text x="114" y="352" fill="#94A3B8" font-size="11" font-weight="600">Cabelo e Barba</text>
+
+    <rect x="224" y="334" width="102" height="28" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+    <text x="236" y="352" fill="#94A3B8" font-size="11" font-weight="600">Tratamentos</text>
+
+    <rect x="332" y="334" width="58" height="28" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+    <text x="344" y="352" fill="#94A3B8" font-size="11" font-weight="600">Combos</text>
+  </g>
+
+  <!-- 4. LISTA DE SERVIÇOS DA VITRINE (Botões Primary Oficiais do Design System: Teal Sólido + Texto Branco) -->
+  <g id="services-catalog">
+
+    <!-- SERVIÇO 1 -->
+    <rect x="32" y="376" width="356" height="126" rx="6" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+    <!-- Título do Serviço -->
+    <text x="48" y="402" fill="#F8FAFC" font-size="14" font-weight="700">Corte Degradê &amp; Barboterapia</text>
+    <!-- Descrição -->
+    <text x="48" y="420" fill="#94A3B8" font-size="11" font-weight="400">Corte moderno com tesoura/máquina e toalha quente relaxante</text>
+    <!-- Duração e Preço -->
+    <text x="48" y="446" fill="#94A3B8" font-size="12" font-weight="500">⏱ 45 min</text>
+    <text x="110" y="446" fill="#F8FAFC" font-size="14" font-weight="700">R$ 60,00</text>
+    <!-- Badge Sóbrio de Sinal de Reserva -->
+    <rect x="180" y="432" width="136" height="20" rx="4" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+    <circle cx="190" cy="442" r="2.5" fill="#14B8A6"/>
+    <text x="198" y="446" fill="#CBD5E1" font-size="11" font-weight="600">Sinal Pix: R$ 30,00</text>
+    
+    <!-- Botão Primary Oficial do Design System: bg-primary + text-white + font-bold uppercase -->
+    <rect x="48" y="458" width="324" height="34" rx="4" fill="#0D9488" stroke="#0F766E" stroke-width="1" filter="url(#hard-shadow)"/>
+    <text x="96" y="480" fill="#FFFFFF" font-size="11" font-weight="700" letter-spacing="0.6">ESCOLHER HORÁRIO PARA ESTE SERVIÇO</text>
+    <path d="M344 473 L350 476.5 L344 480" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+
+    <!-- SERVIÇO 2 -->
+    <rect x="32" y="514" width="356" height="126" rx="6" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+    <text x="48" y="540" fill="#F8FAFC" font-size="14" font-weight="700">Corte Social Tesoura</text>
+    <text x="48" y="558" fill="#94A3B8" font-size="11" font-weight="400">Alinhamento clássico tradicional, acabamento fino e lavagem</text>
+    <text x="48" y="584" fill="#94A3B8" font-size="12" font-weight="500">⏱ 30 min</text>
+    <text x="110" y="584" fill="#F8FAFC" font-size="14" font-weight="700">R$ 40,00</text>
+    <rect x="180" y="570" width="136" height="20" rx="4" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+    <circle cx="190" cy="580" r="2.5" fill="#14B8A6"/>
+    <text x="198" y="584" fill="#CBD5E1" font-size="11" font-weight="600">Sinal Pix: R$ 20,00</text>
+    
+    <rect x="48" y="596" width="324" height="34" rx="4" fill="#0D9488" stroke="#0F766E" stroke-width="1" filter="url(#hard-shadow)"/>
+    <text x="96" y="618" fill="#FFFFFF" font-size="11" font-weight="700" letter-spacing="0.6">ESCOLHER HORÁRIO PARA ESTE SERVIÇO</text>
+    <path d="M344 611 L350 614.5 L344 618" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+
+    <!-- SERVIÇO 3 -->
+    <rect x="32" y="652" width="356" height="126" rx="6" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+    <text x="48" y="678" fill="#F8FAFC" font-size="14" font-weight="700">Barboterapia Tradicional</text>
+    <text x="48" y="696" fill="#94A3B8" font-size="11" font-weight="400">Design de barba, toalha quente, hidratação e pós-barba premium</text>
+    <text x="48" y="722" fill="#94A3B8" font-size="12" font-weight="500">⏱ 25 min</text>
+    <text x="110" y="722" fill="#F8FAFC" font-size="14" font-weight="700">R$ 30,00</text>
+    <rect x="180" y="708" width="136" height="20" rx="4" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+    <circle cx="190" cy="718" r="2.5" fill="#14B8A6"/>
+    <text x="198" y="722" fill="#CBD5E1" font-size="11" font-weight="600">Sinal Pix: R$ 15,00</text>
+    
+    <rect x="48" y="734" width="324" height="34" rx="4" fill="#0D9488" stroke="#0F766E" stroke-width="1" filter="url(#hard-shadow)"/>
+    <text x="96" y="756" fill="#FFFFFF" font-size="11" font-weight="700" letter-spacing="0.6">ESCOLHER HORÁRIO PARA ESTE SERVIÇO</text>
+    <path d="M344 749 L350 752.5 L344 756" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- 5. CARD INFORMATIVO DE SEGURANÇA E CONFIANÇA -->
+  <g id="trust-card">
+    <rect x="32" y="780" width="356" height="50" rx="6" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+    <circle cx="50" cy="805" r="9" fill="#1E293B"/>
+    <path d="M46 805 L49 808 L55 802" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="68" y="800" fill="#F8FAFC" font-size="11" font-weight="700">Agendamento rápido em 2 passos</text>
+    <text x="68" y="815" fill="#94A3B8" font-size="10" font-weight="400">Escolha o serviço, selecione seu horário e garanta sua cadeira.</text>
+  </g>
+
+  <!-- Barra de Gestos do Celular (Home Indicator) -->
+  <rect x="145" y="856" width="130" height="4" rx="2" fill="#64748B"/>
+</svg>
