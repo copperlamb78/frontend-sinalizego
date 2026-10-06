@@ -61,6 +61,11 @@ export const App: React.FC = () => {
     }
     return true;
   });
+  const [copied, setCopied] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [emailValue, setEmailValue] = useState<string>('cliente@invalido');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const toggleTheme = () => {
     const nextDark = !isDark;
