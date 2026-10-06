@@ -64,6 +64,9 @@ Toda revisão de código deve conter:
 ## 2. Checklist de Conformidade
 - [x] Respeito à arquitetura Vertical Slice e barreira pública (index.ts)
 - [x] Uso obrigatório dos componentes do Design System (src/design-system/ui/)
+- [x] Cores 100% baseadas em tokens semânticos do index.css (proibido valores hexadecimais crus ou classes de cores estáticas)
+- [x] Responsividade mobile-first consistente (layouts flexíveis, sem overflow horizontal)
+- [x] Otimização de rede: uso correto do TanStack Query com staleTime e sem memory leaks em polling
 - [x] Ações primárias usando Button variant="primary"
 - [x] Tipagem estrita (TypeScript sem any)
 - [x] Elementos possuem data-testid para Playwright
