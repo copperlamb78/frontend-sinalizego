@@ -1,0 +1,280 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-accent: var(--accent);
+
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+
+  /* =========================================================================
+     DESIGN TOKENS — BASE (TEMA CLARO COMO PADRÃO SEMÂNTICO)
+     ========================================================================= */
+  :root {
+    color-scheme: light dark;
+
+    /* Superfícies */
+    --background: #E8E8E8;
+    --surface: #FFFFFF;
+    --surface-raised: #F1F5F9;
+    --surface-overlay: rgba(255, 255, 255, 0.92);
+
+    /* Bordas */
+    --border: #E2E8F0;
+    --border-strong: #CBD5E1;
+
+    /* Textos */
+    --text-primary: #0F172B;
+    --text-secondary: #334155;
+    --text-muted: #64748B;
+
+    /* Marca / Identidade Padrão (Teal Institucional) */
+    --primary: #0F766E;
+    --primary-hover: #0D9488;
+    --primary-subtle: rgba(20, 184, 166, 0.12);
+    --accent: #0D9488;
+
+    /* Semântica de Estados */
+    --success: #10B981;
+    --success-subtle: rgba(16, 185, 129, 0.12);
+    --warning: #F59E0B;
+    --warning-subtle: rgba(245, 158, 11, 0.12);
+    --danger: #CD2525;
+    --danger-subtle: rgba(205, 37, 37, 0.12);
+  }
+
+  /* =========================================================================
+     DESIGN TOKENS — TEMA ESCURO INSTITUCIONAL (DARK MODE)
+     ========================================================================= */
+  :root.dark,
+  [data-theme="dark"] {
+    color-scheme: dark;
+
+    /* Superfícies Dark */
+    --background: #0B1120;
+    --surface: #0F172A;
+    --surface-raised: #1E293B;
+    --surface-overlay: rgba(15, 23, 42, 0.92);
+
+    /* Bordas Dark */
+    --border: #1E293B;
+    --border-strong: #334155;
+
+    /* Textos Dark */
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+
+    /* Marca */
+    --primary: #14B8A6;
+    --primary-hover: #0D9488;
+    --primary-subtle: rgba(20, 184, 166, 0.12);
+    --accent: #2DD4BF;
+
+    /* Semântica */
+    --success: #10B981;
+    --success-subtle: rgba(16, 185, 129, 0.15);
+    --warning: #F59E0B;
+    --warning-subtle: rgba(245, 158, 11, 0.15);
+    --danger: #EF4444;
+    --danger-subtle: rgba(239, 68, 68, 0.15);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Custom scrollbar adaptável */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
+
+  /* Native date/time picker adaptável */
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    color-scheme: inherit;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 2px;
+    opacity: 0.85;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+    filter: brightness(0) saturate(100%) invert(73%) sepia(23%) saturate(1048%) hue-rotate(124deg) brightness(96%) contrast(87%);
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator:hover,
+  input[type="time"]::-webkit-calendar-picker-indicator:hover,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  /* Native select & option */
+  select {
+    color-scheme: inherit;
+  }
+
+  select option {
+    background-color: var(--surface);
+    color: var(--text-primary);
+    padding: 8px;
+  }
+}
+
+/* =========================================================================
+   KEYFRAMES & CLASSES DE ANIMAÇÃO NATIVAS (BLOCO B.3)
+   Substitui de forma leve e robusta o pacote tailwindcss-animate
+   ========================================================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes zoomIn95 {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromTop2 {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromBottom4 {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
+.fade-out {
+  animation-name: fadeOut;
+}
+
+.zoom-in-95 {
+  animation-name: zoomIn95;
+}
+
+.slide-in-from-left {
+  animation-name: slideInFromLeft;
+}
+
+.slide-in-from-top-2 {
+  animation-name: slideInFromTop2;
+}
+
+.slide-in-from-bottom-4 {
+  animation-name: slideInFromBottom4;
+}
+
+/* Utilitários de Superfície Limpos e Sem Excesso de IA (Bloco B.4) */
+.glass-panel {
+  background-color: var(--surface-overlay);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
+
+.glass-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+}
