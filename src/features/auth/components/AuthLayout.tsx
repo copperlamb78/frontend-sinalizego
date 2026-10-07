@@ -86,9 +86,12 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitl
               />
             </Link>
 
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Badge variant="brand" size="sm">
-                <Sparkles className="h-3 w-3 mr-1" />
+            <div className="flex items-center justify-center mb-2.5">
+              <Badge
+                variant="brand"
+                size="sm"
+                icon={<Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />}
+              >
                 Agendamento Inteligente
               </Badge>
             </div>
@@ -108,12 +111,12 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitl
 
           {/* PILARES DE SEGURANÇA E CONFIANÇA */}
           <div className="mt-6 flex items-center justify-center gap-6 text-xs text-text-muted">
-            <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-primary" />
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+              <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
               Sessão Criptografada
             </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Zap className="h-4 w-4 text-warning" />
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+              <Zap className="h-4 w-4 text-warning shrink-0" />
               Pix Instantâneo
             </span>
           </div>
