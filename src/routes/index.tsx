@@ -21,7 +21,15 @@ export const router = createBrowserRouter([
   },
   {
     path: '/cadastro',
-    element: <RegisterPage />,
+    element: <RegisterPage defaultTab="client" />,
+  },
+  {
+    path: '/cadastro/empresa',
+    element: <RegisterPage defaultTab="company" />,
+  },
+  {
+    path: '/cadastro-empresa',
+    element: <Navigate to="/cadastro/empresa" replace />,
   },
   {
     path: '/registro',
