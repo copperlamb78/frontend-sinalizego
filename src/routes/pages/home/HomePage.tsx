@@ -62,7 +62,7 @@ export const HomePage: React.FC = () => {
     {
       question: 'Como funciona o sinal Pix e o split financeiro?',
       answer:
-        'O sinal é pago via Pix (QR Code e Copia e Cola) processado com split automático via gateway Asaas. O valor do sinal é reservado para o estabelecimento e liberado com segurança após o atendimento.',
+        'O sinal é pago via Pix imediato (QR Code e Copia e Cola) com confirmação em segundos. O valor do sinal fica reservado com total segurança para o seu estabelecimento e cai direto na sua conta bancária.',
     },
     {
       question: 'E se o cliente cancelar ou não comparecer?',
@@ -188,7 +188,7 @@ export const HomePage: React.FC = () => {
                 <CheckCircle2 className="h-4 w-4 text-primary" /> Sem app para o cliente baixar
               </span>
               <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Sinal cai na sua subconta Asaas
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Sinal cai direto na sua conta bancária
               </span>
               <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
                 <CheckCircle2 className="h-4 w-4 text-primary" /> Reserva de 15 minutos anti-concorrência
@@ -471,7 +471,7 @@ export const HomePage: React.FC = () => {
                 <CheckCircle2 className="h-4 w-4 text-primary" /> Sem aplicativo para baixar
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Split automático na subconta Asaas
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Repasse automático direto na sua conta bancária
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-primary" /> Sem fidelidade contratual
@@ -543,7 +543,7 @@ export const HomePage: React.FC = () => {
           <div className="space-y-2">
             <h5 className="font-bold text-text-primary">Conformidade &amp; Segurança</h5>
             <p className="text-text-secondary leading-relaxed">
-              Processamento financeiro com subcontas bancárias via Asaas Gateway. Zero retenção de senhas bancárias e regras canônicas N1–N7.
+              Processamento seguro via Pix com transferências automatizadas para sua conta bancária. Zero retenção de senhas e regras canônicas N1–N7.
             </p>
           </div>
         </div>
