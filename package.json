@@ -13,6 +13,7 @@
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@tanstack/react-query": "^5.66.0",
+    "@types/three": "^0.186.0",
     "axios": "^1.7.9",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
@@ -25,6 +26,8 @@
     "react-router-dom": "^7.2.0",
     "sonner": "^2.0.1",
     "tailwind-merge": "^3.0.1",
+    "three": "^0.186.1",
+    "vanta": "^0.5.24",
     "zod": "^3.24.2"
   },
   "devDependencies": {
