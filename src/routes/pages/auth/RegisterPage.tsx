@@ -50,7 +50,11 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ defaultTab = 'client
       : 'Cadastre-se em segundos para agendar seus serviços favoritos com horário garantido.';
 
   return (
-    <AuthLayout title={title} subtitle={subtitle}>
+    <AuthLayout
+      title={title}
+      subtitle={subtitle}
+      maxWidth={activeTab === 'company' ? '2xl' : 'md'}
+    >
       {/* SELETOR DE PERFIL: CLIENTE OU ESTABELECIMENTO */}
       <div className="mb-6 p-1 rounded-lg bg-surface-raised border border-border flex items-center gap-1">
         <button
