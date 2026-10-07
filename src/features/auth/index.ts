@@ -6,4 +6,6 @@ export * from './hooks/useAuth';
 export * from './components/AuthLayout';
 export * from './components/LoginForm';
 export * from './components/RegisterForm';
+export * from './components/RegisterCompanyForm';
 export * from './utils/phone';
+export * from './utils/cep';
