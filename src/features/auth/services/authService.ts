@@ -4,6 +4,8 @@ import type {
   LoginResponse,
   RegisterData,
   RegisterResponse,
+  RegisterCompanyData,
+  RegisterCompanyResponse,
   User,
 } from '../types';
 
@@ -21,6 +23,14 @@ export const authService = {
    */
   async register(data: RegisterData): Promise<RegisterResponse> {
     const response = await apiClient.post<RegisterResponse>('/users/create', data);
+    return response.data;
+  },
+
+  /**
+   * Realiza o cadastro de um novo estabelecimento/empresa com conta de proprietário
+   */
+  async registerCompany(data: RegisterCompanyData): Promise<RegisterCompanyResponse> {
+    const response = await apiClient.post<RegisterCompanyResponse>('/company/create', data);
     return response.data;
   },
 
