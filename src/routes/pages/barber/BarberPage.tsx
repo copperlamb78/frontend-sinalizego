@@ -14,6 +14,7 @@ import {
   HelpCircle,
   Users,
   Percent,
+  Scissors,
 } from 'lucide-react';
 import { DemoStorefrontCard } from '../home/components/DemoStorefrontCard';
 import { ServicesDepositTable } from '../home/components/ServicesDepositTable';
@@ -119,15 +120,16 @@ export const BarberPage: React.FC = () => {
 
           <FadeIn delay={300}>
             <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto pt-2">
-              <Link to="/empresa/barbers-club" className="w-full sm:w-auto group">
+              <Link to="/cadastro/empresa" className="w-full sm:w-auto group">
                 <Button
                   variant="primary"
                   size="lg"
+                  leftIcon={<Scissors className="h-4 w-4" />}
                   rightIcon={<ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />}
                   className="w-full sm:w-auto font-bold px-7 text-sm"
                   data-testid="hero-primary-cta"
                 >
-                  Testar Vitrine Online Agora
+                  Cadastrar Minha Barbearia Agora
                 </Button>
               </Link>
             </div>
