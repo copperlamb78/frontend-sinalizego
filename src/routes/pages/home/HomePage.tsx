@@ -85,7 +85,7 @@ export const HomePage: React.FC = () => {
       <nav className="sticky top-0 z-50 w-full border-b border-border bg-surface/95 backdrop-blur-md px-4 sm:px-8 py-3.5">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <span className="h-3 w-3 bg-primary rounded-full shadow-[0_0_10px_rgba(20,184,166,0.5)]" />
+            <span className="h-2.5 w-2.5 bg-primary rounded-full" />
             <span className="font-extrabold text-base tracking-wider uppercase text-text-primary">
               Sinalize<span className="text-primary">GO</span>
             </span>
@@ -122,7 +122,7 @@ export const HomePage: React.FC = () => {
               <Button
                 variant="primary"
                 size="sm"
-                className="h-8 text-xs font-bold px-3 shadow-sm"
+                className="h-8 text-xs font-bold px-3"
                 data-testid="nav-cta-demo"
               >
                 Ver Vitrine Demo
@@ -157,7 +157,7 @@ export const HomePage: React.FC = () => {
                 variant="primary"
                 size="lg"
                 rightIcon={<ArrowRight className="h-4 w-4" />}
-                className="w-full sm:w-auto font-bold px-7 shadow-lg shadow-primary/20 text-sm"
+                className="w-full sm:w-auto font-bold px-7 text-sm"
                 data-testid="hero-primary-cta"
               >
                 Testar Vitrine Online Agora
@@ -607,7 +607,7 @@ export const HomePage: React.FC = () => {
                 variant="primary"
                 size="lg"
                 rightIcon={<ArrowRight className="h-4 w-4" />}
-                className="font-bold text-sm px-8 shadow-lg shadow-primary/20"
+                className="font-bold text-sm px-8"
                 data-testid="banner-final-cta"
               >
                 Acessar Vitrine de Exemplo
