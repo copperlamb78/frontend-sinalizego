@@ -3,24 +3,23 @@ import { Link } from 'react-router-dom';
 import {
   Button,
   Card,
-  Badge,
   FadeIn,
 } from '@/design-system';
 import { cn } from '@/core/utils/cn';
 import {
-  Clock,
   ArrowRight,
-  Sun,
-  Moon,
   CheckCircle2,
   ChevronDown,
   HelpCircle,
-  Users,
-  Percent,
+  Scissors,
+  UserCheck,
+  Sparkles,
 } from 'lucide-react';
 import { DemoStorefrontCard } from './components/DemoStorefrontCard';
 import { ServicesDepositTable } from './components/ServicesDepositTable';
 import { HeroVantaFog } from './components/HeroVantaFog';
+import { SiteHeader } from './components/SiteHeader';
+import { SiteFooter } from './components/SiteFooter';
 
 export const HomePage: React.FC = () => {
   const [isDark, setIsDark] = useState<boolean>(() => {
@@ -30,7 +29,6 @@ export const HomePage: React.FC = () => {
     return true;
   });
 
-  // Estado para controlar os acordeões do FAQ
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   const toggleTheme = () => {
@@ -55,143 +53,102 @@ export const HomePage: React.FC = () => {
 
   const faqItems = [
     {
-      question: 'O cliente precisa baixar aplicativo ou criar conta?',
+      question: 'O que é o SinalizeGO?',
       answer:
-        'Não! O SinalizeGO é 100% web e otimizado para celulares. Seu cliente clica no link da bio do Instagram ou no WhatsApp, escolhe o serviço, informa nome e telefone, paga o sinal no Pix e garante a cadeira em menos de 1 minuto.',
+        'O SinalizeGO é a plataforma moderna de agendamento online com sinal no Pix. Desenvolvida para barbearias, salões de beleza e profissionais de estética, ela elimina o não-comparecimento (no-show) e garante que o cliente chegue e seja atendido pontualmente sem filas.',
     },
     {
-      question: 'Como funciona o sinal Pix e o split financeiro?',
+      question: 'O cliente precisa baixar aplicativo ou criar senha?',
       answer:
-        'O sinal é pago via Pix imediato (QR Code e Copia e Cola) com confirmação em segundos. O valor do sinal fica reservado com total segurança para o seu estabelecimento e cai direto na sua conta bancária.',
+        'Não! A plataforma é 100% web e projetada para telas de celulares. O cliente clica no link compartilhado no Instagram ou WhatsApp, escolhe o serviço e o horário, paga o sinal no Pix e garante a reserva em menos de 1 minuto.',
     },
     {
-      question: 'E se o cliente cancelar ou não comparecer?',
+      question: 'Como funciona o sinal Pix e o repasse para o estabelecimento?',
       answer:
-        'A plataforma opera com regras transparentes anti-vacância (Regras N1–N7): cancelamentos com mais de 24h de antecedência permitem estorno integral do sinal ao cliente; cancelamentos em cima da hora retêm o sinal para o estabelecimento para compensar a cadeira vazia.',
+        'O sinal é cobrado no momento do agendamento via Pix imediato com confirmação automática. O valor fica garantido com segurança para a barbearia e cai direto na sua conta bancária após o atendimento.',
     },
     {
-      question: 'Posso configurar serviços sem sinal ou com valores diferentes?',
+      question: 'Como funcionam os cancelamentos e estornos?',
       answer:
-        'Sim! Para serviços a partir de R$ 400,00 você pode configurar 30% ou 50% de sinal. Para serviços rápidos abaixo de R$ 15,00, a plataforma aplica 100% de sinal para proteger a rentabilidade e cobrir os custos de gateway.',
+        'A plataforma opera com regras transparentes anti-vacância (Regras N1–N7): cancelamentos com mais de 24h de antecedência estornam 100% do sinal de volta para o cliente via Pix. Cancelamentos de última hora compensam o profissional pelo tempo que a cadeira ficou ociosa.',
     },
     {
-      question: 'Como o dinheiro cai na minha conta?',
+      question: 'Como a plataforma impede dois clientes de escolherem o mesmo horário?',
       answer:
-        'Após a conclusão do atendimento (status COMPLETED), o saldo é liberado diretamente no extrato da sua empresa no painel, pronto para transferências bancárias sem burocracia.',
+        'Ao clicar no horário, o motor de agendamento ativa um hold temporário de 15 minutos (Regra N6) congelando aquela cadeira exclusivamente para a conclusão do Pix. Se não for pago dentro do prazo, a vaga é liberada automaticamente para outros clientes.',
     },
   ];
 
   return (
     <div className="min-h-screen bg-background text-text-primary flex flex-col selection:bg-primary/20 selection:text-primary">
-      {/* 1. TOP NAVBAR */}
-      <nav className="sticky top-0 z-50 w-full border-b border-border bg-surface/95 backdrop-blur-md px-4 sm:px-8 py-3.5">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center" aria-label="SinalizeGO - Página Inicial">
-              <img
-                src={isDark ? '/logo-dark.png' : '/logo-light.png'}
-                alt="SinalizeGO"
-                className="h-7 sm:h-8 w-auto object-contain"
-              />
-            </Link>
-            <Badge variant="brand" size="sm" className="hidden sm:inline-flex text-[10px]">
-              Sinal Pix &amp; Zero No-Show
-            </Badge>
-          </div>
+      {/* 1. TOP NAVBAR COMPARTILHADA */}
+      <SiteHeader isDark={isDark} onToggleTheme={toggleTheme} />
 
-          <div className="hidden md:flex items-center gap-6 text-xs font-semibold text-text-secondary">
-            <a href="#como-funciona" className="hover:text-primary transition-colors">
-              Como Funciona
-            </a>
-            <a href="#servicos-sinal" className="hover:text-primary transition-colors">
-              Serviços &amp; Sinal
-            </a>
-            <a href="#faq" className="hover:text-primary transition-colors">
-              Dúvidas
-            </a>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={toggleTheme}
-              leftIcon={isDark ? <Sun className="h-3.5 w-3.5 text-warning" /> : <Moon className="h-3.5 w-3.5 text-primary" />}
-              data-testid="home-theme-toggle"
-              className="h-8 text-xs font-semibold px-2.5 sm:px-3"
-            >
-              {isDark ? 'Claro' : 'Escuro'}
-            </Button>
-
-            <Link to="/empresa/barbers-club">
-              <Button
-                variant="primary"
-                size="sm"
-                className="h-8 text-xs font-bold px-3"
-                data-testid="nav-cta-demo"
-              >
-                Ver Vitrine Demo
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      {/* 2. HERO SECTION */}
+      {/* 2. HERO SECTION — APRESENTAÇÃO GERAL */}
       <section className="relative overflow-hidden bg-gradient-to-b from-surface/80 via-background to-background px-4 sm:px-8 pt-10 sm:pt-16 pb-14 sm:pb-20 border-b border-border/50">
         {/* Efeito Vanta FOG atmosférico institucional */}
         <HeroVantaFog isDark={isDark} />
 
-        <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center text-center space-y-6">
+        <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center text-center space-y-6">
           <FadeIn delay={0}>
-            <nav aria-label="Navegação estrutural" className="text-xs text-text-muted">
-              <ol className="flex items-center gap-1.5">
-                <li>Início</li>
-                <li>/</li>
-                <li className="text-primary font-semibold">Sistema para barbearia e estética</li>
-              </ol>
-            </nav>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary">
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Plataforma Oficial de Agendamento com Sinal Pix</span>
+            </div>
           </FadeIn>
 
           <FadeIn delay={100}>
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-text-primary leading-[1.12]">
-              Sistema para barbearia com agenda online e <span className="text-primary">sinal no Pix</span>
+              Agendamento online com sinal no Pix que <span className="text-primary">valoriza o tempo de todos</span>
             </h1>
           </FadeIn>
 
           <FadeIn delay={200}>
             <p className="max-w-2xl text-sm sm:text-base md:text-lg leading-relaxed text-text-secondary">
-              Procedimentos longos, químicas e horários de pico seguram a cadeira por horas. Uma falta nesses serviços derruba o faturamento do dia. O SinalizeGO organiza a agenda e pede sinal no Pix com reserva garantida.
+              Para o estabelecimento: fim dos cancelamentos de última hora e receita garantida. Para o cliente: cadeira reservada na hora marcada e zero tempo perdido em filas.
             </p>
           </FadeIn>
 
           <FadeIn delay={300}>
-            <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto pt-2">
-              <Link to="/empresa/barbers-club" className="w-full sm:w-auto group">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto pt-2">
+              <Link to="/para-barbearias" className="w-full sm:w-auto group">
                 <Button
                   variant="primary"
                   size="lg"
+                  leftIcon={<Scissors className="h-4 w-4" />}
                   rightIcon={<ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />}
-                  className="w-full sm:w-auto font-bold px-7 text-sm"
-                  data-testid="hero-primary-cta"
+                  className="w-full sm:w-auto font-bold px-6 text-sm"
+                  data-testid="hero-barber-cta"
                 >
-                  Testar Vitrine Online Agora
+                  Sou Estabelecimento
+                </Button>
+              </Link>
+
+              <Link to="/para-clientes" className="w-full sm:w-auto group">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  leftIcon={<UserCheck className="h-4 w-4" />}
+                  className="w-full sm:w-auto font-bold px-6 text-sm"
+                  data-testid="hero-client-cta"
+                >
+                  Quero Agendar como Cliente
                 </Button>
               </Link>
             </div>
           </FadeIn>
 
-          {/* Destaques rápidos */}
+          {/* Destaques rápidos da plataforma */}
           <FadeIn delay={400}>
             <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-xs text-text-muted">
               <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Sem app para o cliente baixar
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Sem aplicativo para baixar
               </span>
               <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Sinal cai direto na sua conta bancária
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Sinal cai direto na conta bancária
               </span>
               <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Reserva de 15 minutos anti-concorrência
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Hold de 15 minutos anti-furo
               </span>
             </div>
           </FadeIn>
@@ -200,98 +157,129 @@ export const HomePage: React.FC = () => {
 
       {/* CONTEÚDO PRINCIPAL CENTRALIZADO */}
       <main className="max-w-4xl mx-auto px-4 sm:px-8 py-14 sm:py-20 space-y-20">
-        {/* 3. VEJA FUNCIONANDO NA PRÁTICA */}
-        <section aria-labelledby="veja-funcionando" className="space-y-6">
+        {/* 3. OS DOIS LADOS DO ECOSSISTEMA */}
+        <section aria-labelledby="ecossistema" className="space-y-6">
           <FadeIn>
             <div className="text-left space-y-1.5">
               <div className="inline-flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-primary" />
                 <span className="text-xs font-bold uppercase tracking-wider text-text-muted">
-                  Demonstração Real
+                  Soluções Integradas
                 </span>
               </div>
-              <h2 id="veja-funcionando" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
-                Veja funcionando na prática
+              <h2 id="ecossistema" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
+                Criado para quem atende e para quem é atendido
               </h2>
               <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
-                Um agendamento de verdade: o cliente acessa pelo link, escolhe o serviço com o valor do sinal transparente, seleciona o horário e garante a cadeira no Pix.
+                O SinalizeGO alinha os interesses de quem trabalha na barbearia e de quem precisa de um horário garantido:
               </p>
             </div>
           </FadeIn>
 
-          {/* Card Interativo com Vitrine Integrada */}
-          <FadeIn delay={150}>
-            <DemoStorefrontCard />
-          </FadeIn>
-        </section>
-
-        {/* 4. O QUE MUDA NA ROTINA DO ESTABELECIMENTO */}
-        <section aria-labelledby="rotina" className="space-y-6">
-          <FadeIn>
-            <div className="text-left space-y-1.5">
-              <h2 id="rotina" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
-                O que muda na rotina do estabelecimento
-              </h2>
-              <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
-                Chega de perder manhãs inteiras com clientes que marcaram e não apareceram.
-              </p>
-            </div>
-          </FadeIn>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Card Estabelecimento */}
             <FadeIn delay={100} className="h-full">
-              <Card className="h-full bg-surface border-border p-5 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                  <Percent className="h-5 w-5" />
+              <Card className="h-full bg-surface border-border p-6 space-y-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                    <Scissors className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-text-primary">
+                    Para Barbearias &amp; Profissionais
+                  </h3>
+                  <p className="text-xs text-text-secondary leading-relaxed">
+                    Elimine até 95% do não-comparecimento com o sinal no Pix. Tenha previsão real de faturamento, capacidade inteligente de cadeiras simultâneas e repasse automático direto na sua conta bancária.
+                  </p>
+                  <ul className="space-y-1.5 text-xs text-text-secondary pt-2">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Sinal de 50%, 30% ou 100% conforme o valor
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Link exclusivo para bio do Instagram e WhatsApp
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Proteção contra vacância e furos de agenda
+                    </li>
+                  </ul>
                 </div>
-                <h3 className="text-base font-bold text-text-primary">
-                  Compromisso real com sinal
-                </h3>
-                <p className="text-xs text-text-secondary leading-relaxed">
-                  Com 50% de sinal num corte ou 30% numa química longa, o cliente valoriza o horário reservado. Se desistir de última hora, o sinal compensa o profissional pela cadeira vazia.
-                </p>
+
+                <div className="pt-3 border-t border-border/50">
+                  <Link to="/para-barbearias" className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
+                    Ver página completa para barbearias <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
               </Card>
             </FadeIn>
 
+            {/* Card Cliente */}
             <FadeIn delay={200} className="h-full">
-              <Card className="h-full bg-surface border-border p-5 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                  <Users className="h-5 w-5" />
+              <Card className="h-full bg-surface border-border p-6 space-y-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                    <UserCheck className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-text-primary">
+                    Para Clientes
+                  </h3>
+                  <p className="text-xs text-text-secondary leading-relaxed">
+                    Marque seu horário em menos de 1 minuto sem baixar nenhum aplicativo. Tenha a certeza de sentar na cadeira no horário combinado sem perder manhãs em salas de espera.
+                  </p>
+                  <ul className="space-y-1.5 text-xs text-text-secondary pt-2">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Cadeira 100% garantida na hora marcada
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Estorno total do sinal em cancelamentos com +24h
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Funciona direto no navegador do smartphone
+                    </li>
+                  </ul>
                 </div>
-                <h3 className="text-base font-bold text-text-primary">
-                  Capacidade concorrente inteligente
-                </h3>
-                <p className="text-xs text-text-secondary leading-relaxed">
-                  Configure a capacidade de cadeiras por grupo de serviços. O motor de agendamento calcula horários livres sem sobreposição nem atrasos no salão.
-                </p>
-              </Card>
-            </FadeIn>
 
-            <FadeIn delay={300} className="h-full">
-              <Card className="h-full bg-surface border-border p-5 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                  <Clock className="h-5 w-5" />
+                <div className="pt-3 border-t border-border/50">
+                  <Link to="/para-clientes" className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
+                    Ver experiência do cliente <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
                 </div>
-                <h3 className="text-base font-bold text-text-primary">
-                  Hold de 15 minutos anti-furo
-                </h3>
-                <p className="text-xs text-text-secondary leading-relaxed">
-                  Ao selecionar o horário, a vaga fica temporariamente congelada exclusivamente para o cliente concluir o Pix. Sem disputa simultânea de vagas.
-                </p>
               </Card>
             </FadeIn>
           </div>
         </section>
 
-        {/* 5. SERVIÇOS E SINAL: EXEMPLO REAL BASEADO NA API */}
+        {/* 4. VEJA A VITRINE FUNCIONANDO */}
+        <section aria-labelledby="vitrine-demo" className="space-y-6">
+          <FadeIn>
+            <div className="text-left space-y-1.5">
+              <div className="inline-flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-primary" />
+                <span className="text-xs font-bold uppercase tracking-wider text-text-muted">
+                  Vitrine Interativa
+                </span>
+              </div>
+              <h2 id="vitrine-demo" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
+                A mesma facilidade para todos os públicos
+              </h2>
+              <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
+                O cliente escolhe o serviço e o horário; o profissional recebe a notificação e a garantia do sinal. Experimente na vitrine real abaixo:
+              </p>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={150}>
+            <DemoStorefrontCard />
+          </FadeIn>
+        </section>
+
+        {/* 5. TABELA DE REGRAS CANÔNICAS N1-N7 */}
         <section id="servicos-sinal" aria-labelledby="tabela-sinal" className="space-y-6">
           <FadeIn>
             <div className="text-left space-y-1.5">
               <h2 id="tabela-sinal" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
-                Serviços e sinal: regras práticas de agendamento
+                Regras transparentes de sinal e retenção (N1–N7)
               </h2>
               <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
-                A cobrança do sinal protege a operação e se adapta ao valor de cada procedimento conforme as regras canônicas da plataforma (Regras N1–N7):
+                A cobrança do sinal protege a operação e equilibra as responsabilidades entre cliente e estabelecimento:
               </p>
             </div>
           </FadeIn>
@@ -301,103 +289,7 @@ export const HomePage: React.FC = () => {
           </FadeIn>
         </section>
 
-        {/* 6. COMO O CLIENTE MARCA */}
-        <section id="como-funciona" aria-labelledby="como-marcar" className="space-y-6">
-          <FadeIn>
-            <div className="text-left space-y-1.5">
-              <h2 id="como-marcar" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
-                Como o cliente marca
-              </h2>
-              <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
-                Fluxo rápido, sem atrito e sem necessidade de baixar aplicativo:
-              </p>
-            </div>
-          </FadeIn>
-
-          <ol className="grid grid-cols-1 gap-3.5">
-            <FadeIn delay={80}>
-              <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
-                <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
-                  1
-                </span>
-                <div className="space-y-0.5">
-                  <h4 className="text-sm font-bold text-text-primary">
-                    Abre o seu link exclusivo
-                  </h4>
-                  <p className="text-xs text-text-secondary leading-relaxed">
-                    Coloque na bio do Instagram ou envie diretamente no WhatsApp (<code className="text-primary font-mono text-[11px]">/empresa/seu-negocio</code>).
-                  </p>
-                </div>
-              </li>
-            </FadeIn>
-
-            <FadeIn delay={160}>
-              <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
-                <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
-                  2
-                </span>
-                <div className="space-y-0.5">
-                  <h4 className="text-sm font-bold text-text-primary">
-                    Escolhe o serviço desejado
-                  </h4>
-                  <p className="text-xs text-text-secondary leading-relaxed">
-                    Visualiza a lista organizada por categorias com preço total, tempo de duração e o valor do sinal.
-                  </p>
-                </div>
-              </li>
-            </FadeIn>
-
-            <FadeIn delay={240}>
-              <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
-                <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
-                  3
-                </span>
-                <div className="space-y-0.5">
-                  <h4 className="text-sm font-bold text-text-primary">
-                    Seleciona a data e o horário livre
-                  </h4>
-                  <p className="text-xs text-text-secondary leading-relaxed">
-                    Grade de horários atualizada em tempo real conforme a disponibilidade da sua equipe.
-                  </p>
-                </div>
-              </li>
-            </FadeIn>
-
-            <FadeIn delay={320}>
-              <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
-                <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
-                  4
-                </span>
-                <div className="space-y-0.5">
-                  <h4 className="text-sm font-bold text-text-primary">
-                    Paga o sinal no Pix
-                  </h4>
-                  <p className="text-xs text-text-secondary leading-relaxed">
-                    Geração instantânea de QR Code e chave Copia e Cola com 15 minutos de reserva garantida.
-                  </p>
-                </div>
-              </li>
-            </FadeIn>
-
-            <FadeIn delay={400}>
-              <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
-                <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
-                  5
-                </span>
-                <div className="space-y-0.5">
-                  <h4 className="text-sm font-bold text-text-primary">
-                    Cadeira 100% garantida
-                  </h4>
-                  <p className="text-xs text-text-secondary leading-relaxed">
-                    Agendamento confirmado automaticamente sem filas, sem papel e sem risco de duplo agendamento.
-                  </p>
-                </div>
-              </li>
-            </FadeIn>
-          </ol>
-        </section>
-
-        {/* 7. PERGUNTAS FREQUENTES (FAQ) */}
+        {/* 6. PERGUNTAS FREQUENTES (FAQ GERAL) */}
         <section id="faq" aria-labelledby="faq-titulo" className="space-y-6">
           <FadeIn>
             <div className="text-left space-y-1.5">
@@ -408,7 +300,7 @@ export const HomePage: React.FC = () => {
                 </span>
               </div>
               <h2 id="faq-titulo" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
-                Tire suas dúvidas sobre o sistema
+                Tire suas dúvidas sobre a plataforma
               </h2>
             </div>
           </FadeIn>
@@ -454,43 +346,37 @@ export const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* 8. BANNER FINAL CTA */}
+        {/* 7. BANNER FINAL CTA */}
         <FadeIn delay={100}>
           <section className="relative overflow-hidden rounded-2xl bg-surface border border-primary/30 p-8 sm:p-12 space-y-6 shadow-lg text-left transition-all duration-300 hover:border-primary/50">
             <div className="space-y-2 max-w-xl">
               <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
-                Seu link de agendamento fica pronto em 5 minutos
+                Modernize seus agendamentos com o SinalizeGO
               </h2>
               <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
-                Elimine o não-comparecimento, profissionalize seu atendimento e tenha previsão financeira real.
+                Proteja a rentabilidade do seu salão ou garanta que você nunca mais espere em filas.
               </p>
             </div>
 
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-text-secondary">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Sem aplicativo para baixar
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Repasse automático direto na sua conta bancária
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Sem fidelidade contratual
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Proteção contra vacância e furos de agenda
-              </li>
-            </ul>
-
-            <div className="pt-2">
-              <Link to="/empresa/barbers-club" className="inline-block group">
+            <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+              <Link to="/para-barbearias" className="w-full sm:w-auto">
                 <Button
                   variant="primary"
                   size="lg"
-                  rightIcon={<ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />}
-                  className="font-bold text-sm px-8"
-                  data-testid="banner-final-cta"
+                  className="w-full sm:w-auto font-bold text-sm px-7"
+                  data-testid="banner-barber-btn"
                 >
-                  Acessar Vitrine de Exemplo
+                  Conhecer para Barbearias
+                </Button>
+              </Link>
+              <Link to="/para-clientes" className="w-full sm:w-auto">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="w-full sm:w-auto font-bold text-sm px-7"
+                  data-testid="banner-client-btn"
+                >
+                  Conhecer para Clientes
                 </Button>
               </Link>
             </div>
@@ -498,63 +384,8 @@ export const HomePage: React.FC = () => {
         </FadeIn>
       </main>
 
-      {/* 9. FOOTER */}
-      <footer className="w-full border-t border-border bg-surface py-10 px-4 sm:px-8 text-xs text-text-muted mt-auto">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-left">
-          <div className="space-y-3">
-            <Link to="/" className="inline-flex items-center" aria-label="SinalizeGO - Página Inicial">
-              <img
-                src={isDark ? '/logo-dark.png' : '/logo-light.png'}
-                alt="SinalizeGO"
-                className="h-6 sm:h-7 w-auto object-contain"
-              />
-            </Link>
-            <p className="text-text-secondary leading-relaxed">
-              Plataforma de agendamento online e pagamento de sinal Pix com split automático para barbearias, estúdios e salões.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <h5 className="font-bold text-text-primary">Navegação Rápida</h5>
-            <ul className="space-y-1.5">
-              <li>
-                <Link to="/empresa/barbers-club" className="hover:text-primary transition-colors">
-                  Vitrine Demo (Barber's Club)
-                </Link>
-              </li>
-              <li>
-                <a href="#como-funciona" className="hover:text-primary transition-colors">
-                  Como Funciona
-                </a>
-              </li>
-              <li>
-                <a href="#servicos-sinal" className="hover:text-primary transition-colors">
-                  Tabela de Serviços &amp; Sinal
-                </a>
-              </li>
-              <li>
-                <a href="#faq" className="hover:text-primary transition-colors">
-                  Perguntas Frequentes
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div className="space-y-2">
-            <h5 className="font-bold text-text-primary">Conformidade &amp; Segurança</h5>
-            <p className="text-text-secondary leading-relaxed">
-              Processamento seguro via Pix com transferências automatizadas para sua conta bancária. Zero retenção de senhas e regras canônicas N1–N7.
-            </p>
-          </div>
-        </div>
-
-        <div className="max-w-6xl mx-auto pt-8 mt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
-          <p>© {new Date().getFullYear()} SinalizeGO. Todos os direitos reservados.</p>
-          <p className="text-text-muted">
-            Feito para eliminar o não-comparecimento em serviços de beleza.
-          </p>
-        </div>
-      </footer>
+      {/* 8. FOOTER COMPARTILHADO */}
+      <SiteFooter isDark={isDark} />
     </div>
   );
 };
