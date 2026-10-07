@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button, Badge } from '@/design-system';
-import { Sun, Moon } from 'lucide-react';
+import { useAuth } from '@/features/auth';
+import { Sun, Moon, LogIn, LogOut, User } from 'lucide-react';
 
 interface SiteHeaderProps {
   isDark: boolean;
@@ -10,6 +11,7 @@ interface SiteHeaderProps {
 
 export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme }) => {
   const location = useLocation();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const navLinks = [
     { label: 'Início', path: '/' },
@@ -54,8 +56,8 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
           })}
         </div>
 
-        {/* AÇÕES (TEMA E CTA DEMO) */}
-        <div className="flex items-center gap-2.5">
+        {/* AÇÕES (TEMA, AUTH E CTA DEMO) */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
           <Button
             variant="secondary"
             size="sm"
@@ -67,37 +69,77 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
             {isDark ? 'Claro' : 'Escuro'}
           </Button>
 
-          <Link to="/empresa/barbers-club">
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-1.5">
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md bg-surface-raised border border-border text-text-primary">
+                <User className="h-3.5 w-3.5 text-primary" />
+                {user.name.split(' ')[0]}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => logout()}
+                leftIcon={<LogOut className="h-3.5 w-3.5" />}
+                className="h-8 text-xs px-2.5 text-text-muted hover:text-danger"
+                title="Encerrar sessão"
+                data-testid="nav-logout-btn"
+              >
+                Sair
+              </Button>
+            </div>
+          ) : (
+            <Link to="/login">
+              <Button
+                variant="secondary"
+                size="sm"
+                leftIcon={<LogIn className="h-3.5 w-3.5 text-primary" />}
+                className="h-8 text-xs font-semibold px-3"
+                data-testid="nav-login-btn"
+              >
+                Entrar
+              </Button>
+            </Link>
+          )}
+
+          <Link to="/empresa/barbers-club" className="hidden sm:inline-block">
             <Button
               variant="primary"
               size="sm"
               className="h-8 text-xs font-bold px-3"
               data-testid="nav-cta-demo"
             >
-              Ver Vitrine Demo
+              Vitrine Demo
             </Button>
           </Link>
         </div>
       </div>
 
       {/* SUB-MENU MOBILE DE PÁGINAS */}
-      <div className="flex md:hidden items-center justify-center gap-2 pt-2.5 mt-2.5 border-t border-border/50 text-xs font-medium">
-        {navLinks.map((link) => {
-          const isActive = location.pathname === link.path;
-          return (
-            <Link
-              key={link.path}
-              to={link.path}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
-                isActive
-                  ? 'text-primary font-bold bg-primary/10'
-                  : 'text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              {link.label}
-            </Link>
-          );
-        })}
+      <div className="flex md:hidden items-center justify-between gap-2 pt-2.5 mt-2.5 border-t border-border/50 text-xs font-medium">
+        <div className="flex items-center gap-2">
+          {navLinks.map((link) => {
+            const isActive = location.pathname === link.path;
+            return (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`px-2 py-1 rounded-md transition-colors ${
+                  isActive
+                    ? 'text-primary font-bold bg-primary/10'
+                    : 'text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </div>
+
+        <Link to="/empresa/barbers-club" className="sm:hidden">
+          <Button variant="primary" size="sm" className="h-7 text-[11px] px-2 font-bold">
+            Demo
+          </Button>
+        </Link>
       </div>
     </nav>
   );
