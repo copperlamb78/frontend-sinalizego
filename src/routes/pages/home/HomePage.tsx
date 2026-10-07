@@ -5,6 +5,7 @@ import {
   Card,
   Badge,
 } from '@/design-system';
+import { cn } from '@/core/utils/cn';
 import {
   Clock,
   ArrowRight,
@@ -12,7 +13,6 @@ import {
   Moon,
   CheckCircle2,
   ChevronDown,
-  ChevronUp,
   HelpCircle,
   Users,
   Percent,
@@ -138,7 +138,7 @@ export const HomePage: React.FC = () => {
       {/* 2. HERO SECTION */}
       <section className="relative overflow-hidden bg-gradient-to-b from-surface/80 via-background to-background px-4 sm:px-8 pt-10 sm:pt-16 pb-14 sm:pb-20 border-b border-border/50">
         <div className="max-w-3xl mx-auto flex flex-col items-center text-center space-y-6">
-          <nav aria-label="Navegação estrutural" className="text-xs text-text-muted">
+          <nav aria-label="Navegação estrutural" className="text-xs text-text-muted animate-in fade-in slide-in-from-bottom-4 duration-500">
             <ol className="flex items-center gap-1.5">
               <li>Início</li>
               <li>/</li>
@@ -146,20 +146,20 @@ export const HomePage: React.FC = () => {
             </ol>
           </nav>
 
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-text-primary leading-[1.12]">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-text-primary leading-[1.12] animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
             Sistema para barbearia com agenda online e <span className="text-primary">sinal no Pix</span>
           </h1>
 
-          <p className="max-w-2xl text-sm sm:text-base md:text-lg leading-relaxed text-text-secondary">
+          <p className="max-w-2xl text-sm sm:text-base md:text-lg leading-relaxed text-text-secondary animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
             Procedimentos longos, químicas e horários de pico seguram a cadeira por horas. Uma falta nesses serviços derruba o faturamento do dia. O SinalizeGO organiza a agenda e pede sinal no Pix com reserva garantida.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto pt-2">
-            <Link to="/empresa/barbers-club" className="w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto pt-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+            <Link to="/empresa/barbers-club" className="w-full sm:w-auto group">
               <Button
                 variant="primary"
                 size="lg"
-                rightIcon={<ArrowRight className="h-4 w-4" />}
+                rightIcon={<ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />}
                 className="w-full sm:w-auto font-bold px-7 text-sm"
                 data-testid="hero-primary-cta"
               >
@@ -169,14 +169,14 @@ export const HomePage: React.FC = () => {
           </div>
 
           {/* Destaques rápidos */}
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-xs text-text-muted">
-            <span className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-xs text-text-muted animate-in fade-in slide-in-from-bottom-4 duration-700 delay-400">
+            <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
               <CheckCircle2 className="h-4 w-4 text-primary" /> Sem app para o cliente baixar
             </span>
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
               <CheckCircle2 className="h-4 w-4 text-primary" /> Sinal cai na sua subconta Asaas
             </span>
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
               <CheckCircle2 className="h-4 w-4 text-primary" /> Reserva de 15 minutos anti-concorrência
             </span>
           </div>
@@ -218,7 +218,7 @@ export const HomePage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <Card className="bg-surface border-border p-5 space-y-3">
+            <Card className="bg-surface border-border p-5 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
               <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                 <Percent className="h-5 w-5" />
               </div>
@@ -230,7 +230,7 @@ export const HomePage: React.FC = () => {
               </p>
             </Card>
 
-            <Card className="bg-surface border-border p-5 space-y-3">
+            <Card className="bg-surface border-border p-5 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
               <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                 <Users className="h-5 w-5" />
               </div>
@@ -242,7 +242,7 @@ export const HomePage: React.FC = () => {
               </p>
             </Card>
 
-            <Card className="bg-surface border-border p-5 space-y-3">
+            <Card className="bg-surface border-border p-5 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
               <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                 <Clock className="h-5 w-5" />
               </div>
@@ -282,8 +282,8 @@ export const HomePage: React.FC = () => {
           </div>
 
           <ol className="grid grid-cols-1 gap-3.5">
-            <li className="flex items-start gap-4 p-4 rounded-xl bg-surface border border-border">
-              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0">
+            <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
+              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
                 1
               </span>
               <div className="space-y-0.5">
@@ -296,8 +296,8 @@ export const HomePage: React.FC = () => {
               </div>
             </li>
 
-            <li className="flex items-start gap-4 p-4 rounded-xl bg-surface border border-border">
-              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0">
+            <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
+              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
                 2
               </span>
               <div className="space-y-0.5">
@@ -310,8 +310,8 @@ export const HomePage: React.FC = () => {
               </div>
             </li>
 
-            <li className="flex items-start gap-4 p-4 rounded-xl bg-surface border border-border">
-              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0">
+            <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
+              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
                 3
               </span>
               <div className="space-y-0.5">
@@ -324,8 +324,8 @@ export const HomePage: React.FC = () => {
               </div>
             </li>
 
-            <li className="flex items-start gap-4 p-4 rounded-xl bg-surface border border-border">
-              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0">
+            <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
+              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
                 4
               </span>
               <div className="space-y-0.5">
@@ -338,8 +338,8 @@ export const HomePage: React.FC = () => {
               </div>
             </li>
 
-            <li className="flex items-start gap-4 p-4 rounded-xl bg-surface border border-border">
-              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0">
+            <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
+              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
                 5
               </span>
               <div className="space-y-0.5">
@@ -384,18 +384,26 @@ export const HomePage: React.FC = () => {
                     <span className="text-sm sm:text-base font-bold text-text-primary">
                       {item.question}
                     </span>
-                    {isOpen ? (
-                      <ChevronUp className="h-4 w-4 text-primary shrink-0" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4 text-text-muted shrink-0" />
-                    )}
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 text-text-muted shrink-0 transition-transform duration-300",
+                        isOpen && "rotate-180 text-primary"
+                      )}
+                    />
                   </button>
 
-                  {isOpen && (
-                    <div className="px-4 sm:px-5 pb-5 pt-1 text-xs sm:text-sm text-text-secondary leading-relaxed border-t border-border/40">
-                      {item.answer}
+                  <div
+                    className={cn(
+                      "grid transition-all duration-300 ease-in-out",
+                      isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                    )}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="px-4 sm:px-5 pb-5 pt-1 text-xs sm:text-sm text-text-secondary leading-relaxed border-t border-border/40">
+                        {item.answer}
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}
@@ -403,7 +411,7 @@ export const HomePage: React.FC = () => {
         </section>
 
         {/* 8. BANNER FINAL CTA */}
-        <section className="relative overflow-hidden rounded-2xl bg-surface border border-primary/30 p-8 sm:p-12 space-y-6 shadow-xl text-left">
+        <section className="relative overflow-hidden rounded-2xl bg-surface border border-primary/30 p-8 sm:p-12 space-y-6 shadow-lg text-left transition-all duration-300 hover:border-primary/50">
           <div className="space-y-2 max-w-xl">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
               Seu link de agendamento fica pronto em 5 minutos
@@ -429,11 +437,11 @@ export const HomePage: React.FC = () => {
           </ul>
 
           <div className="pt-2">
-            <Link to="/empresa/barbers-club">
+            <Link to="/empresa/barbers-club" className="inline-block group">
               <Button
                 variant="primary"
                 size="lg"
-                rightIcon={<ArrowRight className="h-4 w-4" />}
+                rightIcon={<ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />}
                 className="font-bold text-sm px-8"
                 data-testid="banner-final-cta"
               >
