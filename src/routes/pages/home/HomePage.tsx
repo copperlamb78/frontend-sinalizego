@@ -10,15 +10,15 @@ import {
   ArrowRight,
   Sun,
   Moon,
-  Scissors,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
   HelpCircle,
-  ExternalLink,
   Users,
   Percent,
 } from 'lucide-react';
+import { DemoStorefrontCard } from './components/DemoStorefrontCard';
+import { ServicesDepositTable } from './components/ServicesDepositTable';
 
 export const HomePage: React.FC = () => {
   const [isDark, setIsDark] = useState<boolean>(() => {
@@ -203,81 +203,7 @@ export const HomePage: React.FC = () => {
           </div>
 
           {/* Card Interativo com Vitrine Integrada */}
-          <Card className="bg-surface border-border overflow-hidden shadow-xl hover:border-primary/40 transition-colors">
-            <div className="p-6 sm:p-8 space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-border">
-                <div className="flex items-center gap-3.5">
-                  <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                    <Scissors className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-base sm:text-lg font-bold text-text-primary">
-                        Barber's Club
-                      </h3>
-                      <Badge variant="success" size="sm">
-                        Vitrine Ativa
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-text-muted">
-                      Avenida Artêmia Pires Freitas • Feira de Santana, BA
-                    </p>
-                  </div>
-                </div>
-
-                <Link to="/empresa/barbers-club">
-                  <Button
-                    variant="primary"
-                    size="md"
-                    rightIcon={<ExternalLink className="h-3.5 w-3.5" />}
-                    className="font-bold text-xs"
-                    data-testid="open-full-storefront-btn"
-                  >
-                    Abrir Vitrine Completa
-                  </Button>
-                </Link>
-              </div>
-
-              {/* Destaques visuais da experiência do agendamento */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-surface-raised/70 border border-border/80 space-y-1.5">
-                  <span className="text-[11px] font-bold text-primary uppercase tracking-wide">
-                    1. Catálogo por Categorias
-                  </span>
-                  <h4 className="text-xs font-semibold text-text-primary">
-                    Cabelo, Barba e Combos
-                  </h4>
-                  <p className="text-[11px] text-text-muted leading-relaxed">
-                    Preço total, duração e valor exato do sinal exibidos de forma clara em cada card.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-surface-raised/70 border border-border/80 space-y-1.5">
-                  <span className="text-[11px] font-bold text-primary uppercase tracking-wide">
-                    2. Horários Livres Reais
-                  </span>
-                  <h4 className="text-xs font-semibold text-text-primary">
-                    Grade por Manhã, Tarde e Noite
-                  </h4>
-                  <p className="text-[11px] text-text-muted leading-relaxed">
-                    Motor de disponibilidade inteligente que bloqueia conflitos de horário em tempo real.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-surface-raised/70 border border-border/80 space-y-1.5">
-                  <span className="text-[11px] font-bold text-primary uppercase tracking-wide">
-                    3. Sinal Antecipado
-                  </span>
-                  <h4 className="text-xs font-semibold text-text-primary">
-                    Garantia via Pix com Hold
-                  </h4>
-                  <p className="text-[11px] text-text-muted leading-relaxed">
-                    Cadeira reservada por 15 minutos para conclusão do Pix, eliminando o não-comparecimento.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Card>
+          <DemoStorefrontCard />
         </section>
 
         {/* 4. O QUE MUDA NA ROTINA DO ESTABELECIMENTO */}
@@ -341,109 +267,7 @@ export const HomePage: React.FC = () => {
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
-            <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="border-b border-border bg-surface-raised/60 text-text-muted font-bold">
-                <tr>
-                  <th className="px-4 py-3.5">Serviço</th>
-                  <th className="px-4 py-3.5 hidden sm:table-cell">Duração</th>
-                  <th className="px-4 py-3.5">Preço Total</th>
-                  <th className="px-4 py-3.5">Sinal no Pix</th>
-                  <th className="px-4 py-3.5 hidden md:table-cell">Regra Aplicada</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border text-text-primary">
-                <tr className="hover:bg-surface-raised/40 transition-colors">
-                  <td className="px-4 py-3.5 font-bold">
-                    Corte Degradê
-                    <span className="block text-[11px] font-normal text-text-muted sm:hidden">
-                      30 min
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5 text-text-muted hidden sm:table-cell">30 min</td>
-                  <td className="px-4 py-3.5 font-semibold">R$ 35,00</td>
-                  <td className="px-4 py-3.5 font-bold text-primary">
-                    50% <span className="text-xs font-normal text-text-secondary">(R$ 17,50)</span>
-                  </td>
-                  <td className="px-4 py-3.5 text-xs text-text-muted hidden md:table-cell">
-                    Sinal padrão
-                  </td>
-                </tr>
-
-                <tr className="hover:bg-surface-raised/40 transition-colors">
-                  <td className="px-4 py-3.5 font-bold">
-                    Barboterapia &amp; Toalha Quente
-                    <span className="block text-[11px] font-normal text-text-muted sm:hidden">
-                      30 min
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5 text-text-muted hidden sm:table-cell">30 min</td>
-                  <td className="px-4 py-3.5 font-semibold">R$ 30,00</td>
-                  <td className="px-4 py-3.5 font-bold text-primary">
-                    50% <span className="text-xs font-normal text-text-secondary">(R$ 15,00)</span>
-                  </td>
-                  <td className="px-4 py-3.5 text-xs text-text-muted hidden md:table-cell">
-                    Sinal padrão
-                  </td>
-                </tr>
-
-                <tr className="hover:bg-surface-raised/40 transition-colors">
-                  <td className="px-4 py-3.5 font-bold">
-                    Combo Completo (Cabelo + Barba)
-                    <span className="block text-[11px] font-normal text-text-muted sm:hidden">
-                      60 min
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5 text-text-muted hidden sm:table-cell">60 min</td>
-                  <td className="px-4 py-3.5 font-semibold">R$ 60,00</td>
-                  <td className="px-4 py-3.5 font-bold text-primary">
-                    50% <span className="text-xs font-normal text-text-secondary">(R$ 30,00)</span>
-                  </td>
-                  <td className="px-4 py-3.5 text-xs text-text-muted hidden md:table-cell">
-                    Sinal padrão
-                  </td>
-                </tr>
-
-                <tr className="hover:bg-surface-raised/40 transition-colors">
-                  <td className="px-4 py-3.5 font-bold">
-                    Platinado Global / Química Longa
-                    <span className="block text-[11px] font-normal text-text-muted sm:hidden">
-                      150 min
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5 text-text-muted hidden sm:table-cell">150 min</td>
-                  <td className="px-4 py-3.5 font-semibold">R$ 400,00</td>
-                  <td className="px-4 py-3.5 font-bold text-primary">
-                    30% <span className="text-xs font-normal text-text-secondary">(R$ 120,00)</span>
-                  </td>
-                  <td className="px-4 py-3.5 text-xs text-text-muted hidden md:table-cell">
-                    Sinal flexível (≥ R$ 400)
-                  </td>
-                </tr>
-
-                <tr className="hover:bg-surface-raised/40 transition-colors">
-                  <td className="px-4 py-3.5 font-bold">
-                    Pezinho / Acabamento Rápido
-                    <span className="block text-[11px] font-normal text-text-muted sm:hidden">
-                      15 min
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5 text-text-muted hidden sm:table-cell">15 min</td>
-                  <td className="px-4 py-3.5 font-semibold">R$ 12,00</td>
-                  <td className="px-4 py-3.5 font-bold text-primary">
-                    100% <span className="text-xs font-normal text-text-secondary">(R$ 12,00)</span>
-                  </td>
-                  <td className="px-4 py-3.5 text-xs text-text-muted hidden md:table-cell">
-                    Sinal integral (&lt; R$ 15)
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <p className="text-xs text-text-muted leading-relaxed">
-            * Serviços abaixo de R$ 15,00 utilizam sinal integral (100%) para proteção da tarifa Pix. Em serviços de alto valor (≥ R$ 400,00), o estabelecimento pode optar por 30% para facilitar o agendamento de procedimentos longos.
-          </p>
+          <ServicesDepositTable />
         </section>
 
         {/* 6. COMO O CLIENTE MARCA */}
