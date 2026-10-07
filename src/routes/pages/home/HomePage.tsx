@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { DemoStorefrontCard } from './components/DemoStorefrontCard';
 import { ServicesDepositTable } from './components/ServicesDepositTable';
+import { HeroVantaFog } from './components/HeroVantaFog';
 
 export const HomePage: React.FC = () => {
   const [isDark, setIsDark] = useState<boolean>(() => {
@@ -138,7 +139,10 @@ export const HomePage: React.FC = () => {
 
       {/* 2. HERO SECTION */}
       <section className="relative overflow-hidden bg-gradient-to-b from-surface/80 via-background to-background px-4 sm:px-8 pt-10 sm:pt-16 pb-14 sm:pb-20 border-b border-border/50">
-        <div className="max-w-3xl mx-auto flex flex-col items-center text-center space-y-6">
+        {/* Efeito Vanta FOG atmosférico institucional */}
+        <HeroVantaFog isDark={isDark} />
+
+        <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center text-center space-y-6">
           <FadeIn delay={0}>
             <nav aria-label="Navegação estrutural" className="text-xs text-text-muted">
               <ol className="flex items-center gap-1.5">
