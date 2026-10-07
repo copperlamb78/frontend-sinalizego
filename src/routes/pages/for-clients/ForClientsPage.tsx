@@ -57,9 +57,9 @@ export const ForClientsPage: React.FC = () => {
         'Não! O sinal é apenas um adiantamento que é abatido do valor total do serviço. Por exemplo: se o corte custa R$ 50,00 e o sinal é R$ 25,00 no Pix, ao chegar na barbearia você só paga os R$ 25,00 restantes.',
     },
     {
-      question: 'Preciso baixar algum aplicativo ou criar senha?',
+      question: 'Preciso baixar algum aplicativo para agendar?',
       answer:
-        'Zero aplicativo! O SinalizeGO funciona direto no navegador do seu celular. Basta acessar o link da barbearia, escolher o serviço e informar seu nome e WhatsApp para receber o comprovante.',
+        'Não! O SinalizeGO é 100% web e funciona direto no navegador do seu smartphone. Você acessa o link da barbearia, escolhe o serviço e o horário, acessa sua conta com segurança, paga o sinal no Pix e tem a confirmação do horário com comprovante enviado por e-mail.',
     },
     {
       question: 'E se eu tiver um imprevisto e precisar cancelar?',
@@ -131,7 +131,7 @@ export const ForClientsPage: React.FC = () => {
           <FadeIn delay={400}>
             <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-xs text-text-muted">
               <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Sem cadastro longo ou app para baixar
+                <CheckCircle2 className="h-4 w-4 text-primary" /> 100% no navegador sem app para baixar
               </span>
               <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
                 <CheckCircle2 className="h-4 w-4 text-primary" /> Estorno integral em cancelamento &gt; 24h
