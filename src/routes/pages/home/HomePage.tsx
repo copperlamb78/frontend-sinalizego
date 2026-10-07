@@ -111,7 +111,7 @@ export const HomePage: React.FC = () => {
 
           <FadeIn delay={300}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto pt-2">
-              <Link to="/para-barbearias" className="w-full sm:w-auto group">
+              <Link to="/cadastro/empresa" className="w-full sm:w-auto group">
                 <Button
                   variant="primary"
                   size="lg"
@@ -120,11 +120,11 @@ export const HomePage: React.FC = () => {
                   className="w-full sm:w-auto font-bold px-6 text-sm"
                   data-testid="hero-barber-cta"
                 >
-                  Sou Estabelecimento
+                  Cadastrar Estabelecimento
                 </Button>
               </Link>
 
-              <Link to="/para-clientes" className="w-full sm:w-auto group">
+              <Link to="/cadastro" className="w-full sm:w-auto group">
                 <Button
                   variant="secondary"
                   size="lg"
