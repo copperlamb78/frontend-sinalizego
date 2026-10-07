@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button, Badge } from '@/design-system';
 import { useAuth } from '@/features/auth';
-import { Sun, Moon, LogIn, LogOut, User } from 'lucide-react';
+import { Sun, Moon, LogIn, LogOut, User, Scissors } from 'lucide-react';
 
 interface SiteHeaderProps {
   isDark: boolean;
@@ -88,22 +88,36 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
               </Button>
             </div>
           ) : (
-            <Link to="/login">
-              <Button
-                variant="secondary"
-                size="sm"
-                leftIcon={<LogIn className="h-3.5 w-3.5 text-primary" />}
-                className="h-8 text-xs font-semibold px-3"
-                data-testid="nav-login-btn"
-              >
-                Entrar
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/login">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<LogIn className="h-3.5 w-3.5 text-primary" />}
+                  className="h-8 text-xs font-semibold px-3"
+                  data-testid="nav-login-btn"
+                >
+                  Entrar
+                </Button>
+              </Link>
+
+              <Link to="/cadastro/empresa" className="hidden sm:inline-block">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  leftIcon={<Scissors className="h-3.5 w-3.5" />}
+                  className="h-8 text-xs font-bold px-3"
+                  data-testid="nav-register-company-btn"
+                >
+                  Cadastrar Barbearia
+                </Button>
+              </Link>
+            </div>
           )}
 
-          <Link to="/empresa/barbers-club" className="hidden sm:inline-block">
+          <Link to="/empresa/barbers-club" className="hidden lg:inline-block">
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               className="h-8 text-xs font-bold px-3"
               data-testid="nav-cta-demo"
@@ -135,9 +149,9 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
           })}
         </div>
 
-        <Link to="/empresa/barbers-club" className="sm:hidden">
+        <Link to="/cadastro/empresa" className="sm:hidden">
           <Button variant="primary" size="sm" className="h-7 text-[11px] px-2 font-bold">
-            Demo
+            Cadastrar Barbearia
           </Button>
         </Link>
       </div>
