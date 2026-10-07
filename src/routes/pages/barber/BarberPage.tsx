@@ -53,9 +53,9 @@ export const BarberPage: React.FC = () => {
 
   const faqItems = [
     {
-      question: 'O cliente precisa baixar aplicativo ou criar conta?',
+      question: 'O cliente precisa baixar aplicativo?',
       answer:
-        'Não! O SinalizeGO é 100% web e otimizado para celulares. Seu cliente clica no link da bio do Instagram ou no WhatsApp, escolhe o serviço, informa nome e telefone, paga o sinal no Pix e garante a cadeira em menos de 1 minuto.',
+        'Não! O SinalizeGO é 100% web e otimizado para celulares. Seu cliente clica no link exclusivo da sua barbearia, escolhe o serviço e o horário, acessa sua conta com segurança, paga o sinal no Pix e garante a cadeira sem filas.',
     },
     {
       question: 'Como funciona o sinal Pix e o repasse financeiro?',
