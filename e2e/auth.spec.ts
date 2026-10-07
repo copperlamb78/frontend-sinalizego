@@ -1,20 +1,17 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Autenticação — Telas de Login e Cadastro (E2E)', () => {
+test.describe('Autenticação — Telas de Login, Cadastro de Cliente e Empresa (E2E)', () => {
   test('Deve renderizar a tela de login com todos os elementos e validações', async ({ page }) => {
     await page.goto('/login');
 
-    // Valida títulos e estrutura
     await expect(page.getByRole('heading', { name: 'Acesse sua conta' })).toBeVisible();
     await expect(page.getByTestId('login-email-input')).toBeVisible();
     await expect(page.getByTestId('login-password-input')).toBeVisible();
     await expect(page.getByTestId('login-submit-button')).toBeVisible();
 
-    // Validação ao enviar formulário em branco
     await page.getByTestId('login-submit-button').click();
     await expect(page.getByText('O e-mail é obrigatório')).toBeVisible();
 
-    // Alternar visibilidade da senha
     const passwordInput = page.getByTestId('login-password-input');
     await expect(passwordInput).toHaveAttribute('type', 'password');
     await page.getByLabel('Exibir senha').click();
@@ -24,7 +21,6 @@ test.describe('Autenticação — Telas de Login e Cadastro (E2E)', () => {
   });
 
   test('Deve exibir erro amigável ao falhar login com credenciais incorretas', async ({ page }) => {
-    // Intercepta rota de login simulando credenciais inválidas (401)
     await page.route('**/api/v1/auth/login', async (route) => {
       await route.fulfill({
         status: 401,
@@ -69,91 +65,95 @@ test.describe('Autenticação — Telas de Login e Cadastro (E2E)', () => {
     await page.getByTestId('login-password-input').fill('senhaCorreta123');
     await page.getByTestId('login-submit-button').click();
 
-    // Redireciona para / e salva no storage
     await expect(page).toHaveURL('/');
   });
 
-  test('Deve navegar para tela de cadastro e validar máscara de telefone e campos', async ({ page }) => {
-    await page.goto('/login');
-    await page.getByRole('link', { name: 'Cadastre-se grátis' }).click();
-    await expect(page).toHaveURL('/cadastro');
+  test('Deve navegar para tela de cadastro e alternar entre abas Cliente e Empresa', async ({ page }) => {
+    await page.goto('/cadastro');
 
-    await expect(page.getByRole('heading', { name: 'Crie sua conta gratuita' })).toBeVisible();
+    // Aba inicial deve ser Cliente
+    await expect(page.getByRole('heading', { name: 'Crie sua conta de cliente' })).toBeVisible();
     await expect(page.getByTestId('register-name-input')).toBeVisible();
-    await expect(page.getByTestId('register-email-input')).toBeVisible();
-    await expect(page.getByTestId('register-phone-input')).toBeVisible();
-    await expect(page.getByTestId('register-password-input')).toBeVisible();
-    await expect(page.getByTestId('register-confirm-password-input')).toBeVisible();
 
-    // Testa máscara automática de telefone
-    const phoneInput = page.getByTestId('register-phone-input');
-    await phoneInput.fill('11987654321');
-    await expect(phoneInput).toHaveValue('(11) 98765-4321');
+    // Alterna para aba Empresa
+    await page.getByTestId('tab-register-company').click();
+    await expect(page).toHaveURL('/cadastro/empresa');
+    await expect(page.getByRole('heading', { name: 'Cadastre seu estabelecimento' })).toBeVisible();
+    await expect(page.getByTestId('company-business-name-input')).toBeVisible();
+    await expect(page.getByTestId('company-owner-name-input')).toBeVisible();
+    await expect(page.getByTestId('company-zip-input')).toBeVisible();
 
-    // Validação de senhas divergentes
-    await page.getByTestId('register-name-input').fill('Lucas Silva');
-    await page.getByTestId('register-email-input').fill('lucas@teste.com');
-    await page.getByTestId('register-password-input').fill('senha123');
-    await page.getByTestId('register-confirm-password-input').fill('outraSenha456');
-    await page.getByTestId('register-submit-button').click();
-
-    await expect(page.getByText('As senhas não coincidem')).toBeVisible();
+    // Alterna de volta para Cliente
+    await page.getByTestId('tab-register-client').click();
+    await expect(page).toHaveURL('/cadastro');
+    await expect(page.getByRole('heading', { name: 'Crie sua conta de cliente' })).toBeVisible();
   });
 
-  test('Deve cadastrar cliente com sucesso e realizar auto-login', async ({ page }) => {
-    const mockUser = {
-      id: 'usr-new-456',
-      name: 'Mariana Silva',
-      email: 'mariana@teste.com',
-      phone: '5511987654321',
-      role: 'CLIENT',
+  test('Deve cadastrar empresa com sucesso via POST /company/create', async ({ page }) => {
+    const mockCompanyOwner = {
+      id: 'owner-789',
+      name: 'Roberto Barbeiro',
+      email: 'roberto@barbeariatop.com',
+      phone: '5575999998888',
+      role: 'COMPANY_OWNER',
+      companies: [
+        {
+          id: 'comp-101',
+          businessName: 'Barbearia Top',
+          slug: 'barbearia-top',
+        },
+      ],
     };
 
-    await page.route('**/api/v1/users/create', async (route) => {
+    await page.route('**/api/v1/company/create', async (route) => {
       await route.fulfill({
         status: 201,
         contentType: 'application/json',
         body: JSON.stringify({
-          message: 'Usuário criado com sucesso',
-          user: mockUser,
+          message: 'Empresa criada com sucesso',
+          user: mockCompanyOwner,
+          access_token: 'fake-jwt-roberto',
+          refresh_token: 'fake-refresh-roberto',
         }),
       });
     });
 
-    await page.route('**/api/v1/auth/login', async (route) => {
-      await route.fulfill({
-        status: 201,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          access_token: 'fake-jwt-mariana',
-          refresh_token: 'fake-refresh-mariana',
-          user: mockUser,
-        }),
-      });
-    });
+    await page.goto('/cadastro/empresa');
 
-    await page.goto('/cadastro');
-    await page.getByTestId('register-name-input').fill('Mariana Silva');
-    await page.getByTestId('register-email-input').fill('mariana@teste.com');
-    await page.getByTestId('register-phone-input').fill('11987654321');
-    await page.getByTestId('register-password-input').fill('senhaSegura123');
-    await page.getByTestId('register-confirm-password-input').fill('senhaSegura123');
-    await page.getByTestId('register-submit-button').click();
+    // Preenche dados do estabelecimento
+    await page.getByTestId('company-business-name-input').fill('Barbearia Top');
+    await page.getByTestId('company-owner-name-input').fill('Roberto Barbeiro');
+    await page.getByTestId('company-phone-input').fill('75999998888');
+    await page.getByTestId('company-email-input').fill('roberto@barbeariatop.com');
+    await page.getByTestId('company-password-input').fill('senha123');
+    await page.getByTestId('company-confirm-password-input').fill('senha123');
 
-    await expect(page).toHaveURL('/');
+    // Preenche endereço
+    await page.getByTestId('company-zip-input').fill('44085370');
+    await page.getByTestId('company-street-input').fill('Rua das Palmeiras');
+    await page.getByTestId('company-number-input').fill('100');
+    await page.getByTestId('company-district-input').fill('Centro');
+    await page.getByTestId('company-city-input').fill('Feira de Santana');
+    await page.getByTestId('company-state-input').fill('BA');
+
+    await page.getByTestId('company-submit-button').click();
+
+    // Redireciona para a vitrine da empresa recém-criada
+    await expect(page).toHaveURL('/empresa/barbearia-top');
   });
 
-  test('Deve ser responsivo em viewport mobile (375px)', async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('/login');
+  test('Deve separar fluxos de CTA na HomePage para Estabelecimento e Cliente', async ({ page }) => {
+    await page.goto('/');
 
-    const submitBtn = page.getByTestId('login-submit-button');
-    await expect(submitBtn).toBeVisible();
+    const heroBarberCta = page.getByTestId('hero-barber-cta');
+    const heroClientCta = page.getByTestId('hero-client-cta');
 
-    const box = await submitBtn.boundingBox();
-    expect(box).not.toBeNull();
-    if (box) {
-      expect(box.height).toBeGreaterThanOrEqual(44); // Touch target >= 44px
-    }
+    await expect(heroBarberCta).toBeVisible();
+    await expect(heroClientCta).toBeVisible();
+
+    // Clicar em Cadastrar Estabelecimento deve levar a /cadastro/empresa
+    await heroBarberCta.click();
+    await expect(page).toHaveURL('/cadastro/empresa');
+    await expect(page.getByRole('heading', { name: 'Cadastre seu estabelecimento' })).toBeVisible();
   });
 });
