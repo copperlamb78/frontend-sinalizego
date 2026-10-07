@@ -33,14 +33,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    // Classes base limpas e elegantes com micro-interações suaves
+    // Classes base limpas e sóbrias sem efeitos neon ou sombras brilhantes
     const baseStyles =
-      'inline-flex items-center justify-center select-none font-bold uppercase tracking-wider rounded-[4px] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 cursor-pointer shadow-sm';
+      'inline-flex items-center justify-center select-none font-bold uppercase tracking-wider rounded-[4px] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 cursor-pointer';
 
-    // Variantes com bordas normais limpas e fonte branca no botão primário
+    // Variantes sólidas, limpas e com contraste equilibrado
     const variantStyles: Record<ButtonVariant, string> = {
       primary:
-        'bg-primary text-white hover:bg-primary-hover border border-primary/20',
+        'bg-primary text-white hover:bg-primary-hover border border-transparent',
       secondary:
         'bg-surface text-text-primary border border-border hover:bg-surface-raised',
       outline:
@@ -48,9 +48,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       danger:
         'bg-danger/10 text-danger border border-danger/30 hover:bg-danger hover:text-white',
       ghost:
-        'bg-transparent text-text-secondary hover:bg-surface-raised hover:text-text-primary shadow-none',
+        'bg-transparent text-text-secondary hover:bg-surface-raised hover:text-text-primary',
       link:
-        'bg-transparent text-primary hover:underline p-0 h-auto tracking-normal font-semibold normal-case shadow-none',
+        'bg-transparent text-primary hover:underline p-0 h-auto tracking-normal font-semibold normal-case',
     };
 
     // Tamanhos ergonômicos
