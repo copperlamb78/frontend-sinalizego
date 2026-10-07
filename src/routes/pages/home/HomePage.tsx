@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   Badge,
+  FadeIn,
 } from '@/design-system';
 import { cn } from '@/core/utils/cn';
 import {
@@ -138,48 +139,58 @@ export const HomePage: React.FC = () => {
       {/* 2. HERO SECTION */}
       <section className="relative overflow-hidden bg-gradient-to-b from-surface/80 via-background to-background px-4 sm:px-8 pt-10 sm:pt-16 pb-14 sm:pb-20 border-b border-border/50">
         <div className="max-w-3xl mx-auto flex flex-col items-center text-center space-y-6">
-          <nav aria-label="Navegação estrutural" className="text-xs text-text-muted animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <ol className="flex items-center gap-1.5">
-              <li>Início</li>
-              <li>/</li>
-              <li className="text-primary font-semibold">Sistema para barbearia e estética</li>
-            </ol>
-          </nav>
+          <FadeIn delay={0}>
+            <nav aria-label="Navegação estrutural" className="text-xs text-text-muted">
+              <ol className="flex items-center gap-1.5">
+                <li>Início</li>
+                <li>/</li>
+                <li className="text-primary font-semibold">Sistema para barbearia e estética</li>
+              </ol>
+            </nav>
+          </FadeIn>
 
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-text-primary leading-[1.12] animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-            Sistema para barbearia com agenda online e <span className="text-primary">sinal no Pix</span>
-          </h1>
+          <FadeIn delay={100}>
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-text-primary leading-[1.12]">
+              Sistema para barbearia com agenda online e <span className="text-primary">sinal no Pix</span>
+            </h1>
+          </FadeIn>
 
-          <p className="max-w-2xl text-sm sm:text-base md:text-lg leading-relaxed text-text-secondary animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-            Procedimentos longos, químicas e horários de pico seguram a cadeira por horas. Uma falta nesses serviços derruba o faturamento do dia. O SinalizeGO organiza a agenda e pede sinal no Pix com reserva garantida.
-          </p>
+          <FadeIn delay={200}>
+            <p className="max-w-2xl text-sm sm:text-base md:text-lg leading-relaxed text-text-secondary">
+              Procedimentos longos, químicas e horários de pico seguram a cadeira por horas. Uma falta nesses serviços derruba o faturamento do dia. O SinalizeGO organiza a agenda e pede sinal no Pix com reserva garantida.
+            </p>
+          </FadeIn>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto pt-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-            <Link to="/empresa/barbers-club" className="w-full sm:w-auto group">
-              <Button
-                variant="primary"
-                size="lg"
-                rightIcon={<ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />}
-                className="w-full sm:w-auto font-bold px-7 text-sm"
-                data-testid="hero-primary-cta"
-              >
-                Testar Vitrine Online Agora
-              </Button>
-            </Link>
-          </div>
+          <FadeIn delay={300}>
+            <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto pt-2">
+              <Link to="/empresa/barbers-club" className="w-full sm:w-auto group">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  rightIcon={<ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />}
+                  className="w-full sm:w-auto font-bold px-7 text-sm"
+                  data-testid="hero-primary-cta"
+                >
+                  Testar Vitrine Online Agora
+                </Button>
+              </Link>
+            </div>
+          </FadeIn>
 
           {/* Destaques rápidos */}
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-xs text-text-muted animate-in fade-in slide-in-from-bottom-4 duration-700 delay-400">
-            <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
-              <CheckCircle2 className="h-4 w-4 text-primary" /> Sem app para o cliente baixar
-            </span>
-            <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
-              <CheckCircle2 className="h-4 w-4 text-primary" /> Sinal cai na sua subconta Asaas
-            </span>
-            <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
-              <CheckCircle2 className="h-4 w-4 text-primary" /> Reserva de 15 minutos anti-concorrência
-            </span>
-          </div>
+          <FadeIn delay={400}>
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-xs text-text-muted">
+              <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Sem app para o cliente baixar
+              </span>
+              <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Sinal cai na sua subconta Asaas
+              </span>
+              <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Reserva de 15 minutos anti-concorrência
+              </span>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
@@ -187,269 +198,300 @@ export const HomePage: React.FC = () => {
       <main className="max-w-4xl mx-auto px-4 sm:px-8 py-14 sm:py-20 space-y-20">
         {/* 3. VEJA FUNCIONANDO NA PRÁTICA */}
         <section aria-labelledby="veja-funcionando" className="space-y-6">
-          <div className="text-left space-y-1.5">
-            <div className="inline-flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-primary" />
-              <span className="text-xs font-bold uppercase tracking-wider text-text-muted">
-                Demonstração Real
-              </span>
+          <FadeIn>
+            <div className="text-left space-y-1.5">
+              <div className="inline-flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-primary" />
+                <span className="text-xs font-bold uppercase tracking-wider text-text-muted">
+                  Demonstração Real
+                </span>
+              </div>
+              <h2 id="veja-funcionando" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
+                Veja funcionando na prática
+              </h2>
+              <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
+                Um agendamento de verdade: o cliente acessa pelo link, escolhe o serviço com o valor do sinal transparente, seleciona o horário e garante a cadeira no Pix.
+              </p>
             </div>
-            <h2 id="veja-funcionando" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
-              Veja funcionando na prática
-            </h2>
-            <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
-              Um agendamento de verdade: o cliente acessa pelo link, escolhe o serviço com o valor do sinal transparente, seleciona o horário e garante a cadeira no Pix.
-            </p>
-          </div>
+          </FadeIn>
 
           {/* Card Interativo com Vitrine Integrada */}
-          <DemoStorefrontCard />
+          <FadeIn delay={150}>
+            <DemoStorefrontCard />
+          </FadeIn>
         </section>
 
         {/* 4. O QUE MUDA NA ROTINA DO ESTABELECIMENTO */}
         <section aria-labelledby="rotina" className="space-y-6">
-          <div className="text-left space-y-1.5">
-            <h2 id="rotina" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
-              O que muda na rotina do estabelecimento
-            </h2>
-            <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
-              Chega de perder manhãs inteiras com clientes que marcaram e não apareceram.
-            </p>
-          </div>
+          <FadeIn>
+            <div className="text-left space-y-1.5">
+              <h2 id="rotina" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
+                O que muda na rotina do estabelecimento
+              </h2>
+              <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
+                Chega de perder manhãs inteiras com clientes que marcaram e não apareceram.
+              </p>
+            </div>
+          </FadeIn>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <Card className="bg-surface border-border p-5 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                <Percent className="h-5 w-5" />
-              </div>
-              <h3 className="text-base font-bold text-text-primary">
-                Compromisso real com sinal
-              </h3>
-              <p className="text-xs text-text-secondary leading-relaxed">
-                Com 50% de sinal num corte ou 30% numa química longa, o cliente valoriza o horário reservado. Se desistir de última hora, o sinal compensa o profissional pela cadeira vazia.
-              </p>
-            </Card>
+            <FadeIn delay={100} className="h-full">
+              <Card className="h-full bg-surface border-border p-5 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                  <Percent className="h-5 w-5" />
+                </div>
+                <h3 className="text-base font-bold text-text-primary">
+                  Compromisso real com sinal
+                </h3>
+                <p className="text-xs text-text-secondary leading-relaxed">
+                  Com 50% de sinal num corte ou 30% numa química longa, o cliente valoriza o horário reservado. Se desistir de última hora, o sinal compensa o profissional pela cadeira vazia.
+                </p>
+              </Card>
+            </FadeIn>
 
-            <Card className="bg-surface border-border p-5 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                <Users className="h-5 w-5" />
-              </div>
-              <h3 className="text-base font-bold text-text-primary">
-                Capacidade concorrente inteligente
-              </h3>
-              <p className="text-xs text-text-secondary leading-relaxed">
-                Configure a capacidade de cadeiras por grupo de serviços. O motor de agendamento calcula horários livres sem sobreposição nem atrasos no salão.
-              </p>
-            </Card>
+            <FadeIn delay={200} className="h-full">
+              <Card className="h-full bg-surface border-border p-5 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                  <Users className="h-5 w-5" />
+                </div>
+                <h3 className="text-base font-bold text-text-primary">
+                  Capacidade concorrente inteligente
+                </h3>
+                <p className="text-xs text-text-secondary leading-relaxed">
+                  Configure a capacidade de cadeiras por grupo de serviços. O motor de agendamento calcula horários livres sem sobreposição nem atrasos no salão.
+                </p>
+              </Card>
+            </FadeIn>
 
-            <Card className="bg-surface border-border p-5 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                <Clock className="h-5 w-5" />
-              </div>
-              <h3 className="text-base font-bold text-text-primary">
-                Hold de 15 minutos anti-furo
-              </h3>
-              <p className="text-xs text-text-secondary leading-relaxed">
-                Ao selecionar o horário, a vaga fica temporariamente congelada exclusivamente para o cliente concluir o Pix. Sem disputa simultânea de vagas.
-              </p>
-            </Card>
+            <FadeIn delay={300} className="h-full">
+              <Card className="h-full bg-surface border-border p-5 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                  <Clock className="h-5 w-5" />
+                </div>
+                <h3 className="text-base font-bold text-text-primary">
+                  Hold de 15 minutos anti-furo
+                </h3>
+                <p className="text-xs text-text-secondary leading-relaxed">
+                  Ao selecionar o horário, a vaga fica temporariamente congelada exclusivamente para o cliente concluir o Pix. Sem disputa simultânea de vagas.
+                </p>
+              </Card>
+            </FadeIn>
           </div>
         </section>
 
         {/* 5. SERVIÇOS E SINAL: EXEMPLO REAL BASEADO NA API */}
         <section id="servicos-sinal" aria-labelledby="tabela-sinal" className="space-y-6">
-          <div className="text-left space-y-1.5">
-            <h2 id="tabela-sinal" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
-              Serviços e sinal: regras práticas de agendamento
-            </h2>
-            <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
-              A cobrança do sinal protege a operação e se adapta ao valor de cada procedimento conforme as regras canônicas da plataforma (Regras N1–N7):
-            </p>
-          </div>
+          <FadeIn>
+            <div className="text-left space-y-1.5">
+              <h2 id="tabela-sinal" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
+                Serviços e sinal: regras práticas de agendamento
+              </h2>
+              <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
+                A cobrança do sinal protege a operação e se adapta ao valor de cada procedimento conforme as regras canônicas da plataforma (Regras N1–N7):
+              </p>
+            </div>
+          </FadeIn>
 
-          <ServicesDepositTable />
+          <FadeIn delay={150}>
+            <ServicesDepositTable />
+          </FadeIn>
         </section>
 
         {/* 6. COMO O CLIENTE MARCA */}
         <section id="como-funciona" aria-labelledby="como-marcar" className="space-y-6">
-          <div className="text-left space-y-1.5">
-            <h2 id="como-marcar" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
-              Como o cliente marca
-            </h2>
-            <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
-              Fluxo rápido, sem atrito e sem necessidade de baixar aplicativo:
-            </p>
-          </div>
+          <FadeIn>
+            <div className="text-left space-y-1.5">
+              <h2 id="como-marcar" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
+                Como o cliente marca
+              </h2>
+              <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
+                Fluxo rápido, sem atrito e sem necessidade de baixar aplicativo:
+              </p>
+            </div>
+          </FadeIn>
 
           <ol className="grid grid-cols-1 gap-3.5">
-            <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
-              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
-                1
-              </span>
-              <div className="space-y-0.5">
-                <h4 className="text-sm font-bold text-text-primary">
-                  Abre o seu link exclusivo
-                </h4>
-                <p className="text-xs text-text-secondary leading-relaxed">
-                  Coloque na bio do Instagram ou envie diretamente no WhatsApp (<code className="text-primary font-mono text-[11px]">/empresa/seu-negocio</code>).
-                </p>
-              </div>
-            </li>
+            <FadeIn delay={80}>
+              <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
+                <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
+                  1
+                </span>
+                <div className="space-y-0.5">
+                  <h4 className="text-sm font-bold text-text-primary">
+                    Abre o seu link exclusivo
+                  </h4>
+                  <p className="text-xs text-text-secondary leading-relaxed">
+                    Coloque na bio do Instagram ou envie diretamente no WhatsApp (<code className="text-primary font-mono text-[11px]">/empresa/seu-negocio</code>).
+                  </p>
+                </div>
+              </li>
+            </FadeIn>
 
-            <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
-              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
-                2
-              </span>
-              <div className="space-y-0.5">
-                <h4 className="text-sm font-bold text-text-primary">
-                  Escolhe o serviço desejado
-                </h4>
-                <p className="text-xs text-text-secondary leading-relaxed">
-                  Visualiza a lista organizada por categorias com preço total, tempo de duração e o valor do sinal.
-                </p>
-              </div>
-            </li>
+            <FadeIn delay={160}>
+              <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
+                <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
+                  2
+                </span>
+                <div className="space-y-0.5">
+                  <h4 className="text-sm font-bold text-text-primary">
+                    Escolhe o serviço desejado
+                  </h4>
+                  <p className="text-xs text-text-secondary leading-relaxed">
+                    Visualiza a lista organizada por categorias com preço total, tempo de duração e o valor do sinal.
+                  </p>
+                </div>
+              </li>
+            </FadeIn>
 
-            <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
-              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
-                3
-              </span>
-              <div className="space-y-0.5">
-                <h4 className="text-sm font-bold text-text-primary">
-                  Seleciona a data e o horário livre
-                </h4>
-                <p className="text-xs text-text-secondary leading-relaxed">
-                  Grade de horários atualizada em tempo real conforme a disponibilidade da sua equipe.
-                </p>
-              </div>
-            </li>
+            <FadeIn delay={240}>
+              <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
+                <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
+                  3
+                </span>
+                <div className="space-y-0.5">
+                  <h4 className="text-sm font-bold text-text-primary">
+                    Seleciona a data e o horário livre
+                  </h4>
+                  <p className="text-xs text-text-secondary leading-relaxed">
+                    Grade de horários atualizada em tempo real conforme a disponibilidade da sua equipe.
+                  </p>
+                </div>
+              </li>
+            </FadeIn>
 
-            <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
-              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
-                4
-              </span>
-              <div className="space-y-0.5">
-                <h4 className="text-sm font-bold text-text-primary">
-                  Paga o sinal no Pix
-                </h4>
-                <p className="text-xs text-text-secondary leading-relaxed">
-                  Geração instantânea de QR Code e chave Copia e Cola com 15 minutos de reserva garantida.
-                </p>
-              </div>
-            </li>
+            <FadeIn delay={320}>
+              <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
+                <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
+                  4
+                </span>
+                <div className="space-y-0.5">
+                  <h4 className="text-sm font-bold text-text-primary">
+                    Paga o sinal no Pix
+                  </h4>
+                  <p className="text-xs text-text-secondary leading-relaxed">
+                    Geração instantânea de QR Code e chave Copia e Cola com 15 minutos de reserva garantida.
+                  </p>
+                </div>
+              </li>
+            </FadeIn>
 
-            <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
-              <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
-                5
-              </span>
-              <div className="space-y-0.5">
-                <h4 className="text-sm font-bold text-text-primary">
-                  Cadeira 100% garantida
-                </h4>
-                <p className="text-xs text-text-secondary leading-relaxed">
-                  Agendamento confirmado automaticamente sem filas, sem papel e sem risco de duplo agendamento.
-                </p>
-              </div>
-            </li>
+            <FadeIn delay={400}>
+              <li className="group flex items-start gap-4 p-4 rounded-xl bg-surface border border-border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
+                <span className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-extrabold text-sm flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
+                  5
+                </span>
+                <div className="space-y-0.5">
+                  <h4 className="text-sm font-bold text-text-primary">
+                    Cadeira 100% garantida
+                  </h4>
+                  <p className="text-xs text-text-secondary leading-relaxed">
+                    Agendamento confirmado automaticamente sem filas, sem papel e sem risco de duplo agendamento.
+                  </p>
+                </div>
+              </li>
+            </FadeIn>
           </ol>
         </section>
 
         {/* 7. PERGUNTAS FREQUENTES (FAQ) */}
         <section id="faq" aria-labelledby="faq-titulo" className="space-y-6">
-          <div className="text-left space-y-1.5">
-            <div className="inline-flex items-center gap-2">
-              <HelpCircle className="h-4 w-4 text-primary" />
-              <span className="text-xs font-bold uppercase tracking-wider text-text-muted">
-                Perguntas Frequentes
-              </span>
+          <FadeIn>
+            <div className="text-left space-y-1.5">
+              <div className="inline-flex items-center gap-2">
+                <HelpCircle className="h-4 w-4 text-primary" />
+                <span className="text-xs font-bold uppercase tracking-wider text-text-muted">
+                  Perguntas Frequentes
+                </span>
+              </div>
+              <h2 id="faq-titulo" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
+                Tire suas dúvidas sobre o sistema
+              </h2>
             </div>
-            <h2 id="faq-titulo" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
-              Tire suas dúvidas sobre o sistema
-            </h2>
-          </div>
+          </FadeIn>
 
           <div className="space-y-3">
             {faqItems.map((item, index) => {
               const isOpen = openFaqIndex === index;
               return (
-                <div
-                  key={index}
-                  className="rounded-xl border border-border bg-surface overflow-hidden transition-colors"
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleFaq(index)}
-                    className="w-full p-4 sm:p-5 flex items-center justify-between text-left gap-4 hover:bg-surface-raised/40 transition-colors"
-                  >
-                    <span className="text-sm sm:text-base font-bold text-text-primary">
-                      {item.question}
-                    </span>
-                    <ChevronDown
-                      className={cn(
-                        "h-4 w-4 text-text-muted shrink-0 transition-transform duration-300",
-                        isOpen && "rotate-180 text-primary"
-                      )}
-                    />
-                  </button>
+                <FadeIn key={index} delay={index * 60}>
+                  <div className="rounded-xl border border-border bg-surface overflow-hidden transition-colors">
+                    <button
+                      type="button"
+                      onClick={() => toggleFaq(index)}
+                      className="w-full p-4 sm:p-5 flex items-center justify-between text-left gap-4 hover:bg-surface-raised/40 transition-colors"
+                    >
+                      <span className="text-sm sm:text-base font-bold text-text-primary">
+                        {item.question}
+                      </span>
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 text-text-muted shrink-0 transition-transform duration-300",
+                          isOpen && "rotate-180 text-primary"
+                        )}
+                      />
+                    </button>
 
-                  <div
-                    className={cn(
-                      "grid transition-all duration-300 ease-in-out",
-                      isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                    )}
-                  >
-                    <div className="overflow-hidden">
-                      <div className="px-4 sm:px-5 pb-5 pt-1 text-xs sm:text-sm text-text-secondary leading-relaxed border-t border-border/40">
-                        {item.answer}
+                    <div
+                      className={cn(
+                        "grid transition-all duration-300 ease-in-out",
+                        isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                      )}
+                    >
+                      <div className="overflow-hidden">
+                        <div className="px-4 sm:px-5 pb-5 pt-1 text-xs sm:text-sm text-text-secondary leading-relaxed border-t border-border/40">
+                          {item.answer}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </FadeIn>
               );
             })}
           </div>
         </section>
 
         {/* 8. BANNER FINAL CTA */}
-        <section className="relative overflow-hidden rounded-2xl bg-surface border border-primary/30 p-8 sm:p-12 space-y-6 shadow-lg text-left transition-all duration-300 hover:border-primary/50">
-          <div className="space-y-2 max-w-xl">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
-              Seu link de agendamento fica pronto em 5 minutos
-            </h2>
-            <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
-              Elimine o não-comparecimento, profissionalize seu atendimento e tenha previsão financeira real.
-            </p>
-          </div>
+        <FadeIn delay={100}>
+          <section className="relative overflow-hidden rounded-2xl bg-surface border border-primary/30 p-8 sm:p-12 space-y-6 shadow-lg text-left transition-all duration-300 hover:border-primary/50">
+            <div className="space-y-2 max-w-xl">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
+                Seu link de agendamento fica pronto em 5 minutos
+              </h2>
+              <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
+                Elimine o não-comparecimento, profissionalize seu atendimento e tenha previsão financeira real.
+              </p>
+            </div>
 
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-text-secondary">
-            <li className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-primary" /> Sem aplicativo para baixar
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-primary" /> Split automático na subconta Asaas
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-primary" /> Sem fidelidade contratual
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-primary" /> Proteção contra vacância e furos de agenda
-            </li>
-          </ul>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-text-secondary">
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Sem aplicativo para baixar
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Split automático na subconta Asaas
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Sem fidelidade contratual
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Proteção contra vacância e furos de agenda
+              </li>
+            </ul>
 
-          <div className="pt-2">
-            <Link to="/empresa/barbers-club" className="inline-block group">
-              <Button
-                variant="primary"
-                size="lg"
-                rightIcon={<ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />}
-                className="font-bold text-sm px-8"
-                data-testid="banner-final-cta"
-              >
-                Acessar Vitrine de Exemplo
-              </Button>
-            </Link>
-          </div>
-        </section>
+            <div className="pt-2">
+              <Link to="/empresa/barbers-club" className="inline-block group">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  rightIcon={<ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />}
+                  className="font-bold text-sm px-8"
+                  data-testid="banner-final-cta"
+                >
+                  Acessar Vitrine de Exemplo
+                </Button>
+              </Link>
+            </div>
+          </section>
+        </FadeIn>
       </main>
 
       {/* 9. FOOTER */}
