@@ -84,11 +84,14 @@ export const HomePage: React.FC = () => {
       {/* 1. TOP NAVBAR */}
       <nav className="sticky top-0 z-50 w-full border-b border-border bg-surface/95 backdrop-blur-md px-4 sm:px-8 py-3.5">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 bg-primary rounded-full" />
-            <span className="font-extrabold text-base tracking-wider uppercase text-text-primary">
-              Sinalize<span className="text-primary">GO</span>
-            </span>
+          <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center" aria-label="SinalizeGO - Página Inicial">
+              <img
+                src={isDark ? '/logo-dark.png' : '/logo-light.png'}
+                alt="SinalizeGO"
+                className="h-7 sm:h-8 w-auto object-contain"
+              />
+            </Link>
             <Badge variant="brand" size="sm" className="hidden sm:inline-flex text-[10px]">
               Sinal Pix &amp; Zero No-Show
             </Badge>
@@ -620,13 +623,14 @@ export const HomePage: React.FC = () => {
       {/* 9. FOOTER */}
       <footer className="w-full border-t border-border bg-surface py-10 px-4 sm:px-8 text-xs text-text-muted mt-auto">
         <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-left">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 bg-primary rounded-full" />
-              <span className="font-extrabold text-sm uppercase text-text-primary">
-                Sinalize<span className="text-primary">GO</span>
-              </span>
-            </div>
+          <div className="space-y-3">
+            <Link to="/" className="inline-flex items-center" aria-label="SinalizeGO - Página Inicial">
+              <img
+                src={isDark ? '/logo-dark.png' : '/logo-light.png'}
+                alt="SinalizeGO"
+                className="h-6 sm:h-7 w-auto object-contain"
+              />
+            </Link>
             <p className="text-text-secondary leading-relaxed">
               Plataforma de agendamento online e pagamento de sinal Pix com split automático para barbearias, estúdios e salões.
             </p>
