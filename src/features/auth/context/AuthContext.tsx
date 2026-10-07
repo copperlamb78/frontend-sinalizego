@@ -5,6 +5,8 @@ import type {
   LoginResponse,
   RegisterData,
   RegisterResponse,
+  RegisterCompanyData,
+  RegisterCompanyResponse,
   User,
 } from '../types';
 
@@ -15,6 +17,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<LoginResponse>;
   register: (data: RegisterData) => Promise<{ registerResponse: RegisterResponse; loginResponse?: LoginResponse }>;
+  registerCompany: (data: RegisterCompanyData) => Promise<RegisterCompanyResponse>;
   logout: () => Promise<void>;
   updateUser: (updatedUser: Partial<User>) => void;
 }
@@ -114,6 +117,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     []
   );
 
+  const registerCompany = useCallback(
+    async (companyData: RegisterCompanyData): Promise<RegisterCompanyResponse> => {
+      const response = await authService.registerCompany(companyData);
+      localStorage.setItem(TOKEN_KEY, response.access_token);
+      localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+      setToken(response.access_token);
+      setUser(response.user);
+      return response;
+    },
+    []
+  );
+
   const logout = useCallback(async () => {
     try {
       await authService.logout();
@@ -143,6 +158,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login,
         register,
+        registerCompany,
         logout,
         updateUser,
       }}
