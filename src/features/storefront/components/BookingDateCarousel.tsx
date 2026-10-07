@@ -84,7 +84,7 @@ export const BookingDateCarousel: React.FC<BookingDateCarouselProps> = ({
               className={cn(
                 'flex flex-col items-center justify-between min-w-[76px] h-[68px] p-2 rounded-[6px] border transition-all text-center select-none cursor-pointer',
                 isSelected
-                  ? 'bg-surface border-primary ring-2 ring-primary/40 shadow-sm'
+                  ? 'bg-surface border-primary text-text-primary'
                   : 'bg-surface border-border hover:border-text-secondary/40',
                 isDisabled && 'opacity-40 cursor-not-allowed bg-surface-raised/40 border-dashed'
               )}
