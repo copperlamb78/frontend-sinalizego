@@ -1,5 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { HomePage } from './pages/home/HomePage';
+import { ForClientsPage } from './pages/for-clients/ForClientsPage';
+import { BarberPage } from './pages/barber/BarberPage';
 import { StorefrontPage } from './pages/storefront/StorefrontPage';
 import { NotFoundPage } from './pages/not-found/NotFoundPage';
 
@@ -10,6 +12,14 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <HomePage />,
+  },
+  {
+    path: '/para-clientes',
+    element: <ForClientsPage />,
+  },
+  {
+    path: '/para-barbearias',
+    element: <BarberPage />,
   },
   {
     path: '/empresa/:slug',
