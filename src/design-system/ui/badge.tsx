@@ -26,7 +26,7 @@ export const Badge: React.FC<BadgeProps> = ({
   ...props
 }) => {
   const baseStyles =
-    'inline-flex items-center font-semibold tracking-wide text-xs select-none transition-colors border';
+    'inline-flex items-center font-semibold tracking-wide text-xs select-none transition-colors border whitespace-nowrap';
 
   // Acabamento fosco, neutro e sóbrio — ZERO neon / ZERO saturação artificial de IA
   const variantStyles: Record<BadgeVariant, string> = {
