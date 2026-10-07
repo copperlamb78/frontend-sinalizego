@@ -1,15 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Badge } from '@/design-system';
+import { cn } from '@/core/utils/cn';
 import { Sun, Moon, ArrowLeft, ShieldCheck, Zap, Sparkles } from 'lucide-react';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
   title: string;
   subtitle: string;
+  maxWidth?: 'md' | 'lg' | 'xl' | '2xl' | '3xl';
 }
 
-export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitle }) => {
+const maxWidthClasses: Record<'md' | 'lg' | 'xl' | '2xl' | '3xl', string> = {
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+  '2xl': 'max-w-2xl',
+  '3xl': 'max-w-3xl',
+};
+
+export const AuthLayout: React.FC<AuthLayoutProps> = ({
+  children,
+  title,
+  subtitle,
+  maxWidth = 'md',
+}) => {
   const [isDark, setIsDark] = useState<boolean>(() => {
     if (typeof document !== 'undefined') {
       return document.documentElement.classList.contains('dark');
@@ -75,7 +90,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitl
 
       {/* ÁREA CENTRAL COM O CARD DE AUTENTICAÇÃO */}
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
-        <div className="w-full max-w-md">
+        <div className={cn('w-full transition-all duration-300', maxWidthClasses[maxWidth])}>
           {/* LOGO E APRESENTAÇÃO */}
           <div className="text-center mb-6">
             <Link to="/" className="inline-block mb-3" aria-label="SinalizeGO Home">
