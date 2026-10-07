@@ -15,11 +15,11 @@ export const DemoStorefrontCard: React.FC<DemoStorefrontCardProps> = ({
   address = 'Avenida Artêmia Pires Freitas • Feira de Santana, BA',
 }) => {
   return (
-    <Card className="bg-surface border-border overflow-hidden shadow-xl hover:border-primary/40 transition-colors">
+    <Card className="bg-surface border-border overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
       <div className="p-6 sm:p-8 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-border">
           <div className="flex items-center gap-3.5">
-            <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+            <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary transition-transform duration-200 group-hover:scale-105">
               <Scissors className="h-6 w-6" />
             </div>
             <div>
@@ -37,11 +37,11 @@ export const DemoStorefrontCard: React.FC<DemoStorefrontCardProps> = ({
             </div>
           </div>
 
-          <Link to={`/empresa/${slug}`}>
+          <Link to={`/empresa/${slug}`} className="group">
             <Button
               variant="primary"
               size="md"
-              rightIcon={<ExternalLink className="h-3.5 w-3.5" />}
+              rightIcon={<ExternalLink className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />}
               className="font-bold text-xs"
               data-testid="open-full-storefront-btn"
             >
@@ -52,7 +52,7 @@ export const DemoStorefrontCard: React.FC<DemoStorefrontCardProps> = ({
 
         {/* Destaques visuais da experiência do agendamento */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-4 rounded-xl bg-surface-raised/70 border border-border/80 space-y-1.5">
+          <div className="p-4 rounded-xl bg-surface-raised/70 border border-border/80 space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-surface-raised">
             <span className="text-[11px] font-bold text-primary uppercase tracking-wide">
               1. Catálogo por Categorias
             </span>
@@ -64,7 +64,7 @@ export const DemoStorefrontCard: React.FC<DemoStorefrontCardProps> = ({
             </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-surface-raised/70 border border-border/80 space-y-1.5">
+          <div className="p-4 rounded-xl bg-surface-raised/70 border border-border/80 space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-surface-raised">
             <span className="text-[11px] font-bold text-primary uppercase tracking-wide">
               2. Horários Livres Reais
             </span>
@@ -76,7 +76,7 @@ export const DemoStorefrontCard: React.FC<DemoStorefrontCardProps> = ({
             </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-surface-raised/70 border border-border/80 space-y-1.5">
+          <div className="p-4 rounded-xl bg-surface-raised/70 border border-border/80 space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-surface-raised">
             <span className="text-[11px] font-bold text-primary uppercase tracking-wide">
               3. Sinal Antecipado
             </span>
