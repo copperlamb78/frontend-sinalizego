@@ -6,3 +6,4 @@ export * from './ui/card';
 export * from './ui/modal';
 export * from './ui/skeleton';
 export * from './ui/toast';
+export * from './ui/fade-in';
