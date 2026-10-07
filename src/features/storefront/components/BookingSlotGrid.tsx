@@ -75,7 +75,7 @@ export const BookingSlotGrid: React.FC<BookingSlotGridProps> = ({
         className={cn(
           'h-10 rounded-[4px] border font-bold text-xs sm:text-sm tracking-tight transition-all flex items-center justify-center cursor-pointer select-none',
           isSelected
-            ? 'bg-primary text-white border-primary shadow-sm ring-2 ring-primary/40'
+            ? 'bg-primary text-white border-primary'
             : 'bg-surface text-text-primary border-border hover:border-text-secondary/50 hover:bg-surface-raised/60'
         )}
       >
