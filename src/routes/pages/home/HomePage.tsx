@@ -58,9 +58,9 @@ export const HomePage: React.FC = () => {
         'O SinalizeGO é a plataforma moderna de agendamento online com sinal no Pix. Desenvolvida para barbearias, salões de beleza e profissionais de estética, ela elimina o não-comparecimento (no-show) e garante que o cliente chegue e seja atendido pontualmente sem filas.',
     },
     {
-      question: 'O cliente precisa baixar aplicativo ou criar senha?',
+      question: 'O cliente precisa baixar algum aplicativo?',
       answer:
-        'Não! A plataforma é 100% web e projetada para telas de celulares. O cliente clica no link compartilhado no Instagram ou WhatsApp, escolhe o serviço e o horário, paga o sinal no Pix e garante a reserva em menos de 1 minuto.',
+        'Não! A plataforma é 100% web e otimizada para navegadores mobile. O cliente acessa o link exclusivo da empresa, escolhe o serviço e o horário, acessa sua conta com segurança, paga o sinal no Pix e garante a reserva em poucos cliques.',
     },
     {
       question: 'Como funciona o sinal Pix e o repasse para o estabelecimento?',
