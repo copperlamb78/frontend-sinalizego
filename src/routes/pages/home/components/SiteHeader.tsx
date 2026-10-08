@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button, Badge } from '@/design-system';
 import { useAuth } from '@/features/auth';
-import { Sun, Moon, LogIn, LogOut, User, Scissors } from 'lucide-react';
+import { Sun, Moon, LogIn, LogOut, User } from 'lucide-react';
 
 interface SiteHeaderProps {
   isDark: boolean;
@@ -15,8 +15,8 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
 
   const navLinks = [
     { label: 'Início', path: '/' },
-    { label: 'Para Clientes', path: '/para-clientes' },
-    { label: 'Para Barbearias', path: '/para-barbearias' },
+    { label: 'Clientes', path: '/para-clientes' },
+    { label: 'Barbearias', path: '/para-barbearias' },
   ];
 
   return (
@@ -44,11 +44,10 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
-                  isActive
-                    ? 'bg-primary text-white shadow-xs font-bold'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface'
-                }`}
+                className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${isActive
+                  ? 'bg-primary text-white shadow-xs font-bold'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-surface'
+                  }`}
               >
                 {link.label}
               </Link>
@@ -62,9 +61,9 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
             variant="secondary"
             size="sm"
             onClick={onToggleTheme}
-            leftIcon={isDark ? <Sun className="h-3.5 w-3.5 text-warning" /> : <Moon className="h-3.5 w-3.5 text-primary" />}
+            leftIcon={isDark ? <Sun className="h-3.5 w-3.5 text-warning shrink-0" /> : <Moon className="h-3.5 w-3.5 text-primary shrink-0" />}
             data-testid="home-theme-toggle"
-            className="h-8 text-xs font-semibold px-2.5 sm:px-3"
+            className="h-8 text-xs font-semibold px-2.5 sm:px-3 leading-none"
           >
             {isDark ? 'Claro' : 'Escuro'}
           </Button>
@@ -88,38 +87,24 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
               </Button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <Link to="/login">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  leftIcon={<LogIn className="h-3.5 w-3.5 text-primary" />}
-                  className="h-8 text-xs font-semibold px-3"
-                  data-testid="nav-login-btn"
-                >
-                  Entrar
-                </Button>
-              </Link>
-
-              <Link to="/cadastro/empresa" className="hidden sm:inline-block">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  leftIcon={<Scissors className="h-3.5 w-3.5" />}
-                  className="h-8 text-xs font-bold px-3"
-                  data-testid="nav-register-company-btn"
-                >
-                  Cadastrar Barbearia
-                </Button>
-              </Link>
-            </div>
+            <Link to="/login" className="inline-flex items-center">
+              <Button
+                variant="secondary"
+                size="sm"
+                leftIcon={<LogIn className="h-3.5 w-3.5 text-primary shrink-0" />}
+                className="h-8 text-xs font-semibold px-3 leading-none"
+                data-testid="nav-login-btn"
+              >
+                Entrar
+              </Button>
+            </Link>
           )}
 
-          <Link to="/empresa/barbers-club" className="hidden lg:inline-block">
+          <Link to="/empresa/barbers-club" className="hidden lg:inline-flex items-center">
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs font-bold px-3"
+              className="h-8 text-xs font-semibold px-3 leading-none"
               data-testid="nav-cta-demo"
             >
               Vitrine Demo
@@ -129,31 +114,22 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
       </div>
 
       {/* SUB-MENU MOBILE DE PÁGINAS */}
-      <div className="flex md:hidden items-center justify-between gap-2 pt-2.5 mt-2.5 border-t border-border/50 text-xs font-medium">
-        <div className="flex items-center gap-2">
-          {navLinks.map((link) => {
-            const isActive = location.pathname === link.path;
-            return (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`px-2 py-1 rounded-md transition-colors ${
-                  isActive
-                    ? 'text-primary font-bold bg-primary/10'
-                    : 'text-text-secondary hover:text-text-primary'
+      <div className="flex md:hidden items-center justify-center gap-2 pt-2.5 mt-2.5 border-t border-border/50 text-xs font-medium">
+        {navLinks.map((link) => {
+          const isActive = location.pathname === link.path;
+          return (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={`px-2.5 py-1 rounded-md transition-colors ${isActive
+                ? 'text-primary font-bold bg-primary/10'
+                : 'text-text-secondary hover:text-text-primary'
                 }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </div>
-
-        <Link to="/cadastro/empresa" className="sm:hidden">
-          <Button variant="primary" size="sm" className="h-7 text-[11px] px-2 font-bold">
-            Cadastrar Barbearia
-          </Button>
-        </Link>
+            >
+              {link.label}
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );
