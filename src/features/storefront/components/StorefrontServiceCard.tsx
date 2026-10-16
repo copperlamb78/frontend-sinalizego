@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/design-system/ui/card';
 import { Button } from '@/design-system/ui/button';
 import { Badge } from '@/design-system/ui/badge';
 import { formatCurrencyBRL } from '@/core/formatters/currency';
+import { estimateDeposit } from '@/features/checkout';
 import type { StorefrontService } from '../types/storefront.types';
 
 interface StorefrontServiceCardProps {
@@ -16,16 +17,7 @@ export const StorefrontServiceCard: React.FC<StorefrontServiceCardProps> = ({
   onSelect,
 }) => {
   const numericPrice = typeof service.totalPrice === 'string' ? parseFloat(service.totalPrice) : service.totalPrice;
-
-  // Cálculo da exibição informativa do valor do sinal conforme regras de negócio da API
-  let downPaymentPercentage = 50;
-  if (numericPrice < 15) {
-    downPaymentPercentage = 100;
-  } else if (numericPrice >= 400 && service.downPaymentPercent) {
-    downPaymentPercentage = service.downPaymentPercent;
-  }
-
-  const downPaymentValue = (numericPrice * downPaymentPercentage) / 100;
+  const { depositAmount: downPaymentValue } = estimateDeposit(numericPrice, service.downPaymentPercent);
 
   return (
     <Card
