@@ -6,6 +6,7 @@ import { BookingSelectedServiceCard } from './BookingSelectedServiceCard';
 import { BookingDateCarousel } from './BookingDateCarousel';
 import { BookingSlotGrid } from './BookingSlotGrid';
 import { BookingBottomBar } from './BookingBottomBar';
+import { estimateDeposit } from '@/features/checkout';
 import { useAvailableSlots } from '../hooks/useAvailableSlots';
 import type { StorefrontCompany, StorefrontService } from '../types/storefront.types';
 
@@ -50,26 +51,12 @@ export const BookingStepTwoView: React.FC<BookingStepTwoViewProps> = ({
     date: selectedDate,
   });
 
-  // Em ambiente de desenvolvimento local, se a API estiver offline e retornar 0 slots,
-  // injetamos os slots simulados padrão para não impedir a experiência visual e de teste do usuário
-  const effectiveSlots = React.useMemo(() => {
-    if (slots.length > 0) return slots;
-    if (import.meta.env.DEV) {
-      return ['09:00', '09:45', '10:30', '14:00', '14:45', '15:30', '16:15', '17:00'];
-    }
-    return [];
-  }, [slots]);
+  const effectiveSlots = slots;
 
-  // Cálculos financeiros transparentes
-  const numericPrice = typeof service.totalPrice === 'string' ? parseFloat(service.totalPrice) : service.totalPrice;
-  let downPaymentPercentage = 50;
-  if (numericPrice < 15) {
-    downPaymentPercentage = 100;
-  } else if (numericPrice >= 400 && service.downPaymentPercent) {
-    downPaymentPercentage = service.downPaymentPercent;
-  }
-  const downPaymentAmount = (numericPrice * downPaymentPercentage) / 100;
-  const remainingAmount = numericPrice - downPaymentAmount;
+  // Cálculos financeiros transparentes (Regras N1 e N5)
+  const { depositAmount: downPaymentAmount, remainingAmount } = React.useMemo(() => {
+    return estimateDeposit(service.totalPrice, service.downPaymentPercent);
+  }, [service.totalPrice, service.downPaymentPercent]);
 
   // Formatação legível da data para exibição no rodapé
   const formattedDateLabel = React.useMemo(() => {
