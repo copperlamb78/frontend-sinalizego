@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { authService } from '../services/authService';
+import { tokenStorage, USER_KEY, SESSION_EXPIRED_EVENT } from '@/core';
 import type {
   LoginCredentials,
   LoginResponse,
@@ -22,14 +23,11 @@ interface AuthContextType {
   updateUser: (updatedUser: Partial<User>) => void;
 }
 
-const TOKEN_KEY = '@sinalizego:token';
-const USER_KEY = '@sinalizego:user';
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem(TOKEN_KEY);
+    return tokenStorage.getAccessToken();
   });
 
   const [user, setUser] = useState<User | null>(() => {
@@ -38,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       return JSON.parse(savedUser) as User;
     } catch {
-      localStorage.removeItem(USER_KEY);
+      tokenStorage.clear();
       return null;
     }
   });
@@ -50,7 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let isMounted = true;
 
     const restoreSession = async () => {
-      const savedToken = localStorage.getItem(TOKEN_KEY);
+      const savedToken = tokenStorage.getAccessToken();
       if (!savedToken) {
         if (isMounted) setIsLoading(false);
         return;
@@ -63,10 +61,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem(USER_KEY, JSON.stringify(freshUser));
         }
       } catch {
-        // Se o token for inválido ou expirado, limpa o estado com segurança
+        // Se o token for inválido e não puder ser renovado, limpa o estado
         if (isMounted) {
-          localStorage.removeItem(TOKEN_KEY);
-          localStorage.removeItem(USER_KEY);
+          tokenStorage.clear();
           setToken(null);
           setUser(null);
         }
@@ -79,14 +76,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     restoreSession();
 
+    const handleSessionExpired = () => {
+      setToken(null);
+      setUser(null);
+    };
+
+    window.addEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
+
     return () => {
       isMounted = false;
+      window.removeEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
     };
   }, []);
 
   const login = useCallback(async (credentials: LoginCredentials): Promise<LoginResponse> => {
     const data = await authService.login(credentials);
-    localStorage.setItem(TOKEN_KEY, data.access_token);
+    tokenStorage.setTokens(data.access_token, data.refresh_token);
     localStorage.setItem(USER_KEY, JSON.stringify(data.user));
     setToken(data.access_token);
     setUser(data.user);
@@ -105,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email: registerData.email,
           password: registerData.password,
         });
-        localStorage.setItem(TOKEN_KEY, loginResponse.access_token);
+        tokenStorage.setTokens(loginResponse.access_token, loginResponse.refresh_token);
         localStorage.setItem(USER_KEY, JSON.stringify(loginResponse.user));
         setToken(loginResponse.access_token);
         setUser(loginResponse.user);
@@ -120,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const registerCompany = useCallback(
     async (companyData: RegisterCompanyData): Promise<RegisterCompanyResponse> => {
       const response = await authService.registerCompany(companyData);
-      localStorage.setItem(TOKEN_KEY, response.access_token);
+      tokenStorage.setTokens(response.access_token, response.refresh_token);
       localStorage.setItem(USER_KEY, JSON.stringify(response.user));
       setToken(response.access_token);
       setUser(response.user);
@@ -133,8 +138,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await authService.logout();
     } finally {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(USER_KEY);
+      tokenStorage.clear();
       setToken(null);
       setUser(null);
     }
