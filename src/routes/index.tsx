@@ -6,6 +6,8 @@ import { StorefrontPage } from './pages/storefront/StorefrontPage';
 import { NotFoundPage } from './pages/not-found/NotFoundPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
+import { PaymentPage } from './pages/checkout/PaymentPage';
+import { ProtectedRoute } from './ProtectedRoute';
 
 /**
  * Configuração declarativa das rotas da aplicação (React Router v7)
@@ -50,6 +52,18 @@ export const router = createBrowserRouter([
   {
     path: '/b/:slug',
     element: <StorefrontPage />,
+  },
+  {
+    path: '/pagamento/:appointmentId',
+    element: (
+      <ProtectedRoute>
+        <PaymentPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/checkout/:appointmentId',
+    element: <Navigate to="/pagamento/:appointmentId" replace />,
   },
   {
     path: '/vitrine',
