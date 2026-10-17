@@ -48,9 +48,13 @@ export const clientService = {
   /**
    * Cancela um agendamento solicitado pelo cliente aplicando as regras CDC/N6
    */
-  async cancelAppointmentByClient(appointmentId: string): Promise<CancelAppointmentResponse> {
+  async cancelAppointmentByClient(
+    appointmentId: string,
+    payload?: { reason: string; details?: string }
+  ): Promise<CancelAppointmentResponse> {
     const response = await apiClient.delete<CancelAppointmentResponse>(
-      `/appointments/${appointmentId}/client`
+      `/appointments/${appointmentId}/client`,
+      { data: payload }
     );
     return response.data;
   },
