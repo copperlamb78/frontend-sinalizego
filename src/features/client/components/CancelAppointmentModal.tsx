@@ -50,7 +50,11 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
   const handleConfirmCancel = async () => {
     setIsSubmitting(true);
     try {
-      const response = await clientService.cancelAppointmentByClient(appointment.id);
+      const response = await clientService.cancelAppointmentByClient(appointment.id, {
+        reason,
+        details:
+          reason === 'OUTRO' && customReason.trim() ? customReason.trim() : undefined,
+      });
 
       let message = 'Agendamento cancelado com sucesso.';
       if (response.policy === 'REFUND') {
