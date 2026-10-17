@@ -19,6 +19,7 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reason, setReason] = useState('IMPREVISTO');
+  const [customReason, setCustomReason] = useState('');
 
   if (!appointment) return null;
 
@@ -210,19 +211,38 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
           )}
 
           {/* Motivo do Cancelamento */}
-          <div className="space-y-1.5 pt-1">
+          <div className="space-y-2 pt-1">
             <label className="text-xs font-semibold text-text-secondary">
-              Motivo do cancelamento (opcional):
+              Motivo do cancelamento:
             </label>
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-surface text-text-primary outline-none focus:border-primary"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-surface text-text-primary outline-none focus:border-primary cursor-pointer transition-colors"
             >
               <option value="IMPREVISTO">Imprevisto pessoal ou de trabalho</option>
               <option value="HORARIO">Preciso de outro dia ou horário</option>
               <option value="OUTRO">Outro motivo</option>
             </select>
+
+            {reason === 'OUTRO' && (
+              <div className="space-y-1 pt-1">
+                <label className="text-[11px] font-medium text-text-muted">
+                  Descreva o motivo (opcional):
+                </label>
+                <textarea
+                  value={customReason}
+                  onChange={(e) => setCustomReason(e.target.value)}
+                  placeholder="Conte-nos mais detalhes para melhorarmos nosso serviço..."
+                  maxLength={300}
+                  rows={3}
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-surface text-text-primary placeholder:text-text-muted/60 outline-none focus:border-primary resize-none transition-colors"
+                />
+                <span className="text-[10px] text-text-muted text-right block">
+                  {customReason.length}/300 caracteres
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
