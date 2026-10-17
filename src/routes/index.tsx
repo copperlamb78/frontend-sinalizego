@@ -7,6 +7,10 @@ import { NotFoundPage } from './pages/not-found/NotFoundPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { PaymentPage } from './pages/checkout/PaymentPage';
+import { ExploreBarbershopsPage } from './pages/client/ExploreBarbershopsPage';
+import { MyAppointmentsPage } from './pages/client/MyAppointmentsPage';
+import { MyCreditsPage } from './pages/client/MyCreditsPage';
+import { MyProfilePage } from './pages/client/MyProfilePage';
 import { ProtectedRoute } from './ProtectedRoute';
 
 /**
@@ -46,6 +50,50 @@ export const router = createBrowserRouter([
     element: <BarberPage />,
   },
   {
+    path: '/barbearias',
+    element: <ExploreBarbershopsPage />,
+  },
+  {
+    path: '/explorar',
+    element: <Navigate to="/barbearias" replace />,
+  },
+  {
+    path: '/meus-agendamentos',
+    element: (
+      <ProtectedRoute>
+        <MyAppointmentsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/meus-creditos',
+    element: (
+      <ProtectedRoute>
+        <MyCreditsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/perfil',
+    element: (
+      <ProtectedRoute>
+        <MyProfilePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/minha-conta',
+    element: <Navigate to="/meus-agendamentos" replace />,
+  },
+  {
+    path: '/minha-conta/agendamentos',
+    element: <Navigate to="/meus-agendamentos" replace />,
+  },
+  {
+    path: '/minha-conta/perfil',
+    element: <Navigate to="/perfil" replace />,
+  },
+  {
     path: '/empresa/:slug',
     element: <StorefrontPage />,
   },
@@ -67,7 +115,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/vitrine',
-    element: <Navigate to="/empresa/barbers-club" replace />,
+    element: <Navigate to="/barbearias" replace />,
   },
   {
     path: '*',
