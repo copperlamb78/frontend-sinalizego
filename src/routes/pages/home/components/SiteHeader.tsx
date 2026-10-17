@@ -15,8 +15,8 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
 
   const navLinks = [
     { label: 'Início', path: '/' },
-    { label: 'Clientes', path: '/para-clientes' },
-    { label: 'Barbearias', path: '/para-barbearias' },
+    { label: 'Barbearias', path: '/barbearias' },
+    { label: 'Para Barbearias', path: '/para-barbearias' },
   ];
 
   return (
@@ -70,10 +70,15 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
 
           {isAuthenticated && user ? (
             <div className="flex items-center gap-1.5">
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md bg-surface-raised border border-border text-text-primary">
+              <Link
+                to="/meus-agendamentos"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md bg-surface-raised border border-border text-text-primary hover:border-primary transition-colors"
+                title="Minha Conta"
+                data-testid="nav-user-account-link"
+              >
                 <User className="h-3.5 w-3.5 text-primary" />
                 {user.name.split(' ')[0]}
-              </span>
+              </Link>
               <Button
                 variant="ghost"
                 size="sm"
@@ -100,14 +105,14 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
             </Link>
           )}
 
-          <Link to="/empresa/barbers-club" className="hidden lg:inline-flex items-center">
+          <Link to="/barbearias" className="hidden lg:inline-flex items-center">
             <Button
               variant="outline"
               size="sm"
               className="h-8 text-xs font-semibold px-3 leading-none"
               data-testid="nav-cta-demo"
             >
-              Vitrine Demo
+              Buscar Barbearias
             </Button>
           </Link>
         </div>
