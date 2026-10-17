@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Clock, Wallet, ShieldCheck, X } from 'lucide-react';
+import { AlertTriangle, Clock, Calendar, X, ShieldCheck, Wallet } from 'lucide-react';
 import { Modal, Button, Badge, toast } from '@/design-system';
 import type { ClientAppointment, CancellationPolicy } from '../types';
 import { clientService } from '../services/clientService';
@@ -27,11 +27,21 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
   const now = Date.now();
   const diffHours = (appointmentTime - now) / (1000 * 60 * 60);
 
+  const appointmentDateMidnight = new Date(appointmentTime);
+  appointmentDateMidnight.setHours(0, 0, 0, 0);
+  const tomorrowMidnight = new Date(now);
+  tomorrowMidnight.setHours(0, 0, 0, 0);
+  tomorrowMidnight.setDate(tomorrowMidnight.getDate() + 1);
+  const isTomorrow = appointmentDateMidnight.getTime() === tomorrowMidnight.getTime();
+  const isRefundTomorrow = isTomorrow && diffHours >= 1.5;
+
   let policy: CancellationPolicy = 'RETAINED';
-  if (diffHours > 24) {
+  if (diffHours > 24 || isRefundTomorrow) {
     policy = 'REFUND';
   } else if (diffHours >= 2) {
     policy = 'CREDIT';
+  } else {
+    policy = 'RETAINED';
   }
 
   const downPaymentVal = Number(appointment.downPaymentAmount).toFixed(2).replace('.', ',');
@@ -40,12 +50,12 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
     setIsSubmitting(true);
     try {
       const response = await clientService.cancelAppointmentByClient(appointment.id);
-      
+
       let message = 'Agendamento cancelado com sucesso.';
       if (response.policy === 'REFUND') {
         message = `Cancelamento confirmado com estorno integral de 100% via Pix (R$ ${downPaymentVal}).`;
       } else if (response.policy === 'CREDIT') {
-        message = `Cancelamento confirmado. O sinal de R$ ${downPaymentVal} foi convertido em crédito válido por 90 dias.`;
+        message = `Cancelamento confirmado. O sinal de R$ ${downPaymentVal} foi convertido em crédito válido por 90 dias nesta barbearia.`;
       } else {
         message = 'Cancelamento tardio confirmado. Conforme as regras da agenda, o sinal foi retido.';
       }
@@ -108,7 +118,8 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
               {appointment.company.businessName} • {appointment.service.name}
             </p>
             <p className="text-text-secondary">
-              📅 {new Date(appointment.appointmentDate).toLocaleDateString('pt-BR')} às{' '}
+              <Calendar className="inline-block -mt-0.5 mr-1 h-4 w-4" />{' '}
+              {new Date(appointment.appointmentDate).toLocaleDateString('pt-BR')} às{' '}
               {new Date(appointment.appointmentDate).toLocaleTimeString('pt-BR', {
                 hour: '2-digit',
                 minute: '2-digit',
@@ -127,18 +138,23 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
                   icon={<ShieldCheck className="h-3.5 w-3.5 shrink-0" />}
                   className="font-bold"
                 >
-                  Antecedência &gt; 24 Horas
+                  {isRefundTomorrow
+                    ? 'Vaga para amanhã (estorno integral)'
+                    : 'Antecedência superior a 24 horas'}
                 </Badge>
                 <span className="text-[11px] font-semibold text-emerald-800 dark:text-emerald-400">
-                  {Math.floor(diffHours)}h para o serviço
+                  {isRefundTomorrow
+                    ? `${diffHours.toFixed(1)}h para o serviço`
+                    : `${Math.floor(diffHours)}h para o serviço`}
                 </span>
               </div>
               <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
                 Você receberá 100% de estorno via Pix
               </h4>
               <p className="text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed">
-                Como você está cancelando com mais de 24 horas de antecedência, o valor integral do sinal de{' '}
-                <strong>R$ {downPaymentVal}</strong> será devolvido automaticamente na mesma conta Pix utilizada.
+                {isRefundTomorrow
+                  ? `Como o agendamento é para amanhã e o cancelamento está ocorrendo com pelo menos 1h30 de antecedência, você tem direito ao estorno integral de 100% do sinal de R$ ${downPaymentVal} via Pix.`
+                  : `Como você está cancelando com mais de 24 horas de antecedência, o valor integral do sinal de R$ ${downPaymentVal} será devolvido automaticamente na mesma conta Pix utilizada.`}
               </p>
             </div>
           )}
@@ -152,18 +168,18 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
                   icon={<Wallet className="h-3.5 w-3.5 shrink-0" />}
                   className="font-bold"
                 >
-                  Antecedência entre 2h e 24h
+                  Antecedência entre 2 e 24 horas
                 </Badge>
                 <span className="text-[11px] font-semibold text-amber-800 dark:text-amber-400">
-                  {diffHours.toFixed(1)}h restantes
+                  {Math.floor(diffHours)}h para o serviço
                 </span>
               </div>
               <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">
-                Seu sinal será convertido em Crédito de 90 dias
+                Sinal convertido em crédito na barbearia
               </h4>
               <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-                Pelo Código Civil (Art. 417 a 420), o valor pago de <strong>R$ {downPaymentVal}</strong>{' '}
-                será transformado em crédito exclusivo nesta barbearia, válido por 90 dias e abatido automaticamente na sua próxima reserva.
+                Como o cancelamento está sendo feito entre 2 e 24 horas antes do horário, o valor do sinal de{' '}
+                <strong>R$ {downPaymentVal}</strong> será convertido em crédito válido por 90 dias nesta barbearia.
               </p>
             </div>
           )}
@@ -177,10 +193,10 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
                   icon={<Clock className="h-3.5 w-3.5 shrink-0" />}
                   className="font-bold"
                 >
-                  Cancelamento Tardio (&lt; 2h)
+                  Cancelamento Tardio (menor que 2 horas)
                 </Badge>
                 <span className="text-[11px] font-semibold text-red-800 dark:text-red-400">
-                  Menos de 2h
+                  menor que 2 horas
                 </span>
               </div>
               <h4 className="text-sm font-bold text-red-900 dark:text-red-200">
@@ -211,7 +227,7 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
         </div>
 
         {/* 3. RODAPÉ FIXO DE AÇÕES (shrink-0) */}
-        <div className="shrink-0 p-4 sm:p-5 border-t border-border bg-surface-raised flex items-center justify-end gap-3">
+        <div className="shrink-0 p-4 sm:p-5 border-t border-border bg-surface flex items-center justify-center gap-3">
           <Button
             type="button"
             variant="secondary"
@@ -225,14 +241,18 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
 
           <Button
             type="button"
-            variant="danger"
+            variant={policy === 'RETAINED' ? 'danger' : 'primary'}
             size="sm"
             isLoading={isSubmitting}
             onClick={handleConfirmCancel}
             className="text-xs font-bold h-9 shadow-xs"
             data-testid="btn-confirmar-cancelamento-modal"
           >
-            {policy === 'REFUND' ? 'Confirmar e Estornar Pix' : 'Confirmar Cancelamento'}
+            {policy === 'REFUND'
+              ? 'Confirmar e Estornar Pix'
+              : policy === 'CREDIT'
+                ? 'Confirmar e Gerar Crédito'
+                : 'Confirmar Cancelamento'}
           </Button>
         </div>
       </div>
