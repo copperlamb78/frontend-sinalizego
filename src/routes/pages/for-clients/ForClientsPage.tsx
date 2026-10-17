@@ -94,7 +94,7 @@ export const ForClientsPage: React.FC = () => {
               <ol className="flex items-center gap-1.5">
                 <li><Link to="/" className="hover:text-primary transition-colors">Início</Link></li>
                 <li>/</li>
-                <li className="text-primary font-semibold">Para Clientes</li>
+                <li className="text-primary font-semibold">Clientes</li>
               </ol>
             </nav>
           </FadeIn>
