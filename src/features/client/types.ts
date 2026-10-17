@@ -35,6 +35,8 @@ export interface ClientAppointment {
   companyId: string;
   serviceId: string;
   expiresAt?: string | null;
+  cancellationReason?: string | null;
+  cancellationDetails?: string | null;
   company: ClientAppointmentCompany;
   service: ClientAppointmentService;
 }
