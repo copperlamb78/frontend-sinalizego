@@ -11,6 +11,7 @@ import { ExploreBarbershopsPage } from './pages/client/ExploreBarbershopsPage';
 import { MyAppointmentsPage } from './pages/client/MyAppointmentsPage';
 import { MyCreditsPage } from './pages/client/MyCreditsPage';
 import { MyProfilePage } from './pages/client/MyProfilePage';
+import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { ProtectedRoute } from './ProtectedRoute';
 
 /**
@@ -92,6 +93,30 @@ export const router = createBrowserRouter([
   {
     path: '/minha-conta/perfil',
     element: <Navigate to="/perfil" replace />,
+  },
+  {
+    path: '/painel',
+    element: (
+      <ProtectedRoute>
+        <DashboardPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/painel/:tab',
+    element: (
+      <ProtectedRoute>
+        <DashboardPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/estabelecimento',
+    element: <Navigate to="/painel" replace />,
+  },
+  {
+    path: '/dashboard',
+    element: <Navigate to="/painel" replace />,
   },
   {
     path: '/empresa/:slug',
