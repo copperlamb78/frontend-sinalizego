@@ -51,6 +51,13 @@ export interface StorefrontCompany {
   serviceGroups: StorefrontServiceGroup[];
 }
 
+export interface StorefrontEmployee {
+  id: string;
+  name: string;
+  avatarUrl?: string | null;
+  roleTitle?: string | null;
+}
+
 export interface AvailableSlotsResponse {
   date: string;
   totalAvailable: number;
@@ -61,4 +68,5 @@ export interface AvailableSlotsParams {
   companyId: string;
   serviceId: string;
   date: string; // YYYY-MM-DD
+  employeeId?: string;
 }
