@@ -294,4 +294,26 @@ export const dashboardService = {
     const response = await apiClient.get('/service-group');
     return response.data;
   },
+
+  /**
+   * Faz upload de imagem (logo, banner, service, employee) via Cloudinary no backend
+   */
+  async uploadImage(
+    companyId: string,
+    imageType: 'logo' | 'banner' | 'service' | 'employee',
+    file: File
+  ): Promise<{ url: string; publicId: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.post<{ url: string; publicId: string }>(
+      `/upload/image/${companyId}/${imageType}`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  },
 };
