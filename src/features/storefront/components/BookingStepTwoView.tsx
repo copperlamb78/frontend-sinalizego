@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Users, Check, Sparkles } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/design-system/ui/button';
 import { Card, CardContent } from '@/design-system/ui/card';
 import { BookingSelectedServiceCard } from './BookingSelectedServiceCard';
@@ -8,7 +9,8 @@ import { BookingSlotGrid } from './BookingSlotGrid';
 import { BookingBottomBar } from './BookingBottomBar';
 import { estimateDeposit } from '@/features/checkout';
 import { useAvailableSlots } from '../hooks/useAvailableSlots';
-import type { StorefrontCompany, StorefrontService } from '../types/storefront.types';
+import { storefrontService } from '../services/storefrontService';
+import type { StorefrontCompany, StorefrontService, StorefrontEmployee } from '../types/storefront.types';
 
 export interface BookingSelectionData {
   company: StorefrontCompany;
@@ -17,6 +19,8 @@ export interface BookingSelectionData {
   time: string;
   downPaymentAmount: number;
   remainingAmount: number;
+  employeeId?: string;
+  employeeName?: string;
 }
 
 interface BookingStepTwoViewProps {
@@ -43,12 +47,21 @@ export const BookingStepTwoView: React.FC<BookingStepTwoViewProps> = ({
 
   const [selectedDate, setSelectedDate] = useState<string>(todayString);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
 
-  // Consulta reativa dos horários livres na API
+  // Busca profissionais habilitados para o serviço selecionado
+  const { data: eligibleEmployees = [] } = useQuery<StorefrontEmployee[]>({
+    queryKey: ['eligible-employees', company.id, service.id],
+    queryFn: () => storefrontService.getEligibleEmployees(company.id, service.id),
+    staleTime: 1000 * 60 * 5, // 5 minutos
+  });
+
+  // Consulta reativa dos horários livres na API (considerando profissional selecionado ou 'any')
   const { slots, isLoading } = useAvailableSlots({
     companyId: company.id,
     serviceId: service.id,
     date: selectedDate,
+    employeeId: selectedEmployeeId || undefined,
   });
 
   const effectiveSlots = slots;
@@ -78,8 +91,15 @@ export const BookingStepTwoView: React.FC<BookingStepTwoViewProps> = ({
     setSelectedSlot(null); // Reseta o horário ao trocar de dia
   };
 
+  const handleSelectEmployee = (employeeId: string | null) => {
+    setSelectedEmployeeId(employeeId);
+    setSelectedSlot(null); // Reseta o slot selecionado para revalidar disponibilidade
+  };
+
   const handleAdvance = () => {
     if (!selectedSlot) return;
+
+    const chosenEmployee = eligibleEmployees.find((e) => e.id === selectedEmployeeId);
 
     onProceedToCheckout({
       company,
@@ -88,6 +108,8 @@ export const BookingStepTwoView: React.FC<BookingStepTwoViewProps> = ({
       time: selectedSlot,
       downPaymentAmount,
       remainingAmount,
+      employeeId: selectedEmployeeId || undefined,
+      employeeName: chosenEmployee ? chosenEmployee.name : 'Qualquer profissional',
     });
   };
 
@@ -133,6 +155,97 @@ export const BookingStepTwoView: React.FC<BookingStepTwoViewProps> = ({
           service={service}
           onEditService={onBack}
         />
+
+        {/* Seleção do Profissional (Qualquer profissional vs Profissional específico) */}
+        {eligibleEmployees.length > 0 && (
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-text-primary flex items-center gap-1.5">
+                <Users className="h-4 w-4 text-primary" />
+                Escolha o Profissional
+              </label>
+              <span className="text-[11px] text-text-muted">
+                {selectedEmployeeId ? 'Profissional selecionado' : 'Primeiro disponível'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+              {/* Opção: Qualquer profissional */}
+              <button
+                type="button"
+                onClick={() => handleSelectEmployee(null)}
+                className={`p-3 rounded-lg border text-left transition-all flex flex-col justify-between ${
+                  selectedEmployeeId === null
+                    ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                    : 'border-border bg-surface hover:border-primary/40'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+                  {selectedEmployeeId === null && (
+                    <div className="h-4 w-4 rounded-full bg-primary flex items-center justify-center text-white">
+                      <Check className="h-2.5 w-2.5 stroke-[3]" />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-text-primary leading-tight">
+                    Qualquer profissional
+                  </h4>
+                  <p className="text-[10px] text-text-muted mt-0.5">
+                    Máxima disponibilidade
+                  </p>
+                </div>
+              </button>
+
+              {/* Profissionais cadastrados */}
+              {eligibleEmployees.map((emp) => {
+                const isSelected = selectedEmployeeId === emp.id;
+                return (
+                  <button
+                    key={emp.id}
+                    type="button"
+                    onClick={() => handleSelectEmployee(emp.id)}
+                    className={`p-3 rounded-lg border text-left transition-all flex flex-col justify-between ${
+                      isSelected
+                        ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                        : 'border-border bg-surface hover:border-primary/40'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      {emp.avatarUrl ? (
+                        <img
+                          src={emp.avatarUrl}
+                          alt={emp.name}
+                          className="h-8 w-8 rounded-full object-cover border border-border"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 rounded-full bg-surface-raised flex items-center justify-center text-xs font-bold text-primary border border-border">
+                          {emp.name.substring(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                      {isSelected && (
+                        <div className="h-4 w-4 rounded-full bg-primary flex items-center justify-center text-white">
+                          <Check className="h-2.5 w-2.5 stroke-[3]" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-text-primary leading-tight truncate">
+                        {emp.name}
+                      </h4>
+                      <p className="text-[10px] text-text-muted mt-0.5 truncate">
+                        {emp.roleTitle || 'Especialista'}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* 1. Seletor de Datas */}
         <BookingDateCarousel
