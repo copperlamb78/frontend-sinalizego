@@ -235,10 +235,10 @@ export const DashboardEmployeesView: React.FC<DashboardEmployeesViewProps> = ({
         <Button
           onClick={handleOpenCreate}
           size="sm"
-          className="gap-2 shrink-0 self-start sm:self-auto cursor-pointer"
+          leftIcon={<Plus className="h-4 w-4" />}
+          className="shrink-0 self-start sm:self-auto"
           data-testid="create-employee-button"
         >
-          <Plus className="h-4 w-4" />
           Novo Funcionário
         </Button>
       </div>
@@ -345,8 +345,12 @@ export const DashboardEmployeesView: React.FC<DashboardEmployeesViewProps> = ({
             </p>
           </div>
           {!searchTerm && statusFilter === 'all' && !selectedGroupId && (
-            <Button onClick={handleOpenCreate} size="sm" className="gap-2 mt-2 cursor-pointer">
-              <Plus className="h-4 w-4" />
+            <Button
+              onClick={handleOpenCreate}
+              size="md"
+              leftIcon={<Plus className="h-4 w-4" />}
+              className="mt-2"
+            >
               Cadastrar Primeiro Funcionário
             </Button>
           )}
