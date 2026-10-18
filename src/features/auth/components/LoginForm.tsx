@@ -51,7 +51,12 @@ export const LoginForm: React.FC = () => {
       });
 
       toast.success(`Bem-vindo de volta, ${response.user.name}!`);
-      navigate(redirectUrl, { replace: true });
+      const defaultDest =
+        response.user.role === 'COMPANY_OWNER' || response.user.role === 'PROVIDER'
+          ? '/painel'
+          : '/meus-agendamentos';
+      const targetUrl = redirectUrl !== '/' ? redirectUrl : defaultDest;
+      navigate(targetUrl, { replace: true });
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         const status = err.response?.status;
