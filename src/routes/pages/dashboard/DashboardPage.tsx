@@ -315,7 +315,7 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {activeTab === 'employees' && (
-        <DashboardEmployeesView services={services} />
+        <DashboardEmployeesView services={services} companyId={company?.id} />
       )}
 
       {activeTab === 'schedule' && (
