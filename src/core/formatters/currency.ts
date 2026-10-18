@@ -9,3 +9,5 @@ export function formatCurrencyBRL(value: number): string {
     maximumFractionDigits: 2,
   }).format(value);
 }
+
+export const formatCurrency = formatCurrencyBRL;
