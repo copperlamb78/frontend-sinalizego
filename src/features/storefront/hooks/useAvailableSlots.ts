@@ -9,7 +9,7 @@ export function useAvailableSlots(params: Partial<AvailableSlotsParams>, enabled
   const isReady = Boolean(params.companyId && params.serviceId && params.date);
 
   const query = useQuery<AvailableSlotsResponse, Error>({
-    queryKey: ['available-slots', params.companyId, params.serviceId, params.date],
+    queryKey: ['available-slots', params.companyId, params.serviceId, params.date, params.employeeId || 'any'],
     queryFn: () => {
       return storefrontService.getAvailableSlots(params as AvailableSlotsParams);
     },
