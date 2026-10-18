@@ -1,6 +1,7 @@
 import { apiClient } from '@/core/api/client';
 import type {
   StorefrontCompany,
+  StorefrontEmployee,
   AvailableSlotsParams,
   AvailableSlotsResponse,
 } from '../types/storefront.types';
@@ -19,6 +20,17 @@ export const storefrontService = {
   },
 
   /**
+   * Busca os profissionais habilitados para o serviço selecionado
+   * Endpoint: GET /employees/public/company/:companyId/service/:serviceId
+   */
+  async getEligibleEmployees(companyId: string, serviceId: string): Promise<StorefrontEmployee[]> {
+    const response = await apiClient.get<StorefrontEmployee[]>(
+      `/employees/public/company/${encodeURIComponent(companyId)}/service/${encodeURIComponent(serviceId)}`
+    );
+    return response.data;
+  },
+
+  /**
    * Consulta os horários livres para um determinado serviço e data
    * Endpoint: GET /appointments/available-slots
    */
@@ -29,3 +41,4 @@ export const storefrontService = {
     return response.data;
   },
 };
+
