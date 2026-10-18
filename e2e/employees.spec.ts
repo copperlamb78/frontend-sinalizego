@@ -341,5 +341,95 @@ test.describe('Módulo de Funcionários — Painel do Estabelecimento & Agendame
     await expect(statsModal.getByText('156')).toBeVisible(); // Total
     await expect(statsModal.getByText('4.9')).toBeVisible(); // Média de avaliação
     await expect(statsModal.getByText(/Melhor corte da cidade/i)).toBeVisible(); // Comentário de avaliação
+
+    // Fecha o modal via botão "Fechar" e valida que NENHUM erro de createdAt é disparado
+    const closeBtn = page.getByTestId('close-employee-stats-button');
+    await expect(closeBtn).toBeVisible();
+    await closeBtn.click();
+    await expect(statsModal).not.toBeVisible();
+
+    // A listagem de funcionários continua intacta e funcional
+    await expect(page.getByText('Carlos Barbeiro')).toBeVisible();
+    await expect(page.getByText('Juliana Esteticista')).toBeVisible();
+
+    // Reabre os indicadores sem falhas de estado
+    await page.getByRole('button', { name: /Indicadores/i }).first().click();
+    await expect(statsModal).toBeVisible();
+    await closeBtn.click();
+    await expect(statsModal).not.toBeVisible();
+  });
+
+  test('4. Deve realizar upload de foto do funcionário via Cloudinary e associar photoUrl ao cadastro', async ({ page }) => {
+    let uploadedPhotoUrl = '';
+
+    // Mock do endpoint de upload para Cloudinary
+    await page.route('**/api/v1/upload/image/*/employee', async (route) => {
+      uploadedPhotoUrl = 'https://res.cloudinary.com/sinalizego/image/upload/v1700000000/sinalizego/comp-123/employee/avatar.jpg';
+      return route.fulfill({
+        status: 201,
+        json: {
+          url: uploadedPhotoUrl,
+          publicId: 'sinalizego/comp-123/employee/avatar',
+        },
+      });
+    });
+
+    let receivedPayload: any = null;
+    await page.route('**/api/v1/employees*', async (route) => {
+      if (route.request().method() === 'POST') {
+        receivedPayload = route.request().postDataJSON();
+        return route.fulfill({
+          status: 201,
+          json: {
+            id: 'emp-photo-1',
+            ...receivedPayload,
+            isActive: true,
+            createdAt: new Date().toISOString(),
+          },
+        });
+      }
+
+      return route.fulfill({
+        status: 200,
+        json: {
+          items: mockEmployees,
+          total: 2,
+          page: 1,
+          limit: 10,
+          totalPages: 1,
+        },
+      });
+    });
+
+    await page.getByRole('button', { name: /Funcionários & Equipe/i }).click();
+    await page.getByRole('button', { name: /Novo Funcionário/i }).click();
+
+    const modal = page.locator('.modal-card');
+    await expect(modal).toBeVisible();
+
+    // Preenche dados básicos
+    await page.getByTestId('employee-name-input').fill('Thiago Barbeiro');
+    await page.getByTestId('employee-role-input').fill('Colorista');
+
+    // Simula seleção de arquivo de imagem no componente ImageUpload
+    const fileInput = page.getByTestId('image-upload-input');
+    await fileInput.setInputFiles({
+      name: 'avatar.jpg',
+      mimeType: 'image/jpeg',
+      buffer: Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01]),
+    });
+
+    // Aguarda mensagem de sucesso do upload
+    await expect(page.getByText(/Foto enviada com sucesso!/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /Alterar Imagem/i })).toBeVisible();
+
+    // Submete o cadastro
+    await page.getByTestId('submit-employee-button').click();
+    await expect(modal).not.toBeVisible();
+
+    // Valida que o payload enviado à API continha a photoUrl retornada pelo Cloudinary
+    expect(receivedPayload).not.toBeNull();
+    expect(receivedPayload.name).toBe('Thiago Barbeiro');
+    expect(receivedPayload.photoUrl).toBe(uploadedPhotoUrl);
   });
 });
