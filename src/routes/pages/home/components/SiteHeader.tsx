@@ -71,13 +71,13 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
           {isAuthenticated && user ? (
             <div className="flex items-center gap-1.5">
               <Link
-                to="/meus-agendamentos"
+                to={user.role === 'COMPANY_OWNER' || user.role === 'PROVIDER' ? '/painel' : '/meus-agendamentos'}
                 className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md bg-surface-raised border border-border text-text-primary hover:border-primary transition-colors"
-                title="Minha Conta"
+                title={user.role === 'COMPANY_OWNER' || user.role === 'PROVIDER' ? 'Painel do Estabelecimento' : 'Minha Conta'}
                 data-testid="nav-user-account-link"
               >
                 <User className="h-3.5 w-3.5 text-primary" />
-                {user.name.split(' ')[0]}
+                {user.role === 'COMPANY_OWNER' || user.role === 'PROVIDER' ? 'Painel' : user.name.split(' ')[0]}
               </Link>
               <Button
                 variant="ghost"
