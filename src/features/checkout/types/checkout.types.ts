@@ -16,6 +16,7 @@ export interface CreateAppointmentPayload {
   appointmentDate: string; // ISO 8601 UTC
   cpfCnpj?: string;
   useCredit?: boolean;
+  employeeId?: string;
 }
 
 export interface AppointmentDetails {
@@ -34,6 +35,7 @@ export interface AppointmentDetails {
   companyId: string;
   clientId: string;
   serviceId: string;
+  employeeId?: string | null;
   company?: {
     id: string;
     businessName: string;
@@ -58,6 +60,12 @@ export interface AppointmentDetails {
     email: string;
     phone?: string | null;
   };
+  employee?: {
+    id: string;
+    name: string;
+    avatarUrl?: string | null;
+    roleTitle?: string | null;
+  } | null;
 }
 
 export interface PixChargeResponse {
