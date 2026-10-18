@@ -15,6 +15,7 @@
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-subtle: var(--primary-subtle);
+  --color-primary-foreground: var(--primary-foreground);
   --color-accent: var(--accent);
 
   --color-success: var(--success);
@@ -54,6 +55,7 @@
     --primary: #0F766E;
     --primary-hover: #0D9488;
     --primary-subtle: rgba(20, 184, 166, 0.12);
+    --primary-foreground: #FFFFFF;
     --accent: #0D9488;
 
     /* Semântica de Estados */
@@ -91,6 +93,7 @@
     --primary: #14B8A6;
     --primary-hover: #0D9488;
     --primary-subtle: rgba(20, 184, 166, 0.12);
+    --primary-foreground: #042F2E;
     --accent: #2DD4BF;
 
     /* Semântica */
