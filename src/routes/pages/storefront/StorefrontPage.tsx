@@ -114,6 +114,7 @@ export const StorefrontPage: React.FC = () => {
         serviceId: activeSelection.service.id,
         appointmentDate: appointmentDateIso,
         cpfCnpj,
+        employeeId: activeSelection.employeeId,
       });
 
       setIsConfirmModalOpen(false);
@@ -167,6 +168,7 @@ export const StorefrontPage: React.FC = () => {
           timeSlot={activeSelection.time}
           downPaymentAmount={activeSelection.downPaymentAmount}
           user={user}
+          employeeName={activeSelection.employeeName}
           onConfirm={handleConfirmBooking}
           isLoading={createAppointmentMutation.isPending}
           errorMessage={modalError}
