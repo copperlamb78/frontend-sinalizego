@@ -60,12 +60,20 @@ test.describe('Autenticação — Telas de Login, Cadastro de Cliente e Empresa 
       });
     });
 
+    await page.route('**/api/v1/auth/me', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(mockUser),
+      });
+    });
+
     await page.goto('/login');
     await page.getByTestId('login-email-input').fill('carlos@teste.com');
     await page.getByTestId('login-password-input').fill('senhaCorreta123');
     await page.getByTestId('login-submit-button').click();
 
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL(/\/meus-agendamentos/);
   });
 
   test('Deve navegar para tela de cadastro e alternar entre abas Cliente e Empresa', async ({ page }) => {
