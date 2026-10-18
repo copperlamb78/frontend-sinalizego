@@ -24,6 +24,7 @@ import { Button } from '@/design-system/ui/button';
 import { Input } from '@/design-system/ui/input';
 import { Skeleton } from '@/design-system/ui/skeleton';
 import { Modal } from '@/design-system/ui/modal';
+import { ImageUpload } from '@/design-system/ui/ImageUpload';
 import { dashboardService } from '../services/dashboardService';
 import type {
   DashboardEmployee,
@@ -35,11 +36,27 @@ import type {
 
 export interface DashboardEmployeesViewProps {
   services: CompanyServiceItem[];
+  companyId?: string;
 }
 
 export const DashboardEmployeesView: React.FC<DashboardEmployeesViewProps> = ({
   services,
+  companyId,
 }) => {
+  const [resolvedCompanyId, setResolvedCompanyId] = useState<string | null>(companyId || null);
+
+  useEffect(() => {
+    if (companyId) {
+      setResolvedCompanyId(companyId);
+    } else {
+      dashboardService.getMyCompany()
+        .then((comp) => {
+          if (comp?.id) setResolvedCompanyId(comp.id);
+        })
+        .catch(() => {});
+    }
+  }, [companyId]);
+
   const [employees, setEmployees] = useState<DashboardEmployee[]>([]);
   const [groups, setGroups] = useState<Array<{ id: string; name: string; capacity: number }>>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -146,6 +163,11 @@ export const DashboardEmployeesView: React.FC<DashboardEmployeesViewProps> = ({
     } finally {
       setIsLoadingStats(false);
     }
+  };
+
+  const handleCloseStats = () => {
+    setSelectedEmployeeForStats(null);
+    setEmployeeStats(null);
   };
 
   const handleToggleStatus = async (emp: DashboardEmployee) => {
@@ -593,16 +615,22 @@ export const DashboardEmployeesView: React.FC<DashboardEmployeesViewProps> = ({
                 />
               </div>
 
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-xs font-semibold text-text-primary">
-                  URL da Foto de Perfil (Opcional)
-                </label>
-                <Input
-                  type="url"
+              <div className="sm:col-span-2 pt-2 border-t border-border">
+                <ImageUpload
                   value={formPhotoUrl}
-                  onChange={(e) => setFormPhotoUrl(e.target.value)}
-                  placeholder="https://..."
-                  data-testid="employee-photo-input"
+                  onChange={(url) => setFormPhotoUrl(url)}
+                  onUpload={async (file) => {
+                    let targetCompanyId = resolvedCompanyId;
+                    if (!targetCompanyId) {
+                      const myComp = await dashboardService.getMyCompany();
+                      targetCompanyId = myComp.id;
+                      setResolvedCompanyId(myComp.id);
+                    }
+                    return dashboardService.uploadImage(targetCompanyId, 'employee', file);
+                  }}
+                  label="Foto de Perfil (Opcional)"
+                  description="Selecione uma imagem do seu dispositivo. Armazenamento seguro via Cloudinary (máx. 5MB)."
+                  disabled={isSubmitting}
                 />
               </div>
             </div>
@@ -701,139 +729,144 @@ export const DashboardEmployeesView: React.FC<DashboardEmployeesViewProps> = ({
       </Modal>
 
       {/* 6. Modal de Detalhes e Indicadores Estatísticos */}
-      <Modal
-        isOpen={Boolean(selectedEmployeeForStats)}
-        onClose={() => setSelectedEmployeeForStats(null)}
-        title={selectedEmployeeForStats ? `Desempenho: ${selectedEmployeeForStats.name}` : 'Indicadores'}
-        description={selectedEmployeeForStats?.roleTitle || 'Membro da equipe'}
-        size="md"
-        className="modal-card"
-      >
-        <div className="space-y-5">
-          {isLoadingStats ? (
-            <div className="grid grid-cols-2 gap-3">
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className="h-20 w-full rounded-lg" />
-              ))}
-            </div>
-          ) : employeeStats ? (
-            <>
-              {/* Grid de KPIs reais agregados no PostgreSQL */}
+      {selectedEmployeeForStats && (
+        <Modal
+          isOpen={Boolean(selectedEmployeeForStats)}
+          onClose={handleCloseStats}
+          title={`Desempenho: ${selectedEmployeeForStats.name}`}
+          description={selectedEmployeeForStats.roleTitle || 'Membro da equipe'}
+          size="md"
+          className="modal-card"
+        >
+          <div className="space-y-5">
+            {isLoadingStats ? (
               <div className="grid grid-cols-2 gap-3">
-                <Card className="p-4 bg-surface-raised border-border flex flex-col justify-between">
-                  <span className="text-[11px] font-semibold text-text-muted uppercase tracking-wider flex items-center gap-1.5">
-                    <CalendarCheck className="h-3.5 w-3.5 text-primary" />
-                    Atendimentos Hoje
-                  </span>
-                  <span className="text-2xl font-black text-text-primary mt-2">
-                    {employeeStats.completedToday ?? (employeeStats as unknown as { todayCount?: number }).todayCount ?? 0}
-                  </span>
-                </Card>
-
-                <Card className="p-4 bg-surface-raised border-border flex flex-col justify-between">
-                  <span className="text-[11px] font-semibold text-text-muted uppercase tracking-wider flex items-center gap-1.5">
-                    <CalendarDays className="h-3.5 w-3.5 text-primary" />
-                    No Mês Atual
-                  </span>
-                  <span className="text-2xl font-black text-text-primary mt-2">
-                    {employeeStats.completedMonth ?? (employeeStats as unknown as { monthCount?: number }).monthCount ?? 0}
-                  </span>
-                </Card>
-
-                <Card className="p-4 bg-surface-raised border-border flex flex-col justify-between">
-                  <span className="text-[11px] font-semibold text-text-muted uppercase tracking-wider flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-                    Total Concluídos
-                  </span>
-                  <span className="text-2xl font-black text-text-primary mt-2">
-                    {employeeStats.completedTotal ?? (employeeStats as unknown as { totalCount?: number }).totalCount ?? 0}
-                  </span>
-                </Card>
-
-                <Card className="p-4 bg-surface-raised border-border flex flex-col justify-between">
-                  <span className="text-[11px] font-semibold text-text-muted uppercase tracking-wider flex items-center gap-1.5">
-                    <Star className="h-3.5 w-3.5 text-warning fill-warning" />
-                    Avaliação Média
-                  </span>
-                  <div className="mt-2 flex items-baseline gap-1">
-                    {employeeStats.averageRating !== null && employeeStats.averageRating !== undefined ? (
-                      <>
-                        <span className="text-2xl font-black text-text-primary">
-                          {employeeStats.averageRating}
-                        </span>
-                        <span className="text-xs text-text-muted">
-                          / 5 ({employeeStats.ratingsCount ?? (employeeStats as unknown as { reviewsCount?: number }).reviewsCount ?? 0})
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-xs text-text-muted italic">Sem avaliações</span>
-                    )}
-                  </div>
-                </Card>
+                {[1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} className="h-20 w-full rounded-lg" />
+                ))}
               </div>
+            ) : employeeStats ? (
+              <>
+                {/* Grid de KPIs reais agregados no PostgreSQL */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Card className="p-4 bg-surface-raised border-border flex flex-col justify-between">
+                    <span className="text-[11px] font-semibold text-text-muted uppercase tracking-wider flex items-center gap-1.5">
+                      <CalendarCheck className="h-3.5 w-3.5 text-primary" />
+                      Atendimentos Hoje
+                    </span>
+                    <span className="text-2xl font-black text-text-primary mt-2">
+                      {employeeStats.completedToday ?? (employeeStats as unknown as { todayCount?: number }).todayCount ?? 0}
+                    </span>
+                  </Card>
 
-              {/* Avaliações Recentes dos Clientes */}
-              {employeeStats.recentReviews && employeeStats.recentReviews.length > 0 && (
-                <div className="space-y-2 pt-2 border-t border-border">
-                  <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider flex items-center gap-1.5">
-                    <Star className="h-3.5 w-3.5 text-warning fill-warning" />
-                    Avaliações Recentes
-                  </span>
-                  <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
-                    {employeeStats.recentReviews.map((rev) => (
-                      <div
-                        key={rev.id}
-                        className="p-2.5 rounded-lg bg-surface border border-border text-xs space-y-1"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-text-primary">
-                            {rev.appointment?.client?.name || 'Cliente'}
+                  <Card className="p-4 bg-surface-raised border-border flex flex-col justify-between">
+                    <span className="text-[11px] font-semibold text-text-muted uppercase tracking-wider flex items-center gap-1.5">
+                      <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                      No Mês Atual
+                    </span>
+                    <span className="text-2xl font-black text-text-primary mt-2">
+                      {employeeStats.completedMonth ?? (employeeStats as unknown as { monthCount?: number }).monthCount ?? 0}
+                    </span>
+                  </Card>
+
+                  <Card className="p-4 bg-surface-raised border-border flex flex-col justify-between">
+                    <span className="text-[11px] font-semibold text-text-muted uppercase tracking-wider flex items-center gap-1.5">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                      Total Concluídos
+                    </span>
+                    <span className="text-2xl font-black text-text-primary mt-2">
+                      {employeeStats.completedTotal ?? (employeeStats as unknown as { totalCount?: number }).totalCount ?? 0}
+                    </span>
+                  </Card>
+
+                  <Card className="p-4 bg-surface-raised border-border flex flex-col justify-between">
+                    <span className="text-[11px] font-semibold text-text-muted uppercase tracking-wider flex items-center gap-1.5">
+                      <Star className="h-3.5 w-3.5 text-warning fill-warning" />
+                      Avaliação Média
+                    </span>
+                    <div className="mt-2 flex items-baseline gap-1">
+                      {employeeStats.averageRating !== null && employeeStats.averageRating !== undefined ? (
+                        <>
+                          <span className="text-2xl font-black text-text-primary">
+                            {employeeStats.averageRating}
                           </span>
-                          <span className="text-warning font-bold flex items-center gap-0.5">
-                            ★ {rev.employeeRating}
+                          <span className="text-xs text-text-muted">
+                            / 5 ({employeeStats.ratingsCount ?? (employeeStats as unknown as { reviewsCount?: number }).reviewsCount ?? 0})
                           </span>
-                        </div>
-                        {rev.comment && (
-                          <p className="text-text-secondary text-[11px] italic">
-                            "{rev.comment}"
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                        </>
+                      ) : (
+                        <span className="text-xs text-text-muted italic">Sem avaliações</span>
+                      )}
+                    </div>
+                  </Card>
                 </div>
-              )}
 
-              {/* Informações de Cadastro */}
-              <div className="p-3 rounded-lg bg-surface border border-border text-xs space-y-1 text-text-muted">
-                <p>
-                  <strong className="text-text-primary">Data de Cadastro:</strong>{' '}
-                  {new Date(selectedEmployeeForStats!.createdAt).toLocaleDateString('pt-BR')}
-                </p>
-                <p>
-                  <strong className="text-text-primary">Status:</strong>{' '}
-                  {selectedEmployeeForStats!.isActive ? 'Ativo para novos agendamentos' : 'Inativo (pausado)'}
-                </p>
-              </div>
-            </>
-          ) : (
-            <p className="text-xs text-text-muted text-center py-4">
-              Nenhuma estatística disponível no momento.
-            </p>
-          )}
+                {/* Avaliações Recentes dos Clientes */}
+                {employeeStats.recentReviews && employeeStats.recentReviews.length > 0 && (
+                  <div className="space-y-2 pt-2 border-t border-border">
+                    <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider flex items-center gap-1.5">
+                      <Star className="h-3.5 w-3.5 text-warning fill-warning" />
+                      Avaliações Recentes
+                    </span>
+                    <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
+                      {employeeStats.recentReviews.map((rev) => (
+                        <div
+                          key={rev.id}
+                          className="p-2.5 rounded-lg bg-surface border border-border text-xs space-y-1"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-text-primary">
+                              {rev.appointment?.client?.name || 'Cliente'}
+                            </span>
+                            <span className="text-warning font-bold flex items-center gap-0.5">
+                              ★ {rev.employeeRating}
+                            </span>
+                          </div>
+                          {rev.comment && (
+                            <p className="text-text-secondary text-[11px] italic">
+                              "{rev.comment}"
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-          <div className="flex justify-end pt-2 border-t border-border">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSelectedEmployeeForStats(null)}
-              className="cursor-pointer"
-            >
-              Fechar
-            </Button>
+                {/* Informações de Cadastro */}
+                <div className="p-3 rounded-lg bg-surface border border-border text-xs space-y-1 text-text-muted">
+                  <p>
+                    <strong className="text-text-primary">Data de Cadastro:</strong>{' '}
+                    {selectedEmployeeForStats.createdAt
+                      ? new Date(selectedEmployeeForStats.createdAt).toLocaleDateString('pt-BR')
+                      : 'Data não informada'}
+                  </p>
+                  <p>
+                    <strong className="text-text-primary">Status:</strong>{' '}
+                    {selectedEmployeeForStats.isActive ? 'Ativo para novos agendamentos' : 'Inativo (pausado)'}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <p className="text-xs text-text-muted text-center py-4">
+                Nenhuma estatística disponível no momento.
+              </p>
+            )}
+
+            <div className="flex justify-end pt-2 border-t border-border">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCloseStats}
+                className="cursor-pointer"
+                data-testid="close-employee-stats-button"
+              >
+                Fechar
+              </Button>
+            </div>
           </div>
-        </div>
-      </Modal>
+        </Modal>
+      )}
     </div>
   );
 };
