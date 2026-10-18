@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, Scissors, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, Scissors, ShieldCheck, AlertCircle, User as UserIcon } from 'lucide-react';
 import { Modal, Button, Input } from '@/design-system';
 import { formatCurrencyBRL } from '@/core/formatters/currency';
 import { formatCpf, isValidCpf, cleanCpf } from '../utils/cpf';
@@ -16,6 +16,7 @@ interface CheckoutConfirmModalProps {
   timeSlot: string;
   downPaymentAmount: number;
   user: User;
+  employeeName?: string;
   onConfirm: (cpfCnpj?: string) => Promise<void>;
   isLoading: boolean;
   errorMessage?: string | null;
@@ -30,6 +31,7 @@ export const CheckoutConfirmModal: React.FC<CheckoutConfirmModalProps> = ({
   timeSlot,
   downPaymentAmount,
   user,
+  employeeName,
   onConfirm,
   isLoading,
   errorMessage,
@@ -101,7 +103,7 @@ export const CheckoutConfirmModal: React.FC<CheckoutConfirmModalProps> = ({
             </span>
           </div>
 
-          <div className="pt-2 border-t border-border/60 flex items-center gap-4 text-xs text-text-secondary">
+          <div className="pt-2 border-t border-border/60 flex flex-wrap items-center gap-4 text-xs text-text-secondary">
             <span className="flex items-center gap-1.5 font-medium">
               <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
               {dateLabel}
@@ -110,6 +112,12 @@ export const CheckoutConfirmModal: React.FC<CheckoutConfirmModalProps> = ({
               <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
               {timeSlot} ({service.durationMinutes} min)
             </span>
+            {employeeName && (
+              <span className="flex items-center gap-1.5 font-medium text-text-primary">
+                <UserIcon className="h-3.5 w-3.5 text-primary shrink-0" />
+                {employeeName}
+              </span>
+            )}
           </div>
         </div>
 
