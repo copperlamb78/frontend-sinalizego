@@ -105,7 +105,7 @@ export const DashboardAppointmentsView: React.FC<DashboardAppointmentsViewProps>
               onClick={() => onSelectStatus(opt.id)}
               className={`px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 selectedStatus === opt.id
-                  ? 'bg-primary text-white shadow-xs'
+                  ? 'bg-primary text-primary-foreground shadow-xs'
                   : 'bg-surface-raised text-text-secondary hover:text-text-primary border border-border'
               }`}
             >
