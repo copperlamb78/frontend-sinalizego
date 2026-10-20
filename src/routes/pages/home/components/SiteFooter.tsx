@@ -58,7 +58,7 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ isDark }) => {
             Segurança &amp; Pix
           </h5>
           <p className="text-text-secondary leading-relaxed text-[11px]">
-            Processamento financeiro seguro via Pix com transferências automatizadas para sua conta bancária. Zero retenção de senhas, hold anti-concorrência de 15 minutos e regras canônicas N1–N7.
+            Pagamento seguro via Pix com transferência fácil para sua conta bancária, vaga guardada por 15 minutos para pagar e regras claras para clientes e profissionais.
           </p>
         </div>
       </div>
@@ -66,7 +66,7 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ isDark }) => {
       <div className="max-w-6xl mx-auto pt-8 mt-8 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
         <p>© {new Date().getFullYear()} SinalizeGO. Todos os direitos reservados.</p>
         <p className="text-text-muted">
-          Plataforma canônica de agendamento inteligente com sinal no Pix.
+          Plataforma de agendamento online simples e segura com sinal no Pix.
         </p>
       </div>
     </footer>
