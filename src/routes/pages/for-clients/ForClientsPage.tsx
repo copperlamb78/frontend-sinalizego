@@ -64,7 +64,7 @@ export const ForClientsPage: React.FC = () => {
     {
       question: 'E se eu tiver um imprevisto e precisar cancelar?',
       answer:
-        'A plataforma adota a Regra de Ouro anti-vacância (Regra N3): se você cancelar com mais de 24 horas de antecedência, 100% do valor do seu sinal é estornado para você. Cancelamentos de última hora (menos de 24h) compensam a barbearia pelo horário reservado que ficou vago.',
+        'Nossa política é simples e justa: se você cancelar com mais de 24 horas de antecedência, 100% do valor do seu sinal é devolvido no seu Pix. Cancelamentos em cima da hora (menos de 24h) compensam a barbearia pelo horário que ficou reservado.',
     },
     {
       question: 'Como funciona o pagamento do sinal no Pix?',
@@ -134,7 +134,7 @@ export const ForClientsPage: React.FC = () => {
                 <CheckCircle2 className="h-4 w-4 text-primary" /> 100% no navegador sem app para baixar
               </span>
               <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Estorno integral em cancelamento &gt; 24h
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Reembolso total ao cancelar com mais de 24h
               </span>
               <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
                 <CheckCircle2 className="h-4 w-4 text-primary" /> Cadeira reservada na hora marcada
@@ -385,7 +385,7 @@ export const ForClientsPage: React.FC = () => {
                 <CheckCircle2 className="h-4 w-4 text-primary" /> Pagamento do sinal via Pix instantâneo
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Cancelamento justo com estorno integral (&gt;24h)
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Cancelamento justo com reembolso total (mais de 24h)
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-primary" /> Funciona direto no navegador do celular
