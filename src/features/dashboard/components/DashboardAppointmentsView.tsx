@@ -39,7 +39,7 @@ const STATUS_CONFIG: Record<
   COMPLETED: { label: 'Concluído', variant: 'neutral' },
   PENDING_PAYMENT: { label: 'Aguardando Pix', variant: 'warning' },
   CANCELED: { label: 'Cancelado', variant: 'danger' },
-  NO_SHOW: { label: 'Falta (No-Show)', variant: 'danger' },
+  NO_SHOW: { label: 'Cliente Faltou', variant: 'danger' },
   EXPIRED: { label: 'Expirado', variant: 'outline' },
 };
 
@@ -63,7 +63,7 @@ export const DashboardAppointmentsView: React.FC<DashboardAppointmentsViewProps>
     { id: 'CONFIRMED', label: 'Confirmados' },
     { id: 'COMPLETED', label: 'Concluídos' },
     { id: 'PENDING_PAYMENT', label: 'Aguardando Pagamento' },
-    { id: 'NO_SHOW', label: 'No-Show' },
+    { id: 'NO_SHOW', label: 'Faltas' },
     { id: 'CANCELED', label: 'Cancelados' },
   ];
 
@@ -237,7 +237,7 @@ export const DashboardAppointmentsView: React.FC<DashboardAppointmentsViewProps>
                       title="Salvar no iPhone / Google Calendar"
                       leftIcon={<Download className="h-3.5 w-3.5" />}
                     >
-                      ICS
+                      Agenda
                     </Button>
 
                     {/* Concluir Atendimento */}
@@ -262,7 +262,7 @@ export const DashboardAppointmentsView: React.FC<DashboardAppointmentsViewProps>
                         onClick={() => {
                           if (
                             window.confirm(
-                              'Confirmar No-Show do cliente? O sinal pago será retido integralmente para o estabelecimento conforme os termos de uso.'
+                              'Confirmar que o cliente faltou? O valor do sinal ficará com o estabelecimento como compensação pelo horário reservado.'
                             )
                           ) {
                             handleAction(appt.id, onMarkNoShow);
