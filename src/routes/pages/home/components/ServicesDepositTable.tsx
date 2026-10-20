@@ -40,7 +40,7 @@ const defaultRows: ServiceDepositRow[] = [
     totalPrice: 'R$ 400,00',
     depositPercent: '30%',
     depositAmount: 'R$ 120,00',
-    ruleLabel: 'Sinal flexível (≥ R$ 400)',
+    ruleLabel: 'Sinal reduzido (a partir de R$ 400)',
   },
   {
     name: 'Pezinho / Acabamento Rápido',
@@ -48,7 +48,7 @@ const defaultRows: ServiceDepositRow[] = [
     totalPrice: 'R$ 12,00',
     depositPercent: '100%',
     depositAmount: 'R$ 12,00',
-    ruleLabel: 'Sinal integral (< R$ 15)',
+    ruleLabel: 'Valor total (abaixo de R$ 15)',
   },
 ];
 
@@ -97,7 +97,7 @@ export const ServicesDepositTable: React.FC = () => {
       </div>
 
       <p className="text-xs text-text-muted leading-relaxed">
-        * Serviços abaixo de R$ 15,00 utilizam sinal integral (100%) para proteção da tarifa Pix. Em serviços de alto valor (≥ R$ 400,00), o estabelecimento pode optar por 30% para facilitar o agendamento de procedimentos longos.
+        * Serviços abaixo de R$ 15,00 cobram o valor total (100%) no agendamento. Em serviços a partir de R$ 400,00, o estabelecimento pode escolher cobrar 30% de sinal para facilitar o agendamento.
       </p>
     </div>
   );
