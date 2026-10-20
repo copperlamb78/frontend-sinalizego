@@ -185,8 +185,8 @@ export const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({
       {/* 4. FOOTER SIMPLES & SÓBRIO */}
       <footer className="w-full border-t border-border bg-surface px-4 sm:px-8 py-4 text-center text-xs text-text-muted">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>SinalizeGO Platform • Governança Zero-Trust com Hold de 15 Minutos</span>
-          <span className="text-[11px] text-text-muted">Conformidade CDC Art. 51 e Código Civil</span>
+          <span>SinalizeGO • Agendamento online rápido e seguro com sinal no Pix</span>
+          <span className="text-[11px] text-text-muted">Regras claras de cancelamento e reembolso</span>
         </div>
       </footer>
     </div>
