@@ -97,7 +97,7 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
                 Cancelar Agendamento
               </h3>
               <p className="text-xs text-text-muted">
-                Política transparente de estorno e crédito (Regra N6 CDC)
+                Regras claras de reembolso e crédito para você
               </p>
             </div>
           </div>
@@ -198,14 +198,14 @@ export const CancelAppointmentModal: React.FC<CancelAppointmentModalProps> = ({
                   icon={<Clock className="h-3.5 w-3.5 shrink-0" />}
                   className="font-bold"
                 >
-                  Cancelamento Tardio (menor que 2 horas)
+                  Cancelamento em cima da hora (menos de 2 horas)
                 </Badge>
                 <span className="text-[11px] font-semibold text-red-800 dark:text-red-400">
-                  menor que 2 horas
+                  menos de 2 horas
                 </span>
               </div>
               <h4 className="text-sm font-bold text-red-900 dark:text-red-200">
-                Sinal retido como compensação de vacância
+                Sinal retido pelo horário reservado
               </h4>
               <p className="text-xs text-red-800 dark:text-red-300 leading-relaxed">
                 Devido à impossibilidade de reabertura do horário em tempo hábil para outro cliente, o sinal de{' '}
