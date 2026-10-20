@@ -55,7 +55,7 @@ export const HomePage: React.FC = () => {
     {
       question: 'O que é o SinalizeGO?',
       answer:
-        'O SinalizeGO é a plataforma moderna de agendamento online com sinal no Pix. Desenvolvida para barbearias, salões de beleza e profissionais de estética, ela elimina o não-comparecimento (no-show) e garante que o cliente chegue e seja atendido pontualmente sem filas.',
+        'O SinalizeGO é a plataforma moderna de agendamento online com sinal no Pix. Desenvolvida para barbearias, salões de beleza e profissionais de estética, ela evita faltas de clientes e garante que o cliente chegue e seja atendido pontualmente sem filas.',
     },
     {
       question: 'O cliente precisa baixar algum aplicativo?',
@@ -70,12 +70,12 @@ export const HomePage: React.FC = () => {
     {
       question: 'Como funcionam os cancelamentos e estornos?',
       answer:
-        'A plataforma opera com regras transparentes anti-vacância (Regras N1–N7): cancelamentos com mais de 24h de antecedência estornam 100% do sinal de volta para o cliente via Pix. Cancelamentos de última hora compensam o profissional pelo tempo que a cadeira ficou ociosa.',
+        'Nossas regras são claras e justas para todos: cancelamentos feitos com mais de 24 horas de antecedência devolvem 100% do sinal para o cliente via Pix. Cancelamentos de última hora compensam o profissional pelo horário que ficou reservado.',
     },
     {
       question: 'Como a plataforma impede dois clientes de escolherem o mesmo horário?',
       answer:
-        'Ao clicar no horário, o motor de agendamento ativa um hold temporário de 15 minutos (Regra N6) congelando aquela cadeira exclusivamente para a conclusão do Pix. Se não for pago dentro do prazo, a vaga é liberada automaticamente para outros clientes.',
+        'Ao escolher o horário, o sistema guarda a sua vaga por 15 minutos exclusivamente para você concluir o pagamento do Pix. Se o pagamento não for feito nesse prazo, o horário volta a ficar livre para outros clientes.',
     },
   ];
 
@@ -148,7 +148,7 @@ export const HomePage: React.FC = () => {
                 <CheckCircle2 className="h-4 w-4 text-primary" /> Sinal cai direto na conta bancária
               </span>
               <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Hold de 15 minutos anti-furo
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Horário guardado por 15 minutos para pagar
               </span>
             </div>
           </FadeIn>
@@ -198,7 +198,7 @@ export const HomePage: React.FC = () => {
                       <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Link exclusivo para bio do Instagram e WhatsApp
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Proteção contra vacância e furos de agenda
+                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Proteção contra faltas e horários vagos
                     </li>
                   </ul>
                 </div>
@@ -229,7 +229,7 @@ export const HomePage: React.FC = () => {
                       <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Cadeira 100% garantida na hora marcada
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Estorno total do sinal em cancelamentos com +24h
+                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Reembolso total do sinal ao cancelar com mais de 24h
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Funciona direto no navegador do smartphone
@@ -276,7 +276,7 @@ export const HomePage: React.FC = () => {
           <FadeIn>
             <div className="text-left space-y-1.5">
               <h2 id="tabela-sinal" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
-                Regras transparentes de sinal e retenção (N1–N7)
+                Como funciona o valor do sinal em cada serviço
               </h2>
               <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
                 A cobrança do sinal protege a operação e equilibra as responsabilidades entre cliente e estabelecimento:
