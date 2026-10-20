@@ -118,7 +118,7 @@ export const StorefrontPage: React.FC = () => {
       });
 
       setIsConfirmModalOpen(false);
-      toast.success('Horário reservado com sucesso! Hold de 15 minutos iniciado.');
+      toast.success('Horário reservado! Você tem 15 minutos para concluir o pagamento via Pix.');
       navigate(`/pagamento/${created.id}`);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
