@@ -108,7 +108,7 @@ export const PaymentPage: React.FC = () => {
         <Card className="max-w-md w-full p-6 text-center space-y-4">
           <h3 className="text-base font-bold text-text-primary">Erro ao gerar cobrança Pix</h3>
           <p className="text-xs text-text-secondary">
-            Ocorreu uma instabilidade momentânea na geração do QR Code. Sua vaga segue reservada durante o hold de 15 minutos.
+            Ocorreu uma instabilidade momentânea na geração do QR Code. Sua vaga continua guardada durante os 15 minutos de prazo para pagamento.
           </p>
           <Button
             variant="primary"
