@@ -154,7 +154,7 @@ export const DashboardFinancialView: React.FC<DashboardFinancialViewProps> = ({
           <div>
             <div className="flex items-center justify-between text-text-muted mb-2">
               <span className="text-xs font-bold uppercase tracking-wider">
-                Em Custódia (Escrow)
+                Saldo a Liberar
               </span>
               <div className="h-8 w-8 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                 <ShieldAlert className="h-4 w-4" />
@@ -311,7 +311,7 @@ export const DashboardFinancialView: React.FC<DashboardFinancialViewProps> = ({
                     Solicitar Saque Avulso Pix
                   </h3>
                   <p className="text-[11px] text-text-muted">
-                    Transferência instantânea via gateway Asaas
+                    Transferência rápida via Pix para sua conta
                   </p>
                 </div>
               </div>
