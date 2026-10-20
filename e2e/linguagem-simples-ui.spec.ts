@@ -61,8 +61,15 @@ test.describe('Linguagem Simples na UI & Normalização de Sinal (E2E)', () => {
       await route.fulfill({ status: 200, json: [] });
     });
 
-    await page.route('**/api/v1/working-hours*', async (route) => {
+    await page.route('**/api/v1/working-hours**', async (route) => {
       await route.fulfill({ status: 200, json: [] });
+    });
+
+    await page.route('**/api/v1/auth/refresh*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        json: { access_token: 'fake-owner-jwt-token', refresh_token: 'fake-owner-refresh-token' },
+      });
     });
   };
 
