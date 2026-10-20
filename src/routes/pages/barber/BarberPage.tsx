@@ -66,12 +66,12 @@ export const BarberPage: React.FC = () => {
     {
       question: 'E se o cliente cancelar ou não comparecer?',
       answer:
-        'A plataforma opera com regras transparentes anti-vacância (Regras N1–N7): cancelamentos com mais de 24h de antecedência permitem estorno integral do sinal ao cliente; cancelamentos em cima da hora retêm o sinal para o estabelecimento para compensar a cadeira vazia.',
+        'As regras são claras e protegem o seu trabalho: cancelamentos com mais de 24 horas de antecedência devolvem o sinal ao cliente; já nos cancelamentos em cima da hora, o sinal fica com o seu estabelecimento para compensar a cadeira vazia.',
     },
     {
       question: 'Posso configurar serviços sem sinal ou com valores diferentes?',
       answer:
-        'Sim! Para serviços a partir de R$ 400,00 você pode configurar 30% ou 50% de sinal. Para serviços rápidos abaixo de R$ 15,00, a plataforma aplica 100% de sinal para proteger a rentabilidade e cobrir os custos de gateway.',
+        'Sim! Para serviços a partir de R$ 400,00 você pode configurar 30% ou 50% de sinal. Para serviços rápidos abaixo de R$ 15,00, a plataforma aplica 100% de sinal para garantir a reserva e cobrir as taxas da operação.',
     },
     {
       question: 'Quando o restante do serviço é pago?',
@@ -81,7 +81,7 @@ export const BarberPage: React.FC = () => {
     {
       question: 'Como o barbeiro ou profissional saca o dinheiro do sinal?',
       answer:
-        'Após a conclusão do atendimento (status COMPLETED), o saldo é liberado diretamente no extrato da sua empresa no painel, pronto para transferências bancárias sem burocracia.',
+        'Assim que você marca o atendimento como concluído no painel, o valor fica liberado diretamente no extrato da sua empresa no painel, pronto para transferências bancárias sem burocracia.',
     },
   ];
 
@@ -145,7 +145,7 @@ export const BarberPage: React.FC = () => {
                 <CheckCircle2 className="h-4 w-4 text-primary" /> Sinal cai direto na sua conta bancária
               </span>
               <span className="flex items-center gap-1.5 transition-colors hover:text-text-primary">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Reserva de 15 minutos anti-concorrência
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Horário guardado por 15 minutos para pagamento
               </span>
             </div>
           </FadeIn>
@@ -227,7 +227,7 @@ export const BarberPage: React.FC = () => {
                   <Clock className="h-5 w-5" />
                 </div>
                 <h3 className="text-base font-bold text-text-primary">
-                  Hold de 15 minutos anti-furo
+                  Horário guardado por 15 minutos
                 </h3>
                 <p className="text-xs text-text-secondary leading-relaxed">
                   Ao selecionar o horário, a vaga fica temporariamente congelada exclusivamente para o cliente concluir o Pix. Sem disputa simultânea de vagas.
@@ -245,7 +245,7 @@ export const BarberPage: React.FC = () => {
                 Serviços e sinal: regras práticas de agendamento
               </h2>
               <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
-                A cobrança do sinal protege a operação e se adapta ao valor de cada procedimento conforme as regras canônicas da plataforma (Regras N1–N7):
+                A cobrança do sinal protege o seu dia a dia e se adapta ao valor de cada serviço de forma simples:
               </p>
             </div>
           </FadeIn>
@@ -431,7 +431,7 @@ export const BarberPage: React.FC = () => {
                 <CheckCircle2 className="h-4 w-4 text-primary" /> Sem fidelidade contratual
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Proteção contra vacância e furos de agenda
+                <CheckCircle2 className="h-4 w-4 text-primary" /> Proteção contra faltas e horários vagos
               </li>
             </ul>
 
