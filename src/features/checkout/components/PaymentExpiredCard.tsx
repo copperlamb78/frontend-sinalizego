@@ -26,7 +26,7 @@ export const PaymentExpiredCard: React.FC<PaymentExpiredCardProps> = ({
           Tempo de Reserva Esgotado
         </h2>
         <p className="text-xs text-text-secondary">
-          O hold de 15 minutos para realização do Pix encerrou.
+          O prazo de 15 minutos para pagamento do Pix terminou.
         </p>
       </CardHeader>
 
