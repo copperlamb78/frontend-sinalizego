@@ -17,6 +17,7 @@ import { Button } from '@/design-system/ui/button';
 import { Input } from '@/design-system/ui/input';
 import { Skeleton } from '@/design-system/ui/skeleton';
 import { formatCurrency } from '@/core/formatters/currency';
+import { estimateDeposit } from '@/features/checkout';
 import type {
   CompanyServiceItem,
   CreateServicePayload,
@@ -86,6 +87,8 @@ export const DashboardServicesView: React.FC<DashboardServicesViewProps> = ({
       return;
     }
 
+    const normalizedPercent = priceNum >= 400 && Number(downPaymentPercent) === 30 ? 30 : 50;
+
     setIsSubmitting(true);
     try {
       if (editingService) {
@@ -94,7 +97,7 @@ export const DashboardServicesView: React.FC<DashboardServicesViewProps> = ({
           description: description.trim() || undefined,
           durationMinutes: Number(durationMinutes),
           totalPrice: priceNum,
-          downPaymentPercent: Number(downPaymentPercent),
+          downPaymentPercent: normalizedPercent,
         });
       } else {
         await onCreateService({
@@ -102,7 +105,7 @@ export const DashboardServicesView: React.FC<DashboardServicesViewProps> = ({
           description: description.trim() || undefined,
           durationMinutes: Number(durationMinutes),
           totalPrice: priceNum,
-          downPaymentPercent: Number(downPaymentPercent),
+          downPaymentPercent: normalizedPercent,
         });
       }
       setIsModalOpen(false);
@@ -172,7 +175,10 @@ export const DashboardServicesView: React.FC<DashboardServicesViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {services.map((svc) => {
             const price = Number(svc.totalPrice);
-            const downPayment = (price * (svc.downPaymentPercent || 50)) / 100;
+            const { depositAmount, appliedPercent } = estimateDeposit(
+              price,
+              svc.downPaymentPercent
+            );
 
             return (
               <Card
@@ -214,10 +220,10 @@ export const DashboardServicesView: React.FC<DashboardServicesViewProps> = ({
                     <div className="flex items-center justify-between text-text-muted">
                       <span className="flex items-center gap-1.5">
                         <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                        Sinal ({svc.downPaymentPercent}%):
+                        Sinal ({appliedPercent}%):
                       </span>
                       <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                        {formatCurrency(downPayment)}
+                        {formatCurrency(depositAmount)}
                       </span>
                     </div>
                   </div>
@@ -349,19 +355,20 @@ export const DashboardServicesView: React.FC<DashboardServicesViewProps> = ({
 
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-text-secondary">
-                  Porcentagem de Sinal (%)
+                  Valor do Sinal no Agendamento
                 </label>
                 <select
+                  data-testid="service-downpayment-select"
                   className="w-full h-11 px-3 text-xs rounded-[4px] border border-border bg-surface text-text-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   value={downPaymentPercent}
                   onChange={(e) => setDownPaymentPercent(Number(e.target.value))}
                 >
-                  <option value={30}>30% (Para serviços &ge; R$ 400)</option>
-                  <option value={50}>50% (Padrão automático SinalizeGO)</option>
-                  <option value={100}>100% (Sinal integral)</option>
+                  <option value={30}>30% (Para serviços a partir de R$ 400)</option>
+                  <option value={50}>50% (Metade do valor no agendamento - Recomendado)</option>
+                  <option value={100}>100% (Valor total para serviços até R$ 15)</option>
                 </select>
                 <p className="text-[11px] text-text-muted mt-1">
-                  A disponibilidade de atendimento é calculada automaticamente a partir dos profissionais habilitados na aba <strong>Funcionários &amp; Equipe</strong>.
+                  Em serviços até R$ 15, o sinal é sempre de 100%. Em serviços a partir de R$ 400, você pode escolher entre 30% ou 50%.
                 </p>
               </div>
             </form>
