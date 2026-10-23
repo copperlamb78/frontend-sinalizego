@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Badge } from '@/design-system';
 import { useAuth } from '@/features/auth';
 import { Sun, Moon, LogIn, LogOut, User } from 'lucide-react';
@@ -11,7 +11,13 @@ interface SiteHeaderProps {
 
 export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
+
+  const handleLogout = () => {
+    void logout();
+    navigate('/login', { replace: true });
+  };
 
   const navLinks = [
     { label: 'Início', path: '/' },
@@ -82,7 +88,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({ isDark, onToggleTheme })
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => logout()}
+                onClick={handleLogout}
                 leftIcon={<LogOut className="h-3.5 w-3.5" />}
                 className="h-8 text-xs px-2.5 text-text-muted hover:text-danger"
                 title="Encerrar sessão"
