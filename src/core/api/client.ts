@@ -1,5 +1,6 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { SESSION_EXPIRED_EVENT, tokenStorage } from '../auth/tokenStorage';
+import { clearQueryCache } from '../query/queryClient';
 
 const baseURL = import.meta.env.VITE_API_URL || '/api/v1';
 
@@ -21,9 +22,18 @@ apiClient.interceptors.request.use((config) => {
 
 /**
  * Rotas que nunca devem disparar a renovação automática de sessão
- * (evita loop infinito e não mascara erro de credencial no login).
+ * (evita loop infinito e não mascara erro de credencial no login/cadastro).
  */
-const NO_REFRESH_PATHS = ['/auth/login', '/auth/refresh', '/auth/logout'];
+const NO_REFRESH_PATHS = [
+  '/auth/login',
+  '/auth/register',
+  '/users/create',
+  '/company/create',
+  '/auth/refresh',
+  '/auth/logout',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+];
 
 type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
@@ -34,6 +44,7 @@ type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 let refreshPromise: Promise<string> | null = null;
 
 async function refreshAccessToken(): Promise<string> {
+  const epochAtStart = tokenStorage.getSessionEpoch();
   const refreshToken = tokenStorage.getRefreshToken();
   if (!refreshToken) {
     throw new Error('Sem refresh token');
@@ -46,6 +57,12 @@ async function refreshAccessToken(): Promise<string> {
     { headers: { Authorization: `Bearer ${refreshToken}` }, timeout: 15000 }
   );
 
+  // Proteção anti-race: se o usuário deslogou ou trocou de sessão enquanto o refresh estava em voo,
+  // descarta os novos tokens e não ressuscita a sessão encerrada.
+  if (tokenStorage.getSessionEpoch() !== epochAtStart) {
+    throw new Error('Sessão encerrada durante refresh');
+  }
+
   tokenStorage.setTokens(data.access_token, data.refresh_token);
   return data.access_token;
 }
@@ -57,14 +74,23 @@ apiClient.interceptors.response.use(
     const status = error.response?.status;
     const url = original?.url ?? '';
 
+    const isAuthExcludedPath = NO_REFRESH_PATHS.some((path) => url.includes(path));
+
     const canRefresh =
       status === 401 &&
       original &&
       !original._retry &&
-      !NO_REFRESH_PATHS.some((path) => url.includes(path)) &&
+      !isAuthExcludedPath &&
       Boolean(tokenStorage.getRefreshToken());
 
     if (!canRefresh) {
+      // Se foi um 401 em rota autenticada e não há refresh token disponível (ou já tentou _retry),
+      // limpa a sessão local e notifica o AuthContext.
+      if (status === 401 && !isAuthExcludedPath && tokenStorage.getAccessToken()) {
+        tokenStorage.clear();
+        clearQueryCache();
+        window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
+      }
       return Promise.reject(error);
     }
 
@@ -78,8 +104,9 @@ apiClient.interceptors.response.use(
       original.headers.Authorization = `Bearer ${newToken}`;
       return apiClient(original);
     } catch {
-      // Fail-closed: sessão irrecuperável → limpa e avisa o AuthContext
+      // Fail-closed: sessão irrecuperável → limpa storage, cache e avisa o AuthContext
       tokenStorage.clear();
+      clearQueryCache();
       window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
       return Promise.reject(error);
     }
