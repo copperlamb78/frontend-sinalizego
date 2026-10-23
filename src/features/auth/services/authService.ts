@@ -43,13 +43,24 @@ export const authService = {
   },
 
   /**
-   * Encerra a sessão ativa do usuário no backend
+   * Encerra a sessão ativa do usuário no backend (fire-and-forget seguro).
+   * Recebe opcionalmente o accessToken capturado antes da limpeza síncrona do storage.
    */
-  async logout(): Promise<void> {
+  async logout(accessToken?: string | null): Promise<void> {
     try {
-      await apiClient.post('/auth/logout');
+      await apiClient.post(
+        '/auth/logout',
+        null,
+        accessToken
+          ? {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          : undefined
+      );
     } catch {
-      // Falha silenciosa em caso de token já expirado
+      // Falha silenciosa em caso de token já expirado ou rede indisponível
     }
   },
 };
