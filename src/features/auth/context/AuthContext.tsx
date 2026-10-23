@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { authService } from '../services/authService';
-import { tokenStorage, USER_KEY, SESSION_EXPIRED_EVENT } from '@/core';
+import {
+  tokenStorage,
+  TOKEN_KEY,
+  USER_KEY,
+  SESSION_EXPIRED_EVENT,
+  clearQueryCache,
+} from '@/core';
 import type {
   LoginCredentials,
   LoginResponse,
@@ -31,10 +37,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [user, setUser] = useState<User | null>(() => {
+    const savedToken = tokenStorage.getAccessToken();
     const savedUser = localStorage.getItem(USER_KEY);
-    if (!savedUser) return null;
+    if (!savedToken || !savedUser) return null;
     try {
-      return JSON.parse(savedUser) as User;
+      const parsed = JSON.parse(savedUser) as User;
+      if (!parsed || !parsed.id || parsed.isActive === false) {
+        tokenStorage.clear();
+        return null;
+      }
+      return parsed;
     } catch {
       tokenStorage.clear();
       return null;
@@ -43,29 +55,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Validação e restauração de sessão no backend
+  const clearLocalSession = useCallback(() => {
+    tokenStorage.clear();
+    clearQueryCache();
+    setToken(null);
+    setUser(null);
+  }, []);
+
+  // Validação e restauração de sessão no backend + sincronização multi-aba
   useEffect(() => {
     let isMounted = true;
 
     const restoreSession = async () => {
       const savedToken = tokenStorage.getAccessToken();
       if (!savedToken) {
-        if (isMounted) setIsLoading(false);
+        if (isMounted) {
+          setToken(null);
+          setUser(null);
+          setIsLoading(false);
+        }
         return;
       }
 
+      const epoch = tokenStorage.getSessionEpoch();
+
       try {
         const freshUser = await authService.getMe();
-        if (isMounted) {
-          setUser(freshUser);
-          localStorage.setItem(USER_KEY, JSON.stringify(freshUser));
+        if (!isMounted || tokenStorage.getSessionEpoch() !== epoch) {
+          return;
         }
-      } catch {
-        // Se o token for inválido e não puder ser renovado, limpa o estado
-        if (isMounted) {
-          tokenStorage.clear();
-          setToken(null);
-          setUser(null);
+
+        if (!freshUser || !freshUser.id || freshUser.isActive === false) {
+          clearLocalSession();
+          return;
+        }
+
+        setToken(tokenStorage.getAccessToken());
+        setUser(freshUser);
+        localStorage.setItem(USER_KEY, JSON.stringify(freshUser));
+      } catch (err: unknown) {
+        if (!isMounted || tokenStorage.getSessionEpoch() !== epoch) {
+          return;
+        }
+        // Fail-closed se o token foi rejeitado (401/403) ou se o interceptor limpou o token
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status === 401 || status === 403 || !tokenStorage.getAccessToken()) {
+          clearLocalSession();
         }
       } finally {
         if (isMounted) {
@@ -77,20 +112,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     restoreSession();
 
     const handleSessionExpired = () => {
-      setToken(null);
-      setUser(null);
+      clearLocalSession();
+    };
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (
+        event.key === null ||
+        ((event.key === TOKEN_KEY || event.key === USER_KEY) && !event.newValue)
+      ) {
+        clearLocalSession();
+      }
     };
 
     window.addEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
       isMounted = false;
       window.removeEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
+      window.removeEventListener('storage', handleStorageChange);
     };
-  }, []);
+  }, [clearLocalSession]);
 
   const login = useCallback(async (credentials: LoginCredentials): Promise<LoginResponse> => {
     const data = await authService.login(credentials);
+    clearQueryCache();
+    tokenStorage.bumpSessionEpoch();
     tokenStorage.setTokens(data.access_token, data.refresh_token);
     localStorage.setItem(USER_KEY, JSON.stringify(data.user));
     setToken(data.access_token);
@@ -110,6 +157,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email: registerData.email,
           password: registerData.password,
         });
+        clearQueryCache();
+        tokenStorage.bumpSessionEpoch();
         tokenStorage.setTokens(loginResponse.access_token, loginResponse.refresh_token);
         localStorage.setItem(USER_KEY, JSON.stringify(loginResponse.user));
         setToken(loginResponse.access_token);
@@ -125,6 +174,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const registerCompany = useCallback(
     async (companyData: RegisterCompanyData): Promise<RegisterCompanyResponse> => {
       const response = await authService.registerCompany(companyData);
+      clearQueryCache();
+      tokenStorage.bumpSessionEpoch();
       tokenStorage.setTokens(response.access_token, response.refresh_token);
       localStorage.setItem(USER_KEY, JSON.stringify(response.user));
       setToken(response.access_token);
@@ -135,14 +186,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   const logout = useCallback(async () => {
-    try {
-      await authService.logout();
-    } finally {
-      tokenStorage.clear();
-      setToken(null);
-      setUser(null);
-    }
-  }, []);
+    const currentToken = tokenStorage.getAccessToken();
+    // 1. Limpeza local síncrona imediata (Zero-Latency UX, invalida epoch, storage e cache)
+    clearLocalSession();
+    // 2. Notificação assíncrona fire-and-forget ao backend para revogar refreshToken no banco
+    void authService.logout(currentToken);
+  }, [clearLocalSession]);
 
   const updateUser = useCallback((updatedUser: Partial<User>) => {
     setUser((prev) => {
