@@ -37,4 +37,24 @@ export const checkoutService = {
     const baseURL = apiClient.defaults.baseURL || '/api/v1';
     return `${baseURL}/appointments/${appointmentId}/ics`;
   },
+
+  /**
+   * Faz o download autenticado do arquivo .ics do agendamento.
+   */
+  async downloadAppointmentIcs(appointmentId: string): Promise<void> {
+    const response = await apiClient.get(`/appointments/${appointmentId}/ics`, {
+      responseType: 'blob',
+    });
+
+    const url = window.URL.createObjectURL(
+      new Blob([response.data], { type: 'text/calendar;charset=utf-8' })
+    );
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `agendamento-${appointmentId.slice(0, 8)}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };
