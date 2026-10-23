@@ -12,7 +12,7 @@ import { MyAppointmentsPage } from './pages/client/MyAppointmentsPage';
 import { MyCreditsPage } from './pages/client/MyCreditsPage';
 import { MyProfilePage } from './pages/client/MyProfilePage';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
-import { ProtectedRoute } from './ProtectedRoute';
+import { ProtectedRoute, PublicOnlyRoute } from './ProtectedRoute';
 
 /**
  * Configuração declarativa das rotas da aplicação (React Router v7)
@@ -24,15 +24,35 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
-    element: <LoginPage />,
+    element: (
+      <PublicOnlyRoute>
+        <LoginPage />
+      </PublicOnlyRoute>
+    ),
   },
   {
     path: '/cadastro',
-    element: <RegisterPage defaultTab="client" />,
+    element: (
+      <PublicOnlyRoute>
+        <RegisterPage defaultTab="client" />
+      </PublicOnlyRoute>
+    ),
   },
   {
     path: '/cadastro/empresa',
-    element: <RegisterPage defaultTab="company" />,
+    element: (
+      <PublicOnlyRoute>
+        <RegisterPage defaultTab="company" />
+      </PublicOnlyRoute>
+    ),
+  },
+  {
+    path: '/cadastro/barbearia',
+    element: (
+      <PublicOnlyRoute>
+        <RegisterPage defaultTab="company" />
+      </PublicOnlyRoute>
+    ),
   },
   {
     path: '/cadastro-empresa',
@@ -97,7 +117,15 @@ export const router = createBrowserRouter([
   {
     path: '/painel',
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute
+        allowedRoles={[
+          'COMPANY_OWNER',
+          'PROVIDER',
+          'EMPLOYEE',
+          'ADMIN',
+          'SUPER_ADMIN',
+        ]}
+      >
         <DashboardPage />
       </ProtectedRoute>
     ),
@@ -105,7 +133,15 @@ export const router = createBrowserRouter([
   {
     path: '/painel/:tab',
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute
+        allowedRoles={[
+          'COMPANY_OWNER',
+          'PROVIDER',
+          'EMPLOYEE',
+          'ADMIN',
+          'SUPER_ADMIN',
+        ]}
+      >
         <DashboardPage />
       </ProtectedRoute>
     ),
