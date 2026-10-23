@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   CalendarDays,
@@ -54,6 +55,13 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   onLogout,
   pendingCount = 0,
 }) => {
+  const navigate = useNavigate();
+
+  const handleLogoutClick = () => {
+    void onLogout();
+    navigate('/login', { replace: true });
+  };
+
   const navItems: NavItem[] = [
     {
       id: 'overview',
@@ -257,13 +265,14 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           {/* Botão de Logout Seguro */}
           <button
             type="button"
-            onClick={onLogout}
+            onClick={handleLogoutClick}
             className={cn(
               'w-full flex items-center rounded-md text-xs font-semibold text-danger/80 hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer',
               isCollapsed && !isMobileOpen ? 'justify-center p-2.5' : 'gap-2.5 px-3 py-2'
             )}
             title="Sair do painel"
             aria-label="Sair da conta"
+            data-testid="sidebar-logout-btn"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             {(!isCollapsed || isMobileOpen) && <span className="truncate">Sair</span>}
