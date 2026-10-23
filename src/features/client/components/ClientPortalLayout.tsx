@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Compass, Calendar, Wallet, User as UserIcon, Sun, Moon, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Compass,
+  Calendar,
+  Wallet,
+  User as UserIcon,
+  Sun,
+  Moon,
+  LogOut,
+  LogIn,
+  UserPlus,
+} from 'lucide-react';
 import { Button, Badge } from '@/design-system';
 import { useAuth } from '@/features/auth';
 
@@ -20,11 +30,14 @@ export const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({
   creditTotal,
 }) => {
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const [isDark, setIsDark] = useState<boolean>(() => {
-    return document.documentElement.classList.contains('dark') ||
-      document.documentElement.getAttribute('data-theme') === 'dark';
+    return (
+      document.documentElement.classList.contains('dark') ||
+      document.documentElement.getAttribute('data-theme') === 'dark'
+    );
   });
 
   useEffect(() => {
@@ -41,39 +54,50 @@ export const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({
 
   const toggleTheme = () => setIsDark((prev) => !prev);
 
-  const tabs = [
+  const handleLogout = () => {
+    void logout();
+    navigate('/login', { replace: true });
+  };
+
+  const allTabs = [
     {
       label: 'Barbearias',
       path: '/barbearias',
       icon: <Compass className="h-4 w-4 shrink-0" />,
+      public: true,
     },
     {
       label: 'Meus Agendamentos',
       path: '/meus-agendamentos',
       icon: <Calendar className="h-4 w-4 shrink-0" />,
       badge: badgeCount !== undefined && badgeCount > 0 ? String(badgeCount) : undefined,
+      public: false,
     },
     {
       label: 'Meus Créditos',
       path: '/meus-creditos',
       icon: <Wallet className="h-4 w-4 shrink-0" />,
       badge: creditTotal !== undefined && creditTotal > 0 ? `R$ ${creditTotal.toFixed(0)}` : undefined,
+      public: false,
     },
     {
       label: 'Meu Perfil',
       path: '/perfil',
       icon: <UserIcon className="h-4 w-4 shrink-0" />,
+      public: false,
     },
   ];
 
-  const userFirstName = user?.name ? user.name.split(' ')[0] : 'Cliente';
+  const tabs = isAuthenticated && user ? allTabs : allTabs.filter((tab) => tab.public);
+
+  const userFirstName = user?.name ? user.name.split(' ')[0] : '';
   const userInitials = user?.name
     ? user.name
-      .split(' ')
-      .slice(0, 2)
-      .map((n) => n[0]?.toUpperCase())
-      .join('')
-    : 'CL';
+        .split(' ')
+        .slice(0, 2)
+        .map((n) => n[0]?.toUpperCase())
+        .join('')
+    : '';
 
   return (
     <div className="min-h-screen bg-background text-text-primary flex flex-col font-sans transition-colors duration-200">
@@ -108,27 +132,56 @@ export const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({
               {isDark ? 'Claro' : 'Escuro'}
             </Button>
 
-            {/* User Chip */}
-            <div className="flex items-center gap-2 pl-2 border-l border-border">
-              <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-surface-raised border border-border text-xs font-semibold">
-                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-[11px] font-bold shrink-0">
-                  {userInitials}
-                </span>
-                <span className="hidden sm:inline text-text-primary">{userFirstName}</span>
-              </div>
+            {isAuthenticated && user ? (
+              <div className="flex items-center gap-2 pl-2 border-l border-border">
+                <div
+                  className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-surface-raised border border-border text-xs font-semibold"
+                  data-testid="portal-user-chip"
+                >
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-[11px] font-bold shrink-0">
+                    {userInitials}
+                  </span>
+                  <span className="hidden sm:inline text-text-primary">{userFirstName}</span>
+                </div>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => logout()}
-                leftIcon={<LogOut className="h-3.5 w-3.5 shrink-0" />}
-                className="h-8 text-xs px-2 text-text-muted hover:text-danger"
-                title="Encerrar sessão"
-                data-testid="portal-logout-btn"
-              >
-                Sair
-              </Button>
-            </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  leftIcon={<LogOut className="h-3.5 w-3.5 shrink-0" />}
+                  className="h-8 text-xs px-2 text-text-muted hover:text-danger"
+                  title="Encerrar sessão"
+                  data-testid="portal-logout-btn"
+                >
+                  Sair
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 pl-2 border-l border-border">
+                <Link to="/login" className="inline-flex items-center">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    leftIcon={<LogIn className="h-3.5 w-3.5 text-primary shrink-0" />}
+                    className="h-8 text-xs font-semibold px-3 leading-none"
+                    data-testid="portal-login-btn"
+                  >
+                    Entrar
+                  </Button>
+                </Link>
+                <Link to="/cadastro" className="hidden sm:inline-flex items-center">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    leftIcon={<UserPlus className="h-3.5 w-3.5 shrink-0" />}
+                    className="h-8 text-xs font-semibold px-3 leading-none"
+                    data-testid="portal-register-btn"
+                  >
+                    Criar Conta
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -142,10 +195,11 @@ export const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({
               <Link
                 key={tab.path}
                 to={tab.path}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-150 shrink-0 ${isActive
-                  ? 'bg-primary text-white shadow-xs font-bold'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-raised border border-transparent'
-                  }`}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-150 shrink-0 ${
+                  isActive
+                    ? 'bg-primary text-white shadow-xs font-bold'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-raised border border-transparent'
+                }`}
               >
                 {tab.icon}
                 <span>{tab.label}</span>
@@ -153,8 +207,9 @@ export const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({
                   <Badge
                     variant={isActive ? 'neutral' : 'brand'}
                     size="sm"
-                    className={`text-[10px] py-0 px-1.5 whitespace-nowrap ${isActive ? 'bg-white/20 text-white border-transparent' : ''
-                      }`}
+                    className={`text-[10px] py-0 px-1.5 whitespace-nowrap ${
+                      isActive ? 'bg-white/20 text-white border-transparent' : ''
+                    }`}
                   >
                     {tab.badge}
                   </Badge>
