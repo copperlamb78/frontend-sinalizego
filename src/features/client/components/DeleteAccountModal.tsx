@@ -41,15 +41,15 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ isOpen, 
         {/* 1. CABEÇALHO FIXO */}
         <div className="shrink-0 p-5 sm:p-6 border-b border-border flex items-start justify-between bg-surface">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400 shrink-0">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-danger/10 text-danger border border-danger/20 shrink-0">
               <AlertOctagon className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-red-600 dark:text-red-400">
-                Excluir Minha Conta (LGPD)
+              <h3 className="text-base sm:text-lg font-bold text-text-primary">
+                Excluir Minha Conta
               </h3>
               <p className="text-xs text-text-muted">
-                Ação irreversível de desativação e desassociação de dados
+                Ação irreversível de desativação e encerramento de acesso
               </p>
             </div>
           </div>
@@ -66,27 +66,27 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ isOpen, 
 
         {/* 2. CORPO ROLÁVEL */}
         <div className="flex-1 overflow-y-auto min-h-0 p-5 sm:p-6 space-y-4 text-xs sm:text-sm">
-          <div className="p-4 rounded-xl bg-red-50 border border-red-200 dark:bg-red-950/30 dark:border-red-800/60 text-red-900 dark:text-red-300 space-y-2">
-            <p className="font-semibold leading-relaxed">
+          <div className="p-4 rounded-xl bg-surface-raised border border-border text-text-secondary space-y-2">
+            <p className="font-semibold text-text-primary leading-relaxed">
               Atenção: Ao confirmar a exclusão da sua conta:
             </p>
-            <ul className="list-disc list-inside space-y-1 text-xs text-red-800 dark:text-red-300">
+            <ul className="list-disc list-inside space-y-1 text-xs text-text-muted">
               <li>Seu acesso à plataforma SinalizeGO será cancelado imediatamente.</li>
               <li>Agendamentos futuros ativos serão cancelados.</li>
-              <li>Seus dados pessoais serão anonimizados conforme a Lei Geral de Proteção de Dados (LGPD).</li>
+              <li>Seus dados pessoais serão anonimizados conforme a legislação vigente.</li>
             </ul>
           </div>
 
           <div className="space-y-2">
             <label className="text-xs font-semibold text-text-secondary block">
-              Para confirmar, digite <strong className="text-red-600">EXCLUIR</strong> no campo abaixo:
+              Para confirmar, digite <strong className="text-danger">EXCLUIR</strong> no campo abaixo:
             </label>
             <input
               type="text"
               value={confirmationText}
               onChange={(e) => setConfirmationText(e.target.value)}
               placeholder="Digite EXCLUIR"
-              className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-surface text-text-primary outline-none focus:border-red-500"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-surface text-text-primary outline-none focus:border-danger transition-colors"
               data-testid="input-confirm-delete"
             />
           </div>
