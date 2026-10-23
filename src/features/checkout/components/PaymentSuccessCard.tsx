@@ -54,7 +54,9 @@ export const PaymentSuccessCard: React.FC<PaymentSuccessCardProps> = ({
     }
   }, [appointment.appointmentDate]);
 
-  const icsUrl = checkoutService.getIcsDownloadUrl(appointment.id);
+  const handleDownloadIcs = () => {
+    void checkoutService.downloadAppointmentIcs(appointment.id);
+  };
 
   const address = appointment.company
     ? [
@@ -149,21 +151,16 @@ export const PaymentSuccessCard: React.FC<PaymentSuccessCardProps> = ({
         </div>
 
         {/* Botão de Adicionar à Agenda (.ics) */}
-        <a
-          href={icsUrl}
-          download={`agendamento-${appointment.id.slice(0, 8)}.ics`}
-          className="block"
+        <Button
+          variant="outline"
+          size="md"
+          onClick={handleDownloadIcs}
+          leftIcon={<Download className="h-4 w-4 text-primary" />}
+          className="w-full text-xs font-semibold"
+          data-testid="download-ics-btn"
         >
-          <Button
-            variant="outline"
-            size="md"
-            leftIcon={<Download className="h-4 w-4 text-primary" />}
-            className="w-full text-xs font-semibold"
-            data-testid="download-ics-btn"
-          >
-            Adicionar à Agenda (Google / Apple / Outlook)
-          </Button>
-        </a>
+          Adicionar à Agenda (Google / Apple / Outlook)
+        </Button>
       </CardContent>
 
       <CardFooter className="p-4 pt-0 border-t border-border/60 bg-surface-raised/20 flex items-center justify-end">
